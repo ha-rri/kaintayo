@@ -1,33 +1,93 @@
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Image } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: '#FF6B35', // Orange color for active tab
+        tabBarInactiveTintColor: '#999', // Gray for inactive tabs
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopWidth: 1,
+          borderTopColor: '#eee',
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Food',
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require('@/assets/images/icons/food.png')}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? '#FF6B35' : '#999',
+              }}
+            />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="explore"
+        name="shake"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Shake',
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require('@/assets/images/icons/shake.png')}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? '#FF6B35' : '#999',
+              }}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="contribute"
+        options={{
+          title: 'Contribute',
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require('@/assets/images/icons/contribute.png')}
+              style={{
+                width: 28,
+                height: 28,
+                tintColor: focused ? '#FF6B35' : '#999',
+              }}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <Image
+              source={require('@/assets/images/icons/profile.png')}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? '#FF6B35' : '#999',
+              }}
+            />
+          ),
         }}
       />
     </Tabs>
