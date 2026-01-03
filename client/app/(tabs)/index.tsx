@@ -1,10 +1,16 @@
 import { View, Text, TextInput, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import Slider from '@react-native-community/slider';
 
 export default function FoodScreen() {
   const [limit, setLimit] = useState(150);
-  const [activeCategory, setActiveCategory] = useState('Outside Campus');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    console.log('Searching for:', searchQuery);
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -27,19 +33,35 @@ export default function FoodScreen() {
             style={styles.searchInput}
             placeholder="Search for cafés, restaurants, and launderettes"
             placeholderTextColor="#999"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
           />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color="#999" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      {/* Price Limit Slider */}
+      {/* Price Limit Slider - FIXED FOR PERFORMANCE! */}
       <View style={styles.limitSection}>
         <Text style={styles.limitLabel}>My Limit:</Text>
         <View style={styles.limitContainer}>
           <View style={styles.sliderContainer}>
-            <View style={styles.sliderTrack}>
-              <View style={[styles.sliderFill, { width: `${(limit / 300) * 100}%` }]} />
-              <View style={[styles.sliderThumb, { left: `${(limit / 300) * 100}%` }]} />
-            </View>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={500}
+              step={5}
+              value={limit}
+              onValueChange={setLimit}
+              minimumTrackTintColor="#FF6B35"
+              maximumTrackTintColor="#e0e0e0"
+              thumbTintColor="#FF6B35"
+            />
           </View>
           <View style={styles.limitBadge}>
             <Text style={styles.limitText}>₱{limit}</Text>
@@ -47,8 +69,12 @@ export default function FoodScreen() {
         </View>
       </View>
 
-      {/* Category Tabs */}
-      <View style={styles.categoryContainer}>
+      {/* Category Tabs - FIXED OVERFLOW! */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryContainer}
+      >
         <TouchableOpacity
           style={[styles.categoryTab, activeCategory === 'All' && styles.categoryTabActive]}
           onPress={() => setActiveCategory('All')}
@@ -75,7 +101,16 @@ export default function FoodScreen() {
             Outside Campus
           </Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
+
+      {/* Search Results Info */}
+      {searchQuery.length > 0 && (
+        <View style={styles.searchInfo}>
+          <Text style={styles.searchInfoText}>
+            Searching for: "{searchQuery}"
+          </Text>
+        </View>
+      )}
 
       {/* Food Place Card */}
       <View style={styles.cardContainer}>
@@ -149,6 +184,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+  searchInfo: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#fff5e6',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF6B35',
+  },
+  searchInfoText: {
+    fontSize: 14,
+    color: '#666',
+  },
   limitSection: {
     paddingHorizontal: 20,
     paddingVertical: 20,
@@ -171,33 +220,9 @@ const styles = StyleSheet.create({
   sliderContainer: {
     flex: 1,
   },
-  sliderTrack: {
-    height: 6,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 3,
-    position: 'relative',
-  },
-  sliderFill: {
-    position: 'absolute',
-    height: 6,
-    backgroundColor: '#FF6B35',
-    borderRadius: 3,
-  },
-  sliderThumb: {
-    position: 'absolute',
-    width: 20,
-    height: 20,
-    backgroundColor: '#FF6B35',
-    borderRadius: 10,
-    top: -7,
-    marginLeft: -10,
-    borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
+  slider: {
+    width: '100%',
+    height: 40,
   },
   limitBadge: {
     backgroundColor: '#fff',
@@ -213,7 +238,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   categoryContainer: {
-    flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 20,
     gap: 10,
@@ -225,6 +249,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     backgroundColor: '#fff',
+    marginRight: 10,
   },
   categoryTabActive: {
     backgroundColor: '#FF6B35',
