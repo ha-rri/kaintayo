@@ -1,0 +1,26 @@
+name: Sanity Check
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [develop]
+
+jobs:
+  check-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Server Deps
+        working-directory: ./server
+        run: npm ci
+
+  check-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Client Deps
+        working-directory: ./client
+        run: npm ci
+      - name: Lint Client
+        working-directory: ./client
+        run: npm run lint
