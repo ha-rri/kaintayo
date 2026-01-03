@@ -4,7 +4,10 @@ import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ContributeScreen() {
-  const [location, setLocation] = useState<string>('');
+  const [storeName, setStoreName] = useState<string>('');
+  const [landmark, setLandmark] = useState<string>('');
+  const [campusLocation, setCampusLocation] = useState<'Inside Campus' | 'Outside Campus' | ''>('');
+  const [showCampusDropdown, setShowCampusDropdown] = useState<boolean>(false);
   const [mealName, setMealName] = useState<string>('');
   const [regularPrice, setRegularPrice] = useState<string>('');
   const [halfOrderPrice, setHalfOrderPrice] = useState<string>('');
@@ -26,7 +29,9 @@ export default function ContributeScreen() {
 
   const handleSubmit = () => {
     console.log({
-      location,
+      storeName,
+      landmark,
+      campusLocation,
       mealName,
       regularPrice,
       halfOrderPrice: isHalfOrder ? halfOrderPrice : null,
@@ -50,15 +55,78 @@ export default function ContributeScreen() {
             <Ionicons name="location" size={20} color="#FF6B35" />
             <Text style={styles.sectionTitle}>Where are you?</Text>
           </View>
-          <View style={styles.inputContainer}>
-            <Ionicons name="search" size={18} color="#999" style={styles.inputIcon} />
+
+          {/* Store Name Input */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Store Name</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Search or Add a New Place"
+              style={styles.textInput}
+              placeholder="e.g. Streetside Lomi Haus"
               placeholderTextColor="#999"
-              value={location}
-              onChangeText={setLocation}
+              value={storeName}
+              onChangeText={setStoreName}
             />
+          </View>
+
+          {/* Nearest Landmark Input */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Nearest Landmark</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="e.g. Near Gate 1"
+              placeholderTextColor="#999"
+              value={landmark}
+              onChangeText={setLandmark}
+            />
+          </View>
+
+          {/* Inside or Outside Campus Dropdown */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.label}>Inside or Outside</Text>
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              onPress={() => setShowCampusDropdown(!showCampusDropdown)}
+            >
+              <Text style={[styles.dropdownText, !campusLocation && styles.placeholderText]}>
+                {campusLocation || 'Select location'}
+              </Text>
+              <Ionicons 
+                name={showCampusDropdown ? "chevron-up" : "chevron-down"} 
+                size={20} 
+                color="#666" 
+              />
+            </TouchableOpacity>
+
+            {/* Dropdown Options */}
+            {showCampusDropdown && (
+              <View style={styles.dropdownMenu}>
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setCampusLocation('Inside Campus');
+                    setShowCampusDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>Inside Campus</Text>
+                  {campusLocation === 'Inside Campus' && (
+                    <Ionicons name="checkmark" size={20} color="#FF6B35" />
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setCampusLocation('Outside Campus');
+                    setShowCampusDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownItemText}>Outside Campus</Text>
+                  {campusLocation === 'Outside Campus' && (
+                    <Ionicons name="checkmark" size={20} color="#FF6B35" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </View>
 
@@ -93,7 +161,7 @@ export default function ContributeScreen() {
             />
           </View>
 
-          {/* Price Fields - FIXED ALIGNMENT */}
+          {/* Price Fields */}
           <View style={styles.priceRow}>
             <View style={styles.priceField}>
               <View style={styles.labelContainer}>
@@ -199,24 +267,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
-  },
   imageUpload: {
     backgroundColor: '#f5f5f5',
     borderWidth: 2,
@@ -246,6 +296,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#666',
+    marginBottom: 8,
   },
   textInput: {
     backgroundColor: '#f8f8f8',
@@ -256,6 +307,49 @@ const styles = StyleSheet.create({
     color: '#333',
     borderWidth: 1,
     borderColor: '#e0e0e0',
+  },
+  dropdownButton: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  placeholderText: {
+    color: '#999',
+  },
+  dropdownMenu: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dropdownItemText: {
+    fontSize: 14,
+    color: '#333',
   },
   priceRow: {
     flexDirection: 'row',
@@ -270,7 +364,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
-    height: 20,
+    height: 30,
   },
   checkbox: {
     width: 20,
@@ -280,6 +374,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 10,
   },
   priceInputContainer: {
     flexDirection: 'row',
@@ -288,7 +383,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#e0e0e0',
   },
   disabledInput: {
