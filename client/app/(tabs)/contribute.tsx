@@ -4,24 +4,24 @@ import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ContributeScreen() {
-  const [location, setLocation] = useState('');
-  const [mealName, setMealName] = useState('');
-  const [regularPrice, setRegularPrice] = useState('');
-  const [halfOrderPrice, setHalfOrderPrice] = useState('');
-  const [isHalfOrder, setIsHalfOrder] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [location, setLocation] = useState<string>('');
+  const [mealName, setMealName] = useState<string>('');
+  const [regularPrice, setRegularPrice] = useState<string>('');
+  const [halfOrderPrice, setHalfOrderPrice] = useState<string>('');
+  const [isHalfOrder, setIsHalfOrder] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const pickImage = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ['images'], // Fixed: use string array instead of enum
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 1,
-  });
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    setSelectedImage(result.assets[0].uri);
-  }
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setSelectedImage(result.assets[0].uri);
+    }
   };
 
   const handleSubmit = () => {
@@ -32,7 +32,6 @@ export default function ContributeScreen() {
       halfOrderPrice: isHalfOrder ? halfOrderPrice : null,
       image: selectedImage,
     });
-    // Add your submit logic here
   };
 
   return (
@@ -94,15 +93,17 @@ export default function ContributeScreen() {
             />
           </View>
 
-          {/* Price Fields */}
+          {/* Price Fields - FIXED ALIGNMENT */}
           <View style={styles.priceRow}>
             <View style={styles.priceField}>
-              <Text style={styles.label}>Regular Price</Text>
+              <View style={styles.labelContainer}>
+                <Text style={styles.label}>Regular Price</Text>
+              </View>
               <View style={styles.priceInputContainer}>
                 <Text style={styles.currencySymbol}>₱</Text>
                 <TextInput
                   style={styles.priceInput}
-                  placeholder="70"
+                  placeholder="- - -"
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                   value={regularPrice}
@@ -112,7 +113,7 @@ export default function ContributeScreen() {
             </View>
 
             <View style={styles.priceField}>
-              <View style={styles.halfOrderHeader}>
+              <View style={styles.labelContainer}>
                 <Text style={styles.label}>Half Order</Text>
                 <TouchableOpacity 
                   style={styles.checkbox}
@@ -127,7 +128,7 @@ export default function ContributeScreen() {
                 <Text style={[styles.currencySymbol, !isHalfOrder && styles.disabledText]}>₱</Text>
                 <TextInput
                   style={[styles.priceInput, !isHalfOrder && styles.disabledText]}
-                  placeholder="35"
+                  placeholder="- - -"
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                   value={halfOrderPrice}
@@ -245,7 +246,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#666',
-    marginBottom: 8,
   },
   textInput: {
     backgroundColor: '#f8f8f8',
@@ -265,11 +265,12 @@ const styles = StyleSheet.create({
   priceField: {
     flex: 1,
   },
-  halfOrderHeader: {
+  labelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 8,
+    height: 20,
   },
   checkbox: {
     width: 20,
