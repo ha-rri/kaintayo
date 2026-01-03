@@ -3,10 +3,113 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import Slider from '@react-native-community/slider';
 
+// Mock Data
+const mockRestaurants = [
+  {
+    id: 1,
+    name: 'Streetside Lomi Haus',
+    location: 'Near Gate 1',
+    category: 'Outside Campus',
+    minPrice: 25,
+    maxPrice: 150,
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400',
+    tags: ['Filipino', 'Noodles', 'Comfort Food'],
+  },
+  {
+    id: 2,
+    name: 'Campus Canteen',
+    location: 'Main Building',
+    category: 'Inside Campus',
+    minPrice: 30,
+    maxPrice: 80,
+    image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400',
+    tags: ['Filipino', 'Rice Meals', 'Affordable'],
+  },
+  {
+    id: 3,
+    name: 'Coffee Bean Café',
+    location: 'Near Library',
+    category: 'Inside Campus',
+    minPrice: 50,
+    maxPrice: 200,
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400',
+    tags: ['Cafe', 'Coffee', 'Pastries'],
+  },
+  {
+    id: 4,
+    name: 'Burger King Express',
+    location: 'Gate 2 Area',
+    category: 'Outside Campus',
+    minPrice: 80,
+    maxPrice: 250,
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400',
+    tags: ['Fast Food', 'Burgers', 'American'],
+  },
+  {
+    id: 5,
+    name: 'Tapa King',
+    location: 'Near Parking',
+    category: 'Outside Campus',
+    minPrice: 60,
+    maxPrice: 180,
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400',
+    tags: ['Filipino', 'Breakfast', 'Rice Meals'],
+  },
+  {
+    id: 6,
+    name: 'Student Hub Cafeteria',
+    location: 'Student Center',
+    category: 'Inside Campus',
+    minPrice: 25,
+    maxPrice: 100,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400',
+    tags: ['Snacks', 'Drinks', 'Budget Friendly'],
+  },
+  {
+    id: 7,
+    name: 'Mang Inasal',
+    location: 'Main Road',
+    category: 'Outside Campus',
+    minPrice: 100,
+    maxPrice: 300,
+    image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400',
+    tags: ['Filipino', 'Grilled', 'Chicken'],
+  },
+  {
+    id: 8,
+    name: 'Milk Tea House',
+    location: 'Gate 3',
+    category: 'Outside Campus',
+    minPrice: 60,
+    maxPrice: 150,
+    image: 'https://images.unsplash.com/photo-1525385444071-b092b93ca120?w=400',
+    tags: ['Drinks', 'Milk Tea', 'Refreshments'],
+  },
+];
+
 export default function FoodScreen() {
   const [limit, setLimit] = useState(150);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter restaurants based on search, category, and price limit
+  const filteredRestaurants = mockRestaurants.filter((restaurant) => {
+    // Category filter
+    const categoryMatch = 
+      activeCategory === 'All' || restaurant.category === activeCategory;
+    
+    // Price filter - show if minimum price is within limit
+    const priceMatch = restaurant.minPrice <= limit;
+    
+    // Search filter
+    const searchMatch = 
+      searchQuery === '' ||
+      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      restaurant.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return categoryMatch && priceMatch && searchMatch;
+  });
 
   const handleSearch = () => {
     console.log('Searching for:', searchQuery);
@@ -46,7 +149,7 @@ export default function FoodScreen() {
         </View>
       </View>
 
-      {/* Price Limit Slider - FIXED FOR PERFORMANCE! */}
+      {/* Price Limit Slider */}
       <View style={styles.limitSection}>
         <Text style={styles.limitLabel}>My Limit:</Text>
         <View style={styles.limitContainer}>
@@ -54,8 +157,8 @@ export default function FoodScreen() {
             <Slider
               style={styles.slider}
               minimumValue={0}
-              maximumValue={500}
-              step={5}
+              maximumValue={300}
+              step={10}
               value={limit}
               onValueChange={setLimit}
               minimumTrackTintColor="#FF6B35"
@@ -69,7 +172,7 @@ export default function FoodScreen() {
         </View>
       </View>
 
-      {/* Category Tabs - FIXED OVERFLOW! */}
+      {/* Category Tabs */}
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
@@ -103,40 +206,57 @@ export default function FoodScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Search Results Info */}
-      {searchQuery.length > 0 && (
-        <View style={styles.searchInfo}>
-          <Text style={styles.searchInfoText}>
-            Searching for: "{searchQuery}"
+      {/* Results Count */}
+      <View style={styles.resultsCount}>
+        <Text style={styles.resultsText}>
+          {filteredRestaurants.length} {filteredRestaurants.length === 1 ? 'place' : 'places'} found
+        </Text>
+      </View>
+
+      {/* Restaurant Cards */}
+      {filteredRestaurants.length > 0 ? (
+        filteredRestaurants.map((restaurant) => (
+          <View key={restaurant.id} style={styles.cardContainer}>
+            <TouchableOpacity style={styles.card}>
+              <Image
+                source={{ uri: restaurant.image }}
+                style={styles.cardImage}
+              />
+              <View style={styles.cardBadge}>
+                <Text style={styles.cardBadgeText}>
+                  ₱{restaurant.minPrice} - ₱{restaurant.maxPrice}
+                </Text>
+              </View>
+              <View style={styles.cardContent}>
+                <View style={styles.categoryChip}>
+                  <Text style={styles.categoryChipText}>{restaurant.category}</Text>
+                </View>
+                <Text style={styles.cardTitle}>{restaurant.name}</Text>
+                <Text style={styles.cardLocation}>{restaurant.location}</Text>
+                <View style={styles.tagsContainer}>
+                  {restaurant.tags.map((tag, index) => (
+                    <View key={index} style={styles.tag}>
+                      <Text style={styles.tagText}>{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        ))
+      ) : (
+        /* Empty State */
+        <View style={styles.emptyState}>
+          <Ionicons name="sad-outline" size={64} color="#ccc" />
+          <Text style={styles.emptyTitle}>No places found!</Text>
+          <Text style={styles.emptySubtitle}>
+            {searchQuery ? 
+              `Try searching for something else or increase your limit.` :
+              `Increase your limit to discover more places!`
+            }
           </Text>
         </View>
       )}
-
-      {/* Food Place Card */}
-      <View style={styles.cardContainer}>
-        <View style={styles.card}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400' }}
-            style={styles.cardImage}
-          />
-          <View style={styles.cardBadge}>
-            <Text style={styles.cardBadgeText}>₱25 - ₱150</Text>
-          </View>
-          <View style={styles.cardContent}>
-            <View style={styles.categoryChip}>
-              <Text style={styles.categoryChipText}>Categories</Text>
-            </View>
-            <Text style={styles.cardTitle}>Streetside Lomi Haus</Text>
-            <Text style={styles.cardLocation}>Near Gate 1</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Empty State */}
-      <View style={styles.emptyState}>
-        <Text style={styles.emptyTitle}>Don't got what you're looking for?</Text>
-        <Text style={styles.emptySubtitle}>Increase your limit to discover more places!</Text>
-      </View>
     </ScrollView>
   );
 }
@@ -147,12 +267,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#FF6B35',
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+  backgroundColor: '#FF6B35',
+  paddingTop: 50,
+  paddingHorizontal: 20,
+  paddingBottom: 35, // Increased from 20 to 30 for more space
   },
   headerTop: {
     flexDirection: 'row',
@@ -184,27 +302,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  searchInfo: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#fff5e6',
-    marginHorizontal: 20,
-    marginTop: 10,
-    borderRadius: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#FF6B35',
-  },
-  searchInfoText: {
-    fontSize: 14,
-    color: '#666',
-  },
   limitSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#fff',
-    marginTop: -10,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+  paddingHorizontal: 20,
+  paddingVertical: 20,
+  backgroundColor: '#fff',
+  marginTop: -19, // Negative margin to overlap
+  borderTopLeftRadius: 20, // Only round the top corners
+  borderTopRightRadius: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 5,
+  elevation: 3,
   },
   limitLabel: {
     fontSize: 14,
@@ -263,8 +372,18 @@ const styles = StyleSheet.create({
   categoryTextActive: {
     color: '#fff',
   },
+  resultsCount: {
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+  },
+  resultsText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '600',
+  },
   cardContainer: {
     paddingHorizontal: 20,
+    marginBottom: 15,
   },
   card: {
     backgroundColor: '#fff',
@@ -320,21 +439,38 @@ const styles = StyleSheet.create({
   cardLocation: {
     fontSize: 13,
     color: '#666',
+    marginBottom: 8,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  tag: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  tagText: {
+    fontSize: 11,
+    color: '#666',
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 60,
     paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#333',
     textAlign: 'center',
-    marginBottom: 5,
+    marginTop: 20,
+    marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#999',
     textAlign: 'center',
   },
