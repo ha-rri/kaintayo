@@ -6,4 +6,5 @@ server/node_modules
 client/.expo
 client/dist
 
+.postman/
 .my_docs/

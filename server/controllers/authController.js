@@ -5,24 +5,18 @@ const User = require("../models/User");
 // @desc    Register new user
 // @route   POST /api/v1/auth/register
 // @access  Public
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Please add all fields" });
-    }
+    // We can rely on Mongoose 'required' validation,
+    // but sometimes explicit check is faster/cleaner for non-mongo validations.
+    // However, per plan, let's trust Mongoose for empty fields.
+    // We WILL keep manual email check if we want specific custom logic, but unique: true handles it.
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-
-    if (userExists) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
-    }
+    // Check if user exists (Optional: Mongoose unique index handles this too, but for clearer message...)
+    // Actually, errorMiddleware handles code 11000. So we CAN remove this.
+    // Let's rely on middleware for "Duplicate user".
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
@@ -47,18 +41,18 @@ const registerUser = async (req, res) => {
         },
       });
     } else {
-      res.status(400).json({ success: false, message: "Invalid user data" });
+      res.status(400);
+      throw new Error("Invalid user data");
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    next(error);
   }
 };
 
 // @desc    Authenticate a user
 // @route   POST /api/v1/auth/login
 // @access  Public
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -77,11 +71,11 @@ const loginUser = async (req, res) => {
         },
       });
     } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
+      res.status(401);
+      throw new Error("Invalid credentials");
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    next(error);
   }
 };
 

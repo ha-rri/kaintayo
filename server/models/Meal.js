@@ -40,4 +40,45 @@ const MealSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Static Method to get Price Range
+MealSchema.statics.computePriceRange = async function (placeId) {
+  try {
+    const obj = await this.aggregate([
+      {
+        $match: { place: placeId, isApproved: true },
+      },
+      {
+        $group: {
+          _id: "$place",
+          minPrice: { $min: "$priceRegular" },
+          maxPrice: { $max: "$priceRegular" },
+        },
+      },
+    ]);
+
+    try {
+      await mongoose.model("Place").findByIdAndUpdate(placeId, {
+        priceRange: {
+          min: obj[0]?.minPrice || 0,
+          max: obj[0]?.maxPrice || 0,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// Call after SAVE
+MealSchema.post("save", function () {
+  this.constructor.computePriceRange(this.place);
+});
+
+// Call after DELETE
+MealSchema.post("deleteOne", { document: true, query: false }, function () {
+  this.constructor.computePriceRange(this.place);
+});
+
 module.exports = mongoose.model("Meal", MealSchema);
