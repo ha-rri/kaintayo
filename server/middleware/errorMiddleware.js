@@ -27,6 +27,12 @@ const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 400 };
   }
 
+  // Zod Validation Error
+  if (err.name === "ZodError") {
+    const message = err.errors.map((val) => val.message).join(", ");
+    error = { message, statusCode: 400 };
+  }
+
   res.status(error.statusCode || 500).json({
     success: false,
     message: error.message || "Server Error",
