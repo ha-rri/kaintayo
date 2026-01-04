@@ -18,10 +18,7 @@ const PlaceSchema = new mongoose.Schema(
     },
     zoneMicro: {
       type: String,
-      required: [
-        true,
-        "Please specify the exact location (e.g. Gate 1, Main Bldg)",
-      ],
+      // Optional: Users might not know the exact "Micro" zone initially.
     },
 
     // Optimized for Filter Sliders
