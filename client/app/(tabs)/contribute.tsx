@@ -1,18 +1,119 @@
 import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+
+// Mock existing stores (Replace with API call to MongoDB)
+const existingStores = [
+  { 
+    id: 1, 
+    name: 'Streetside Lomi Haus', 
+    landmark: 'Near Gate 1', 
+    campusLocation: 'Outside Campus',
+    tags: ['Filipino', 'Noodles', 'Comfort Food']
+  },
+  { 
+    id: 2, 
+    name: 'Campus Canteen', 
+    landmark: 'Main Building', 
+    campusLocation: 'Inside Campus',
+    tags: ['Filipino', 'Rice Meals', 'Affordable']
+  },
+  { 
+    id: 3, 
+    name: 'Coffee Bean Café', 
+    landmark: 'Near Library', 
+    campusLocation: 'Inside Campus',
+    tags: ['Cafe', 'Coffee', 'Pastries']
+  },
+  { 
+    id: 4, 
+    name: 'Tapa King', 
+    landmark: 'Near Parking', 
+    campusLocation: 'Outside Campus',
+    tags: ['Filipino', 'Breakfast', 'Rice Meals']
+  },
+];
+
+// Predefined tags
+const availableTags = [
+  'Filipino', 'Chinese', 'Japanese', 'Korean', 'American', 'Italian',
+  'Fast Food', 'Cafe', 'Coffee', 'Tea', 'Desserts', 'Pastries',
+  'Rice Meals', 'Noodles', 'Pasta', 'Burgers', 'Pizza', 'Chicken',
+  'Grilled', 'Fried', 'Healthy', 'Vegetarian', 'Breakfast',
+  'Lunch', 'Dinner', 'Snacks', 'Drinks', 'Affordable', 'Budget Friendly',
+  'Premium', 'Student Favorite', 'Quick Bite', 'Comfort Food'
+];
 
 export default function ContributeScreen() {
   const [storeName, setStoreName] = useState<string>('');
+  const [storeSearchResults, setStoreSearchResults] = useState<any[]>([]);
+  const [showStoreDropdown, setShowStoreDropdown] = useState<boolean>(false);
+  const [selectedStore, setSelectedStore] = useState<any>(null);
+  const [isNewStore, setIsNewStore] = useState<boolean>(false);
+  
   const [landmark, setLandmark] = useState<string>('');
   const [campusLocation, setCampusLocation] = useState<'Inside Campus' | 'Outside Campus' | ''>('');
   const [showCampusDropdown, setShowCampusDropdown] = useState<boolean>(false);
+  
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showTagsSection, setShowTagsSection] = useState<boolean>(false);
+  
   const [mealName, setMealName] = useState<string>('');
   const [regularPrice, setRegularPrice] = useState<string>('');
   const [halfOrderPrice, setHalfOrderPrice] = useState<string>('');
   const [isHalfOrder, setIsHalfOrder] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // Search for existing stores
+  useEffect(() => {
+    if (storeName.length > 0) {
+      const results = existingStores.filter(store => 
+        store.name.toLowerCase().includes(storeName.toLowerCase())
+      );
+      setStoreSearchResults(results);
+      setShowStoreDropdown(true);
+      
+      // Check if it's a new store
+      const exactMatch = existingStores.find(
+        store => store.name.toLowerCase() === storeName.toLowerCase()
+      );
+      setIsNewStore(!exactMatch);
+    } else {
+      setStoreSearchResults([]);
+      setShowStoreDropdown(false);
+      setIsNewStore(false);
+    }
+  }, [storeName]);
+
+  // Auto-fill when existing store is selected
+  const selectExistingStore = (store: any) => {
+    setSelectedStore(store);
+    setStoreName(store.name);
+    setLandmark(store.landmark);
+    setCampusLocation(store.campusLocation);
+    setSelectedTags(store.tags);
+    setShowStoreDropdown(false);
+    setIsNewStore(false);
+    setShowTagsSection(false);
+  };
+
+  // Handle new store
+  const handleNewStore = () => {
+    setSelectedStore(null);
+    setShowStoreDropdown(false);
+    setIsNewStore(true);
+    setShowTagsSection(true);
+    // Keep the typed store name
+  };
+
+  const toggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -32,11 +133,14 @@ export default function ContributeScreen() {
       storeName,
       landmark,
       campusLocation,
+      tags: selectedTags,
+      isNewStore,
       mealName,
       regularPrice,
       halfOrderPrice: isHalfOrder ? halfOrderPrice : null,
       image: selectedImage,
     });
+    // TODO: Send to MongoDB API
   };
 
   return (
@@ -56,7 +160,7 @@ export default function ContributeScreen() {
             <Text style={styles.sectionTitle}>Where are you?</Text>
           </View>
 
-          {/* Store Name Input */}
+          {/* Store Name Input with Autocomplete */}
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>Store Name</Text>
             <TextInput
@@ -66,6 +170,50 @@ export default function ContributeScreen() {
               value={storeName}
               onChangeText={setStoreName}
             />
+
+            {/* Store Dropdown */}
+            {showStoreDropdown && storeSearchResults.length > 0 && (
+              <View style={styles.dropdownMenu}>
+                {storeSearchResults.map((store) => (
+                  <TouchableOpacity
+                    key={store.id}
+                    style={styles.dropdownItem}
+                    onPress={() => selectExistingStore(store)}
+                  >
+                    <View>
+                      <Text style={styles.dropdownItemText}>{store.name}</Text>
+                      <Text style={styles.dropdownItemSubtext}>{store.landmark}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#999" />
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={[styles.dropdownItem, styles.newStoreItem]}
+                  onPress={handleNewStore}
+                >
+                  <View style={styles.newStoreContent}>
+                    <Ionicons name="add-circle" size={20} color="#FF6B35" />
+                    <Text style={styles.newStoreText}>Add "{storeName}" as new store</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* New Store Badge */}
+            {isNewStore && (
+              <View style={styles.newStoreBadge}>
+                <Ionicons name="add-circle" size={16} color="#FF6B35" />
+                <Text style={styles.newStoreBadgeText}>New Store</Text>
+              </View>
+            )}
+
+            {/* Existing Store Badge */}
+            {selectedStore && (
+              <View style={styles.existingStoreBadge}>
+                <Ionicons name="checkmark-circle" size={16} color="#4CAF50" />
+                <Text style={styles.existingStoreBadgeText}>Existing Store</Text>
+              </View>
+            )}
           </View>
 
           {/* Nearest Landmark Input */}
@@ -77,6 +225,7 @@ export default function ContributeScreen() {
               placeholderTextColor="#999"
               value={landmark}
               onChangeText={setLandmark}
+              editable={isNewStore || !selectedStore}
             />
           </View>
 
@@ -86,6 +235,7 @@ export default function ContributeScreen() {
             <TouchableOpacity
               style={styles.dropdownButton}
               onPress={() => setShowCampusDropdown(!showCampusDropdown)}
+              disabled={selectedStore && !isNewStore}
             >
               <Text style={[styles.dropdownText, !campusLocation && styles.placeholderText]}>
                 {campusLocation || 'Select location'}
@@ -128,6 +278,49 @@ export default function ContributeScreen() {
               </View>
             )}
           </View>
+
+          {/* Tags Section (Only for new stores or when editing) */}
+          {(isNewStore || showTagsSection) && (
+            <View style={styles.fieldContainer}>
+              <View style={styles.tagsHeader}>
+                <Text style={styles.label}>Tags (Select all that apply)</Text>
+                <Text style={styles.tagsCount}>{selectedTags.length} selected</Text>
+              </View>
+              <View style={styles.tagsContainer}>
+                {availableTags.map((tag, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.tagChip,
+                      selectedTags.includes(tag) && styles.tagChipSelected
+                    ]}
+                    onPress={() => toggleTag(tag)}
+                  >
+                    <Text style={[
+                      styles.tagChipText,
+                      selectedTags.includes(tag) && styles.tagChipTextSelected
+                    ]}>
+                      {tag}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Show tags for existing stores (read-only) */}
+          {selectedStore && !isNewStore && selectedTags.length > 0 && (
+            <View style={styles.fieldContainer}>
+              <Text style={styles.label}>Store Tags</Text>
+              <View style={styles.tagsContainer}>
+                {selectedTags.map((tag, index) => (
+                  <View key={index} style={styles.tagChipReadOnly}>
+                    <Text style={styles.tagChipTextReadOnly}>{tag}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Meal Details Section */}
@@ -291,6 +484,7 @@ const styles = StyleSheet.create({
   },
   fieldContainer: {
     marginBottom: 15,
+    position: 'relative',
   },
   label: {
     fontSize: 13,
@@ -337,6 +531,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
+    maxHeight: 200,
   },
   dropdownItem: {
     flexDirection: 'row',
@@ -350,6 +545,105 @@ const styles = StyleSheet.create({
   dropdownItemText: {
     fontSize: 14,
     color: '#333',
+    fontWeight: '500',
+  },
+  dropdownItemSubtext: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  newStoreItem: {
+    backgroundColor: '#fff5f0',
+    borderBottomWidth: 0,
+  },
+  newStoreContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  newStoreText: {
+    fontSize: 14,
+    color: '#FF6B35',
+    fontWeight: '600',
+  },
+  newStoreBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#fff5f0',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  newStoreBadgeText: {
+    fontSize: 12,
+    color: '#FF6B35',
+    fontWeight: '600',
+  },
+  existingStoreBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#f0f9f4',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  existingStoreBadgeText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '600',
+  },
+  tagsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  tagsCount: {
+    fontSize: 12,
+    color: '#FF6B35',
+    fontWeight: '600',
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tagChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    backgroundColor: '#fff',
+  },
+  tagChipSelected: {
+    backgroundColor: '#FF6B35',
+    borderColor: '#FF6B35',
+  },
+  tagChipText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+  tagChipTextSelected: {
+    color: '#fff',
+  },
+  tagChipReadOnly: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+  },
+  tagChipTextReadOnly: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
   },
   priceRow: {
     flexDirection: 'row',
