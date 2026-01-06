@@ -53,7 +53,7 @@ const seedDB = async () => {
       {
         submittedBy: adminUser,
         name: "Ate Rica's Bacsilog",
-        zoneMacro: "Inside",
+        zoneMacro: "inside",
         zoneMicro: "Gate 1",
         amenities: ["Charging"],
         categories: ["Rice Meals"],
@@ -63,7 +63,7 @@ const seedDB = async () => {
       {
         submittedBy: adminUser,
         name: "Jollibee",
-        zoneMacro: "Outside",
+        zoneMacro: "outside",
         zoneMicro: "Gate 1",
         amenities: ["Aircon", "Wifi"],
         categories: ["Fast Food", "Chicken"],
@@ -73,7 +73,7 @@ const seedDB = async () => {
       {
         submittedBy: adminUser,
         name: "Dimsum Treats",
-        zoneMacro: "Outside",
+        zoneMacro: "outside",
         zoneMicro: "Dapitan",
         amenities: ["Aircon"],
         categories: ["Siomai", "Rice Meals"],

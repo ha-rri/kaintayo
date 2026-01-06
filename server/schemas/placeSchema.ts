@@ -3,8 +3,8 @@ import { z } from "zod";
 export const createPlaceSchema = z.object({
   body: z.object({
     name: z.string({ error: "Name is required" }).min(2, "Name too short"),
-    zoneMacro: z.enum(["Inside", "Outside"] as const, {
-      error: "Zone must be either 'Inside' or 'Outside'",
+    zoneMacro: z.enum(["inside", "outside"] as const, {
+      error: "Zone must be either 'inside' or 'outside'",
     }),
 
     // Optional fields
@@ -22,7 +22,7 @@ export const createPlaceSchema = z.object({
 export const updatePlaceSchema = z.object({
   body: z.object({
     name: z.string().min(2).optional(),
-    zoneMacro: z.enum(["Inside", "Outside"] as const).optional(),
+    zoneMacro: z.enum(["inside", "outside"] as const).optional(),
     zoneMicro: z.string().optional(),
     amenities: z
       .array(z.string(), { error: "Amenities must be an array of strings" })

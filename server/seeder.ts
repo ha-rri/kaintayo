@@ -50,7 +50,7 @@ const importData = async () => {
       {
         submittedBy: adminUser,
         name: "Ate Rica's Bacsilog",
-        zoneMacro: "Inside",
+        zoneMacro: "inside",
         zoneMicro: "Gate 1", // Just a sample
         amenities: ["Charging"],
         categories: ["Rice Meals"],
@@ -60,7 +60,7 @@ const importData = async () => {
       {
         submittedBy: adminUser,
         name: "Jollibee",
-        zoneMacro: "Outside",
+        zoneMacro: "outside",
         zoneMicro: "Gate 1",
         amenities: ["Aircon", "Wifi"],
         categories: ["Fast Food", "Chicken"],
@@ -70,7 +70,7 @@ const importData = async () => {
       {
         submittedBy: adminUser,
         name: "Dimsum Treats",
-        zoneMacro: "Outside",
+        zoneMacro: "outside",
         zoneMicro: "Dapitan",
         amenities: ["Aircon"],
         categories: ["Siomai", "Rice Meals"],
