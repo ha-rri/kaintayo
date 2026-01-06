@@ -1,10 +1,15 @@
-const Place = require("../models/Place");
-const Meal = require("../models/Meal");
+import { Request, Response, NextFunction } from "express";
+import Place from "../models/Place.js";
+import Meal from "../models/Meal.js";
 
 // @desc    Get all pending items (Places & Meals)
 // @route   GET /api/v1/admin/pending
 // @access  Private/Admin
-const getPendingItems = async (req, res, next) => {
+export const getPendingItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // 1. Get Pending Places
     const pendingPlaces = await Place.find({ status: "pending" })
@@ -20,6 +25,7 @@ const getPendingItems = async (req, res, next) => {
     res.json({
       success: true,
       lastUpdated: new Date(),
+      count: pendingPlaces.length + pendingMeals.length,
       data: {
         places: pendingPlaces,
         meals: pendingMeals,
@@ -33,7 +39,11 @@ const getPendingItems = async (req, res, next) => {
 // @desc    Approve an item
 // @route   PATCH /api/v1/admin/approve/:type/:id
 // @access  Private/Admin
-const approveItem = async (req, res, next) => {
+export const approveItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { type, id } = req.params;
 
@@ -78,7 +88,11 @@ const approveItem = async (req, res, next) => {
 // @desc    Reject (Delete) an item
 // @route   DELETE /api/v1/admin/reject/:type/:id
 // @access  Private/Admin
-const rejectItem = async (req, res, next) => {
+export const rejectItem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { type, id } = req.params;
 
@@ -107,10 +121,4 @@ const rejectItem = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getPendingItems,
-  approveItem,
-  rejectItem,
 };

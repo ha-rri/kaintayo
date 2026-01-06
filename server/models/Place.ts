@@ -1,6 +1,23 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Schema } from "mongoose";
 
-const PlaceSchema = new mongoose.Schema(
+export interface IPlace extends Document {
+  name: string;
+  zoneMacro: "inside" | "outside";
+  zoneMicro?: string;
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  amenities: string[];
+  categories: string[];
+  coverImage?: string;
+  status: "active" | "pending";
+  submittedBy?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const PlaceSchema = new Schema<IPlace>(
   {
     // Indexing name allows fast autocomplete search
     name: {
@@ -13,7 +30,7 @@ const PlaceSchema = new mongoose.Schema(
     // Filtering Fields
     zoneMacro: {
       type: String,
-      enum: ["Inside", "Outside"],
+      enum: ["inside", "outside"],
       required: [true, "Please specify if Inside or Outside campus"],
     },
     zoneMicro: {
@@ -48,4 +65,5 @@ const PlaceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Place", PlaceSchema);
+const Place = mongoose.model<IPlace>("Place", PlaceSchema);
+export default Place;

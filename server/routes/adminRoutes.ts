@@ -1,11 +1,11 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   getPendingItems,
   approveItem,
   rejectItem,
-} = require("../controllers/adminController");
-const { protect, admin } = require("../middleware/authMiddleware");
+} from "../controllers/adminController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
 
 // All routes are protected and admin-only
 router.use(protect);
@@ -15,4 +15,4 @@ router.get("/pending", getPendingItems);
 router.patch("/approve/:type/:id", approveItem);
 router.delete("/reject/:type/:id", rejectItem);
 
-module.exports = router;
+export default router;

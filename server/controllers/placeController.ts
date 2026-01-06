@@ -1,21 +1,45 @@
-const Place = require("../models/Place");
+import { Request, Response, NextFunction } from "express";
+import { Filter } from "mongodb";
+import Place, { IPlace } from "../models/Place.js";
+import { IUser } from "../models/User.js";
+
+// Interface for Protected Request
+interface AuthRequest extends Request {
+  user?: IUser;
+}
+
+interface PlaceQueryParams {
+  macro?: string;
+  micro?: string;
+  maxPrice?: string;
+  search?: string;
+  categories?: string;
+  amenities?: string;
+}
 
 // @desc    Get all places with filters
 // @route   GET /api/v1/places
 // @access  Public
-const getPlaces = async (req, res) => {
+export const getPlaces = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { macro, micro, maxPrice, search, categories, amenities } = req.query;
+    const { macro, micro, maxPrice, search, categories, amenities } =
+      req.query as unknown as PlaceQueryParams;
 
-    let query = { status: "active" };
+    const query: Filter<IPlace> = { status: "active" };
 
     // 1. Filter by Macro Zone (Inside/Outside)
     if (macro) {
-      query.zoneMacro = macro;
+      query.zoneMacro = macro as IPlace["zoneMacro"];
     }
 
     // 2. Filter by Price (budget <= min price of the place)
     if (maxPrice) {
+      // Mongoose supports 'priceRange.min' string path, but TS FilterQuery is stricter about keys.
+      // Localized cast allows this specific operation while keeping the rest type-safe.
       query["priceRange.min"] = { $lte: Number(maxPrice) };
     }
 
@@ -43,7 +67,8 @@ const getPlaces = async (req, res) => {
       query.$or = [{ name: { $regex: search, $options: "i" } }];
     }
 
-    const places = await Place.find(query).sort({ "priceRange.min": 1 });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const places = await Place.find(query as any).sort({ "priceRange.min": 1 });
 
     res.json({
       success: true,
@@ -58,7 +83,11 @@ const getPlaces = async (req, res) => {
 // @desc    Get single place
 // @route   GET /api/v1/places/:id
 // @access  Public
-const getPlace = async (req, res, next) => {
+export const getPlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const place = await Place.findById(req.params.id);
 
@@ -76,7 +105,11 @@ const getPlace = async (req, res, next) => {
 // @desc    Update place
 // @route   PUT /api/v1/places/:id
 // @access  Private/Admin
-const updatePlace = async (req, res, next) => {
+export const updatePlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const place = await Place.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -97,7 +130,11 @@ const updatePlace = async (req, res, next) => {
 // @desc    Delete place
 // @route   DELETE /api/v1/places/:id
 // @access  Private/Admin
-const deletePlace = async (req, res, next) => {
+export const deletePlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const place = await Place.findById(req.params.id);
 
@@ -106,16 +143,6 @@ const deletePlace = async (req, res, next) => {
       throw new Error("Place not found");
     }
 
-    // Trigger middleware to delete meals?
-    // Place.js doesn't have a pre-remove hook for meals yet, but usually we should.
-    // For MVP, simplistic delete is fine, or we can add logic here.
-    // Ideally, we delete associated meals.
-    // const Meal = require('../models/Meal');
-    // await Meal.deleteMany({ place: req.params.id });
-
-    // Using findByIdAndDelete vs remove()
-    // remove triggers hooks, findByIdAndDelete might not depending on config.
-    // Let's use deleteOne() on the document to be safe if we add hooks later.
     await place.deleteOne();
 
     res.json({ success: true, data: {}, message: "Place deleted" });
@@ -127,13 +154,21 @@ const deletePlace = async (req, res, next) => {
 // @desc    Create a new place
 // @route   POST /api/v1/places
 // @access  Private
-const createPlace = async (req, res, next) => {
+export const createPlace = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Safety First: All submissions (even Admin) start as pending
     // This allows reviewing data before it goes live.
+    if (!req.user) {
+      res.status(401);
+      throw new Error("User not found");
+    }
     const place = await Place.create({
       ...req.body,
-      submittedBy: req.user.id,
+      submittedBy: req.user._id,
       status: "pending",
     });
 
@@ -145,12 +180,4 @@ const createPlace = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getPlaces,
-  getPlace,
-  createPlace,
-  updatePlace,
-  deletePlace,
 };

@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router({ mergeParams: true });
-const {
+import {
   getMealsByPlace,
   createMeal,
   updateMeal,
   deleteMeal,
-} = require("../controllers/mealController");
-const { protect, admin } = require("../middleware/authMiddleware");
-const validate = require("../middleware/validateRequest");
-const { createMealSchema, updateMealSchema } = require("../schemas/mealSchema");
+} from "../controllers/mealController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+import validate from "../middleware/validateRequest.js";
+import { createMealSchema, updateMealSchema } from "../schemas/mealSchema.js";
 
 // /api/v1/places/:placeId/meals
 router
@@ -22,4 +22,4 @@ router
   .put(protect, admin, validate(updateMealSchema), updateMeal)
   .delete(protect, admin, deleteMeal);
 
-module.exports = router;
+export default router;

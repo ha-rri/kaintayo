@@ -1,10 +1,21 @@
-const Meal = require("../models/Meal");
-const Place = require("../models/Place");
+import { Request, Response, NextFunction } from "express";
+import Meal from "../models/Meal.js";
+import Place from "../models/Place.js";
+import { IUser } from "../models/User.js";
+
+// Interface for Protected Request (has user)
+interface AuthRequest extends Request {
+  user?: IUser;
+}
 
 // @desc    Get meals for a specific place
 // @route   GET /api/v1/places/:placeId/meals
 // @access  Public
-const getMealsByPlace = async (req, res, next) => {
+export const getMealsByPlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Check if place exists for the Menu Screen; only Approved Meals
     const meals = await Meal.find({
@@ -25,10 +36,20 @@ const getMealsByPlace = async (req, res, next) => {
 // @desc    Add a meal to a place
 // @route   POST /api/v1/places/:placeId/meals
 // @access  Private
-const createMeal = async (req, res, next) => {
+export const createMeal = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     req.body.place = req.params.placeId;
-    req.body.submittedBy = req.user.id;
+
+    // Ensure user exists (should be handled by protect, but for TS safety)
+    if (!req.user) {
+      res.status(401);
+      throw new Error("User not authenticated");
+    }
+    req.body.submittedBy = req.user._id;
 
     const place = await Place.findById(req.params.placeId);
     if (!place) {
@@ -54,7 +75,11 @@ const createMeal = async (req, res, next) => {
 // @desc    Update meal
 // @route   PUT /api/v1/meals/:id
 // @access  Private/Admin
-const updateMeal = async (req, res, next) => {
+export const updateMeal = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const meal = await Meal.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -78,7 +103,11 @@ const updateMeal = async (req, res, next) => {
 // @desc    Delete meal
 // @route   DELETE /api/v1/meals/:id
 // @access  Private/Admin
-const deleteMeal = async (req, res, next) => {
+export const deleteMeal = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const meal = await Meal.findById(req.params.id);
 
@@ -93,11 +122,4 @@ const deleteMeal = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-module.exports = {
-  getMealsByPlace,
-  createMeal,
-  updateMeal,
-  deleteMeal,
 };

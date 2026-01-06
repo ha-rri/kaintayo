@@ -5,15 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js",
-    "start": "node index.js",
-    "data:import": "node seeder",
-    "data:destroy": "node seeder -d"
+    "dev": "tsx watch index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "data:import": "tsx seeder.ts",
+    "data:destroy": "tsx seeder.ts -d"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -25,6 +26,17 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@eslint/js": "^9.39.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.0.3",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0"
   }
 }
