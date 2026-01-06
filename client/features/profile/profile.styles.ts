@@ -1,43 +1,10 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  /* --- Shared / Container --- */
   container: {
     flex: 1,
     backgroundColor: "#e8e8e8",
-  },
-  header: {
-    backgroundColor: "#FF6B35",
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    flexDirection: "column",
-    alignItems: "flex-start",
-  },
-  authHeader: {
-    backgroundColor: "#FF6B35",
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButton: {
-    marginRight: 10,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#fff",
-  },
-  authHeaderTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: "#fff",
-    opacity: 0.8,
   },
   content: {
     flex: 1,
@@ -55,6 +22,26 @@ export const styles = StyleSheet.create({
     backgroundColor: "#c4c4c4",
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  /* --- Guest View (Landing) --- */
+  header: {
+    backgroundColor: "#FF6B35",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: "#fff",
+    opacity: 0.8,
   },
   ctaTitle: {
     fontSize: 24,
@@ -103,6 +90,24 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#fff",
+  },
+
+  /* --- Auth View (Tabs & Container) --- */
+  authHeader: {
+    backgroundColor: "#FF6B35",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  authHeaderTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  backButton: {
+    marginRight: 10,
   },
   authContent: {
     flex: 1,
