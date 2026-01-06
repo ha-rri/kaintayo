@@ -193,7 +193,7 @@ export default function ContributeScreen() {
                 >
                   <View style={styles.newStoreContent}>
                     <Ionicons name="add-circle" size={20} color="#FF6B35" />
-                    <Text style={styles.newStoreText}>Add "{storeName}" as new store</Text>
+                    <Text style={styles.newStoreText}>Add &quot;{storeName}&quot; as new store</Text>
                   </View>
                 </TouchableOpacity>
               </View>
