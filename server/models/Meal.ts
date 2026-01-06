@@ -1,6 +1,25 @@
-const mongoose = require("mongoose");
+import mongoose, { Document, Model, Schema } from "mongoose";
+import Place from "./Place.js";
 
-const MealSchema = new mongoose.Schema(
+// 1. Interface for Document
+export interface IMeal extends Document {
+  place: mongoose.Types.ObjectId;
+  title: string;
+  priceRegular: number;
+  priceHalf?: number;
+  imageUrl?: string;
+  isApproved: boolean;
+  submittedBy?: mongoose.Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 2. Interface for Model (Statics)
+interface IMealModel extends Model<IMeal> {
+  computePriceRange(_placeId: mongoose.Types.ObjectId): Promise<void>;
+}
+
+const MealSchema = new Schema<IMeal, IMealModel>(
   {
     place: {
       type: mongoose.Schema.Types.ObjectId,
@@ -14,7 +33,7 @@ const MealSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // The Student Hack
+    // Student Hack
     priceRegular: {
       type: Number,
       required: [true, "Please provide the regular price"],
@@ -41,7 +60,9 @@ const MealSchema = new mongoose.Schema(
 );
 
 // Static Method to get Price Range
-MealSchema.statics.computePriceRange = async function (placeId) {
+MealSchema.statics.computePriceRange = async function (
+  placeId: mongoose.Types.ObjectId
+) {
   try {
     const obj = await this.aggregate([
       {
@@ -57,7 +78,7 @@ MealSchema.statics.computePriceRange = async function (placeId) {
     ]);
 
     try {
-      await mongoose.model("Place").findByIdAndUpdate(placeId, {
+      await Place.findByIdAndUpdate(placeId, {
         priceRange: {
           min: obj[0]?.minPrice || 0,
           max: obj[0]?.maxPrice || 0,
@@ -73,12 +94,13 @@ MealSchema.statics.computePriceRange = async function (placeId) {
 
 // Call after SAVE
 MealSchema.post("save", function () {
-  this.constructor.computePriceRange(this.place);
+  (this.constructor as IMealModel).computePriceRange(this.place);
 });
 
 // Call after DELETE
 MealSchema.post("deleteOne", { document: true, query: false }, function () {
-  this.constructor.computePriceRange(this.place);
+  (this.constructor as IMealModel).computePriceRange(this.place);
 });
 
-module.exports = mongoose.model("Meal", MealSchema);
+const Meal = mongoose.model<IMeal, IMealModel>("Meal", MealSchema);
+export default Meal;
