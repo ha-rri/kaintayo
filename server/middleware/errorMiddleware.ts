@@ -61,7 +61,8 @@ export const errorHandler = (
     error = { message, statusCode: 400 };
   }
 
-  res.status(error.statusCode || 500).json({
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(error.statusCode || statusCode).json({
     success: false,
     message: error.message || "Server Error",
   });
