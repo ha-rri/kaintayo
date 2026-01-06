@@ -1,29 +1,28 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   getPlaces,
   getPlace,
   createPlace,
   updatePlace,
   deletePlace,
-} = require("../controllers/placeController");
-const { protect, admin } = require("../middleware/authMiddleware");
-const validate = require("../middleware/validateRequest");
-const {
+} from "../controllers/placeController.js";
+import { protect, admin } from "../middleware/authMiddleware.js";
+import validate from "../middleware/validateRequest.js";
+import {
   createPlaceSchema,
   updatePlaceSchema,
-} = require("../schemas/placeSchema");
+} from "../schemas/placeSchema.js";
 
 // Re-route into other resource routers
-const mealRouter = require("./mealRoutes");
+import mealRouter from "./mealRoutes.js";
 router.use("/:placeId/meals", mealRouter);
 
 // Public: Get all places (Feed)
-
 router.get("/", getPlaces);
 
-// Protected: Create new place (Admin only)
-router.post("/", protect, admin, validate(createPlaceSchema), createPlace);
+// Protected: Create new place (Pending for regular users)
+router.post("/", protect, validate(createPlaceSchema), createPlace);
 
 // Single Place Operations
 router
@@ -32,4 +31,4 @@ router
   .put(protect, admin, validate(updatePlaceSchema), updatePlace)
   .delete(protect, admin, deletePlace);
 
-module.exports = router;
+export default router;
