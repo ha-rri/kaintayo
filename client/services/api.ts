@@ -31,13 +31,18 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Skip session expiry check for Login/Register endpoints
+    if (
+      error.config?.url?.includes("/auth/login") ||
+      error.config?.url?.includes("/auth/register")
+    ) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401) {
       // Token expired or invalid
       await SecureStore.deleteItemAsync("token");
-      // Redirect to Auth (Implementation will be in AuthContext, but this is a failsafe)
-      // We can emit an event or let AuthContext handle the state check
       console.log("Session expired. Logging out...");
-      // router.replace("/profile"); // Optional: Force redirect
     }
     return Promise.reject(error);
   }

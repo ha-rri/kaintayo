@@ -83,7 +83,7 @@ export const loginUser = async (
       });
     } else {
       res.status(401);
-      throw new Error("Invalid credentials");
+      throw new Error("Incorrect email or password");
     }
   } catch (error) {
     next(error);
