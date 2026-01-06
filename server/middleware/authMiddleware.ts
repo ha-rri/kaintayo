@@ -30,29 +30,31 @@ export const protect = async (
       // Get user from the token, exclude password
       // We assume decoded has 'id'
       const user = await User.findById(decoded.id).select("-password");
-      if (user) {
-        req.user = user;
+
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          message: "User not found"
+        });
+        return;
       }
 
+      req.user = user;
       next();
     } catch (error) {
       console.error(error);
-      res
-        .status(401)
-        .json({
-          success: false,
-          message: "Session expired or invalid. Please log in again.",
-        });
+      res.status(401).json({
+        success: false,
+        message: "Session expired or invalid. Please log in again.",
+      });
     }
   }
 
   if (!token) {
-    res
-      .status(401)
-      .json({
-        success: false,
-        message: "Authentication required. Please log in.",
-      });
+    res.status(401).json({
+      success: false,
+      message: "Authentication required. Please log in.",
+    });
   }
 };
 

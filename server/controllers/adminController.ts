@@ -25,6 +25,7 @@ export const getPendingItems = async (
     res.json({
       success: true,
       lastUpdated: new Date(),
+      count: pendingPlaces.length + pendingMeals.length,
       data: {
         places: pendingPlaces,
         meals: pendingMeals,
