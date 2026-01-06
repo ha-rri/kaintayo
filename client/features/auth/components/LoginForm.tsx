@@ -10,14 +10,14 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { loginSchema } from "@/schemas/authSchema";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { authStyles as styles } from "@/styles/auth.styles"; // Shared Styles
+import { authStyles as styles } from "@/features/auth/styles/auth.styles"; // Shared Styles
 import { errorStyles } from "@/styles/error.styles";
-import { FormError } from "../ui/FormError";
+import { FormError } from "@/components/ui/FormError";
 
 // Type derived from schema
-type FormData = import("@/services/authService").LoginInput;
+type FormData = import("@/features/auth/services/auth.service").LoginInput;
 
 export default function LoginForm() {
   const { login } = useAuth();

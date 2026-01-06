@@ -9,14 +9,17 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/schemas/authSchema";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/features/auth/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
-import { authStyles as styles } from "@/styles/auth.styles"; // Shared Styles
-import { FormError } from "../ui/FormError";
+import { authStyles as styles } from "@/features/auth/styles/auth.styles";
+import { FormError } from "@/components/ui/FormError";
 import { errorStyles } from "@/styles/error.styles";
 
 // Clean import type
-import type { RegisterRequest, RegisterInput } from "@/services/authService";
+import type {
+  RegisterRequest,
+  RegisterInput,
+} from "@/features/auth/services/auth.service";
 
 export default function RegisterForm() {
   const { register } = useAuth();

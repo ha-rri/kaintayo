@@ -1,7 +1,7 @@
-import api from "./api";
-import { User } from "../types/User";
+import api from "@/lib/axios";
+import { User } from "@/types/User";
 import { z } from "zod";
-import { loginSchema, registerSchema } from "../schemas/authSchema";
+import { loginSchema, registerSchema } from "@/schemas/authSchema";
 import * as SecureStore from "expo-secure-store";
 
 const TOKEN_KEY = "token";

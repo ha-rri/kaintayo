@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import authService, {
   LoginInput,
   RegisterRequest,
-} from "../services/authService";
-import { User } from "../types/User";
+} from "../services/auth.service";
+import { User } from "@/types/User";
 
 interface AuthContextType {
   user: User | null;

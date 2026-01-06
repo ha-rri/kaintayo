@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/lib/axios";
 import Config from "@/constants/Config";
 import { Place } from "@/types/Place";
 import { MOCK_PLACES } from "@/constants/mockData";
