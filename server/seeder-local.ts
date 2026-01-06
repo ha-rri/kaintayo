@@ -1,26 +1,30 @@
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const bcrypt = require("bcryptjs");
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
+import User from "./models/User.js";
+import Place from "./models/Place.js";
+import Meal from "./models/Meal.js";
 
-// Load env vars
 dotenv.config();
 
-// Load Models
-const User = require("./models/User");
-const Place = require("./models/Place");
-const Meal = require("./models/Meal");
+// --- CONFIGURATION ---
+// ON DEFENSE DAY: Open CMD, run 'ipconfig', and paste the IPv4 here.
+const LAPTOP_IP = "192.168.1.XX";
+const PORT = "5000";
+const BASE_IMG_URL = `http://${LAPTOP_IP}:${PORT}/images`;
 
-// Connect to DB
-mongoose.connect(process.env.MONGO_URI);
-
-const importData = async () => {
+// --- SEED LOGIC ---
+const seedDB = async () => {
   try {
-    // 1. Clear Data
-    await User.deleteMany();
-    await Place.deleteMany();
-    await Meal.deleteMany();
+    // FORCE LOCAL CONNECTION
+    await mongoose.connect("mongodb://127.0.0.1:27017/kaintayo");
+    console.log("Connected to LOCAL MongoDB");
 
-    console.log("Data Destroyed...");
+    // 1. Clear Data
+    await User.deleteMany({});
+    await Place.deleteMany({});
+    await Meal.deleteMany({});
+    console.log("Cleared old data");
 
     // 2. Create Users
     const salt = await bcrypt.genSalt(10);
@@ -43,18 +47,18 @@ const importData = async () => {
 
     const adminUser = createdUsers[0]._id;
 
-    // 3. Create Places
+    // 3. Create Places (With Local Images)
+    // Note: You must ensure these images exist in server/public/images/
     const places = await Place.create([
       {
         submittedBy: adminUser,
         name: "Ate Rica's Bacsilog",
         zoneMacro: "Inside",
-        zoneMicro: "Gate 1", // Just a sample
+        zoneMicro: "Gate 1",
         amenities: ["Charging"],
         categories: ["Rice Meals"],
-        priceRange: { min: 69, max: 80 }, // Will be overwritten by meal calc
         status: "active",
-        coverImage: "https://placehold.co/600x400/orange/white?text=Bacsilog",
+        coverImage: `${BASE_IMG_URL}/bacsilog.jpg`,
       },
       {
         submittedBy: adminUser,
@@ -64,7 +68,7 @@ const importData = async () => {
         amenities: ["Aircon", "Wifi"],
         categories: ["Fast Food", "Chicken"],
         status: "active",
-        coverImage: "https://placehold.co/600x400/red/white?text=Jollibee",
+        coverImage: `${BASE_IMG_URL}/jollibee.jpg`,
       },
       {
         submittedBy: adminUser,
@@ -74,14 +78,13 @@ const importData = async () => {
         amenities: ["Aircon"],
         categories: ["Siomai", "Rice Meals"],
         status: "active",
-        coverImage: "https://placehold.co/600x400/green/white?text=Dimsum",
+        coverImage: `${BASE_IMG_URL}/dimsum.jpg`,
       },
     ]);
 
-    console.log("Places Imported...");
+    console.log("Places Seeded locally...");
 
     // 4. Create Meals
-    // Note: prices might range.
     await Meal.create([
       {
         submittedBy: adminUser,
@@ -113,34 +116,21 @@ const importData = async () => {
       },
     ]);
 
-    // 5. Trigger Re-Calculation (Since insert might not trigger aggregate hook perfectly)
-    // Actually, create() triggers save hook. So logic should run.
-    console.log("Meals Imported...");
+    console.log("Meals Seeded locally...");
 
-    console.log("Data Imported!");
+    // 5. Force Price Recalculation
+    await Meal.computePriceRange(places[0]._id);
+    await Meal.computePriceRange(places[1]._id);
+    await Meal.computePriceRange(places[2]._id);
+    console.log("Price Ranges Calculated...");
+
+    console.log("Local Seeding Complete!");
+
     process.exit();
   } catch (err) {
-    console.error(`${err}`);
+    console.error(err);
     process.exit(1);
   }
 };
 
-const destroyData = async () => {
-  try {
-    await User.deleteMany();
-    await Place.deleteMany();
-    await Meal.deleteMany();
-
-    console.log("Data Destroyed!");
-    process.exit();
-  } catch (err) {
-    console.error(`${err}`);
-    process.exit(1);
-  }
-};
-
-if (process.argv[2] === "-d") {
-  destroyData();
-} else {
-  importData();
-}
+seedDB();
