@@ -32,7 +32,7 @@ const placeService = {
         data = data.filter(
           (p) =>
             p.name.toLowerCase().includes(q) ||
-            p.categories.some((c) => c.toLowerCase().includes(q))
+            p.categories.some((c: string) => c.toLowerCase().includes(q))
         );
       }
 

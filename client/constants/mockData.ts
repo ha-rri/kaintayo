@@ -13,7 +13,7 @@ export const MOCK_USER: User = {
 };
 
 // SYNCED WITH SERVER/DATA/MASTERSEED.TS
-export const MOCK_PLACES: any[] = [
+export const MOCK_PLACES: Place[] = [
   {
     _id: "place_1",
     name: "Streetside Lomi Haus",
@@ -35,6 +35,7 @@ export const MOCK_PLACES: any[] = [
         title: "4pc Teriyaki Chicken w/ Rice",
         priceRegular: 169,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m1_2",
@@ -42,6 +43,7 @@ export const MOCK_PLACES: any[] = [
         title: "Spamsilog",
         priceRegular: 89,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m1_3",
@@ -49,6 +51,7 @@ export const MOCK_PLACES: any[] = [
         title: "Sisigsilog",
         priceRegular: 89,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m1_4",
@@ -57,6 +60,7 @@ export const MOCK_PLACES: any[] = [
         priceRegular: 89,
         priceHalf: 50,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -82,6 +86,7 @@ export const MOCK_PLACES: any[] = [
         priceRegular: 65,
         priceHalf: 40,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m2_2",
@@ -90,6 +95,7 @@ export const MOCK_PLACES: any[] = [
         priceRegular: 70,
         priceHalf: 45,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m2_3",
@@ -97,6 +103,7 @@ export const MOCK_PLACES: any[] = [
         title: "Lumpia Shanghai",
         priceRegular: 40,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -121,6 +128,7 @@ export const MOCK_PLACES: any[] = [
         title: "Iced Caramel Latte",
         priceRegular: 120,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m3_2",
@@ -128,6 +136,7 @@ export const MOCK_PLACES: any[] = [
         title: "Blueberry Muffin",
         priceRegular: 85,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -152,6 +161,7 @@ export const MOCK_PLACES: any[] = [
         title: "Whopper Meal",
         priceRegular: 180,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m4_2",
@@ -159,6 +169,7 @@ export const MOCK_PLACES: any[] = [
         title: "Chicken Fries",
         priceRegular: 120,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -183,6 +194,7 @@ export const MOCK_PLACES: any[] = [
         title: "Tapsilog",
         priceRegular: 95,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m5_2",
@@ -190,6 +202,7 @@ export const MOCK_PLACES: any[] = [
         title: "Bangsilog",
         priceRegular: 90,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -215,6 +228,7 @@ export const MOCK_PLACES: any[] = [
         priceRegular: 45,
         priceHalf: 25,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m6_2",
@@ -223,6 +237,7 @@ export const MOCK_PLACES: any[] = [
         priceRegular: 50,
         priceHalf: 30,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -247,6 +262,7 @@ export const MOCK_PLACES: any[] = [
         title: "PM1 (Chicken Inasal)",
         priceRegular: 159,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m7_2",
@@ -254,6 +270,7 @@ export const MOCK_PLACES: any[] = [
         title: "Halo-Halo",
         priceRegular: 69,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },
@@ -278,6 +295,7 @@ export const MOCK_PLACES: any[] = [
         title: "Classic Milk Tea",
         priceRegular: 80,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
       {
         _id: "m8_2",
@@ -285,6 +303,7 @@ export const MOCK_PLACES: any[] = [
         title: "Taro Milk Tea",
         priceRegular: 90,
         isApproved: true,
+        submittedBy: "StudentFoodie",
       },
     ],
   },

@@ -13,13 +13,8 @@ export interface Place {
   categories: string[];
   coverImage?: string;
   status: "active" | "pending";
-  submittedBy?: string; // DEFAULT: ObjectId string
+  submittedBy?: { username: string }; // Strictly Object. We trust the backend populate.
   createdAt: string;
   updatedAt: string;
   meals?: Meal[];
-}
-
-// For the Modal/Detail View where we populate
-export interface PopulatedPlace extends Omit<Place, "submittedBy"> {
-  submittedBy?: { username: string }; // Strictly Object. We trust the backend populate.
 }
