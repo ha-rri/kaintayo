@@ -99,10 +99,4 @@ export const authStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
   },
-
-  // Errors
-  fieldError: {
-    fontSize: 12,
-    color: "#FF4444",
-  },
 });
