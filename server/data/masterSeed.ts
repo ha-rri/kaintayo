@@ -9,12 +9,31 @@ export interface SeedPlace {
   name: string;
   zoneMacro: string;
   zoneMicro: string;
+  priceRange: {
+    min: number;
+    max: number;
+  };
   amenities: string[];
   categories: string[];
-  status: "active" | "pending";
   coverImage: string;
+  status: "active" | "pending";
   meals: SeedMeal[];
 }
+
+export const MASTER_USERS = [
+  {
+    username: "StudentFoodie",
+    email: "student@university.edu.ph",
+    password: "password123",
+    role: "user",
+  },
+  {
+    username: "AdminUser",
+    email: "admin@university.edu.ph",
+    password: "password123",
+    role: "admin",
+  },
+];
 
 // Standardized Constants
 // Categories: Rice Meals, Karinderya, Cafe, Meryenda, Drinks, Konbini, Fast Food, Unli Rice
@@ -26,6 +45,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Streetside Lomi Haus",
     zoneMacro: "outside",
     zoneMicro: "Gate 1 Side",
+    priceRange: { min: 0, max: 0 },
     amenities: [],
     categories: ["Karinderya", "Meryenda"],
     coverImage:
@@ -46,6 +66,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Campus Canteen",
     zoneMacro: "inside",
     zoneMicro: "Main Building",
+    priceRange: { min: 40, max: 70 },
     amenities: [],
     categories: ["Rice Meals", "Karinderya"],
     coverImage:
@@ -71,6 +92,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Coffee Bean Café",
     zoneMacro: "inside",
     zoneMicro: "Library",
+    priceRange: { min: 85, max: 120 },
     amenities: ["Wifi", "Aircon", "Charging"],
     categories: ["Cafe", "Drinks"],
     coverImage:
@@ -85,6 +107,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Burger King Express",
     zoneMacro: "outside",
     zoneMicro: "Gate 2 Side",
+    priceRange: { min: 120, max: 180 },
     amenities: ["Aircon", "Wifi"],
     categories: ["Fast Food"],
     coverImage:
@@ -99,6 +122,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Tapa King",
     zoneMacro: "outside",
     zoneMicro: "Gate 3 Side",
+    priceRange: { min: 90, max: 95 },
     amenities: ["Aircon"],
     categories: ["Rice Meals"],
     coverImage:
@@ -113,6 +137,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Student Hub Cafeteria",
     zoneMacro: "inside",
     zoneMicro: "Student Center",
+    priceRange: { min: 25, max: 50 },
     amenities: ["Wifi", "Aircon", "Charging"],
     categories: ["Karinderya", "Meryenda", "Drinks"],
     coverImage:
@@ -132,6 +157,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Mang Inasal",
     zoneMacro: "outside",
     zoneMicro: "Gate 1 Side",
+    priceRange: { min: 69, max: 159 },
     amenities: ["Aircon"],
     categories: ["Rice Meals", "Unli Rice", "Fast Food"],
     coverImage:
@@ -146,6 +172,7 @@ export const MASTER_PLACES: SeedPlace[] = [
     name: "Milk Tea House",
     zoneMacro: "outside",
     zoneMicro: "Gate 3 Side",
+    priceRange: { min: 80, max: 90 },
     amenities: ["Aircon", "Wifi"],
     categories: ["Drinks"],
     coverImage:
