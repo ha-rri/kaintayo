@@ -18,10 +18,8 @@ export default function DirectoryScreen() {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Derive filters for hook
-  // Note: Client-side filtering for 'limit' is usually better for immediate feedback,
-  // but we can also pass it to the hook if we want server-side filtering.
-  // For now, let's fetch based on search/category and filter price locally to match legacy behavior
+  // Server-Side Filtering:
+  // Fetch based on Category (Zone) and Search Query to reduce payload and handle indexing.
   const filters: any = {};
   if (activeCategory === "Inside Campus") filters.zoneMacro = "inside";
   if (activeCategory === "Outside Campus") filters.zoneMacro = "outside";
@@ -29,8 +27,8 @@ export default function DirectoryScreen() {
 
   const { data: places = [], isLoading } = usePlaces(filters);
 
-  // Client-side Price Filtering
-  // (We do this here to maintain the "slider" responsiveness without refetching on every slide)
+  // Client-Side Filtering (Price):
+  // Filter locally to maintain immediate responsiveness for the slider (no network lag).
   const filteredPlaces = useMemo(() => {
     return places.filter((place) => place.priceRange.min <= limit);
   }, [places, limit]);
