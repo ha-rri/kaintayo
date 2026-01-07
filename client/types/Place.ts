@@ -4,7 +4,7 @@ export interface Place {
   _id: string;
   name: string;
   zoneMacro: "inside" | "outside";
-  zoneMicro?: string;
+  nearestLandmark?: string;
   priceRange: {
     min: number;
     max: number;

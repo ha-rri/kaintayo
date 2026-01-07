@@ -31,7 +31,7 @@ const importData = async () => {
       const place = await Place.create({
         name: placeData.name,
         zoneMacro: placeData.zoneMacro,
-        zoneMicro: placeData.zoneMicro,
+        nearestLandmark: placeData.nearestLandmark,
         priceRange: placeData.priceRange, // Initial value, will be recalc'd
         amenities: placeData.amenities,
         categories: placeData.categories,

@@ -11,7 +11,6 @@ interface AuthRequest extends Request {
 
 interface PlaceQueryParams {
   zoneMacro?: string;
-  micro?: string;
   maxPrice?: string;
   search?: string;
   categories?: string;
@@ -27,8 +26,13 @@ export const getPlaces = async (
   next: NextFunction
 ) => {
   try {
-    const { zoneMacro, micro, maxPrice, search, categories, amenities } =
-      req.query as unknown as PlaceQueryParams;
+    const {
+      zoneMacro,
+      maxPrice,
+      search,
+      categories,
+      amenities,
+    } = req.query as unknown as PlaceQueryParams;
 
     const query: Filter<IPlace> = { status: "active" };
 
@@ -44,26 +48,21 @@ export const getPlaces = async (
       query["priceRange.min"] = { $lte: Number(maxPrice) };
     }
 
-    // 3. Filter by Micro Zone (Exact Match)
-    if (micro) {
-      query.zoneMicro = micro;
-    }
-
-    // 4. Filter by Categories (OR Logic - Discovery)
+    // 3. Filter by Categories (OR Logic - Discovery)
     // "Show me Rice Meals OR Meryenda"
     if (categories) {
       const categoryArray = categories.split(",");
       query.categories = { $in: categoryArray };
     }
 
-    // 5. Filter by Amenities (AND Logic - Constraint)
+    // 4. Filter by Amenities (AND Logic - Constraint)
     // "Must have Wifi AND Aircon"
     if (amenities) {
       const amenityArray = amenities.split(",");
       query.amenities = { $all: amenityArray };
     }
 
-    // 6. Search by Name OR Meal Title
+    // 5. Search by Name OR Meal Title
     if (search) {
       // Find meals that match the search term
       const matchedMeals = await Meal.find({
@@ -74,6 +73,7 @@ export const getPlaces = async (
 
       query.$or = [
         { name: { $regex: search, $options: "i" } },
+        { nearestLandmark: { $regex: search, $options: "i" } },
         { _id: { $in: placeIdsFromMeals } },
       ];
     }

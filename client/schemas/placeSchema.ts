@@ -7,7 +7,7 @@ export const createPlaceSchema = z.object({
   }),
 
   // Optional fields
-  zoneMicro: z.string().optional(),
+  nearestLandmark: z.string().optional(),
   amenities: z
     .array(z.string(), { error: "Amenities must be an array of strings" })
     .optional(),

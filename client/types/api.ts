@@ -10,7 +10,7 @@ export interface Place {
   _id: string;
   name: string;
   zoneMacro: ZoneMacro;
-  zoneMicro: string;
+  nearestLandmark: string;
   priceRange: {
     min: number;
     max: number;
