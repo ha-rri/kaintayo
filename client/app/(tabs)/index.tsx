@@ -18,7 +18,7 @@ const mockRestaurants = [
       { id: 1, name: '4pc Teriyaki Chicken w/ Rice', price: 169, updatedBy: '@Hazel', updatedTime: '3d ago' },
       { id: 2, name: 'Spamsilog', price: 89, updatedBy: '@Alicia', updatedTime: '2d ago' },
       { id: 3, name: 'Sisigsilog', price: 89, updatedBy: '@Samuel', updatedTime: '2d ago' },
-      { id: 4, name: 'Lomi Solo', price: 89, updatedBy: '@Melody', updatedTime: '2d ago' },
+      { id: 4, name: 'Lomi Solo', price: 89, updatedBy: '@Harmel', updatedTime: '2d ago' },
     ],
   },
   {

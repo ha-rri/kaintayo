@@ -1,0 +1,159 @@
+export interface SeedMeal {
+  title: string;
+  priceRegular: number;
+  priceHalf?: number;
+  isApproved: boolean;
+}
+
+export interface SeedPlace {
+  name: string;
+  zoneMacro: string;
+  zoneMicro: string;
+  amenities: string[];
+  categories: string[];
+  status: "active" | "pending";
+  coverImage: string;
+  meals: SeedMeal[];
+}
+
+// Standardized Constants
+// Categories: Rice Meals, Karinderya, Cafe, Meryenda, Drinks, Konbini, Fast Food, Unli Rice
+// Amenities: Aircon, Wifi, Charging
+// Zones: Gate 1 Side, Gate 2 Side, Gate 3 Side, Main Building, Library, Student Center
+
+export const MASTER_PLACES: SeedPlace[] = [
+  {
+    name: "Streetside Lomi Haus",
+    zoneMacro: "outside",
+    zoneMicro: "Gate 1 Side",
+    amenities: [],
+    categories: ["Karinderya", "Meryenda"],
+    coverImage:
+      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400",
+    status: "active",
+    meals: [
+      {
+        title: "4pc Teriyaki Chicken w/ Rice",
+        priceRegular: 169,
+        isApproved: true,
+      },
+      { title: "Spamsilog", priceRegular: 89, isApproved: true },
+      { title: "Sisigsilog", priceRegular: 89, isApproved: true },
+      { title: "Lomi Solo", priceRegular: 89, priceHalf: 50, isApproved: true },
+    ],
+  },
+  {
+    name: "Campus Canteen",
+    zoneMacro: "inside",
+    zoneMicro: "Main Building",
+    amenities: [],
+    categories: ["Rice Meals", "Karinderya"],
+    coverImage:
+      "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400",
+    status: "active",
+    meals: [
+      {
+        title: "Chicken Adobo",
+        priceRegular: 65,
+        priceHalf: 40,
+        isApproved: true,
+      },
+      {
+        title: "Pork Sinigang",
+        priceRegular: 70,
+        priceHalf: 45,
+        isApproved: true,
+      },
+      { title: "Lumpia Shanghai", priceRegular: 40, isApproved: true },
+    ],
+  },
+  {
+    name: "Coffee Bean Café",
+    zoneMacro: "inside",
+    zoneMicro: "Library",
+    amenities: ["Wifi", "Aircon", "Charging"],
+    categories: ["Cafe", "Drinks"],
+    coverImage:
+      "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
+    status: "active",
+    meals: [
+      { title: "Iced Caramel Latte", priceRegular: 120, isApproved: true },
+      { title: "Blueberry Muffin", priceRegular: 85, isApproved: true },
+    ],
+  },
+  {
+    name: "Burger King Express",
+    zoneMacro: "outside",
+    zoneMicro: "Gate 2 Side",
+    amenities: ["Aircon", "Wifi"],
+    categories: ["Fast Food"],
+    coverImage:
+      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400",
+    status: "active",
+    meals: [
+      { title: "Whopper Meal", priceRegular: 180, isApproved: true },
+      { title: "Chicken Fries", priceRegular: 120, isApproved: true },
+    ],
+  },
+  {
+    name: "Tapa King",
+    zoneMacro: "outside",
+    zoneMicro: "Gate 3 Side",
+    amenities: ["Aircon"],
+    categories: ["Rice Meals"],
+    coverImage:
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
+    status: "active",
+    meals: [
+      { title: "Tapsilog", priceRegular: 95, isApproved: true },
+      { title: "Bangsilog", priceRegular: 90, isApproved: true },
+    ],
+  },
+  {
+    name: "Student Hub Cafeteria",
+    zoneMacro: "inside",
+    zoneMicro: "Student Center",
+    amenities: ["Wifi", "Aircon", "Charging"],
+    categories: ["Karinderya", "Meryenda", "Drinks"],
+    coverImage:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400",
+    status: "active",
+    meals: [
+      {
+        title: "Pancit Canton",
+        priceRegular: 45,
+        priceHalf: 25,
+        isApproved: true,
+      },
+      { title: "Palabok", priceRegular: 50, priceHalf: 30, isApproved: true },
+    ],
+  },
+  {
+    name: "Mang Inasal",
+    zoneMacro: "outside",
+    zoneMicro: "Gate 1 Side",
+    amenities: ["Aircon"],
+    categories: ["Rice Meals", "Unli Rice", "Fast Food"],
+    coverImage:
+      "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400",
+    status: "active",
+    meals: [
+      { title: "PM1 (Chicken Inasal)", priceRegular: 159, isApproved: true },
+      { title: "Halo-Halo", priceRegular: 69, isApproved: true },
+    ],
+  },
+  {
+    name: "Milk Tea House",
+    zoneMacro: "outside",
+    zoneMicro: "Gate 3 Side",
+    amenities: ["Aircon", "Wifi"],
+    categories: ["Drinks"],
+    coverImage:
+      "https://images.unsplash.com/photo-1525385444071-b092b93ca120?w=400",
+    status: "active",
+    meals: [
+      { title: "Classic Milk Tea", priceRegular: 80, isApproved: true },
+      { title: "Taro Milk Tea", priceRegular: 90, isApproved: true },
+    ],
+  },
+];

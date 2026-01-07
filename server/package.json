@@ -8,8 +8,8 @@
     "dev": "tsx watch index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "data:import": "tsx seeder.ts",
-    "data:destroy": "tsx seeder.ts -d"
+    "seed": "tsx seeder.ts",
+    "seed:destroy": "tsx seeder.ts -d"
   },
   "keywords": [],
   "author": "",

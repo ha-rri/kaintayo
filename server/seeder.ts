@@ -11,6 +11,8 @@ import Place from "./models/Place.js";
 import Meal from "./models/Meal.js";
 
 // Connect to DB
+import { MASTER_PLACES, SeedPlace } from "./data/masterSeed.js";
+
 if (process.env.MONGO_URI) {
   mongoose.connect(process.env.MONGO_URI);
 }
@@ -45,82 +47,47 @@ const importData = async () => {
 
     const adminUser = createdUsers[0]._id;
 
-    // 3. Create Places
-    const places = await Place.create([
-      {
+    // 3. Create Places & Meals
+    for (const placeData of MASTER_PLACES as SeedPlace[]) {
+      const place = await Place.create({
         submittedBy: adminUser,
-        name: "Ate Rica's Bacsilog",
-        zoneMacro: "inside",
-        zoneMicro: "Gate 1", // Just a sample
-        amenities: ["Charging"],
-        categories: ["Rice Meals"],
-        status: "active",
-        coverImage: "https://placehold.co/600x400/orange/white?text=Bacsilog",
-      },
-      {
-        submittedBy: adminUser,
-        name: "Jollibee",
-        zoneMacro: "outside",
-        zoneMicro: "Gate 1",
-        amenities: ["Aircon", "Wifi"],
-        categories: ["Fast Food", "Chicken"],
-        status: "active",
-        coverImage: "https://placehold.co/600x400/red/white?text=Jollibee",
-      },
-      {
-        submittedBy: adminUser,
-        name: "Dimsum Treats",
-        zoneMacro: "outside",
-        zoneMicro: "Dapitan",
-        amenities: ["Aircon"],
-        categories: ["Siomai", "Rice Meals"],
-        status: "active",
-        coverImage: "https://placehold.co/600x400/green/white?text=Dimsum",
-      },
-    ]);
+        name: placeData.name,
+        zoneMacro: placeData.zoneMacro,
+        zoneMicro: placeData.zoneMicro,
+        amenities: placeData.amenities,
+        categories: placeData.categories,
+        status: placeData.status,
+        coverImage: placeData.coverImage,
+      });
 
-    console.log("Places Imported...");
+      // Create Meals for this Place
+      const mealDocs = placeData.meals.map((meal) => ({
+        submittedBy: adminUser,
+        place: place._id,
+        title: meal.title,
+        priceRegular: meal.priceRegular,
+        priceHalf: meal.priceHalf,
+        isApproved: meal.isApproved,
+      }));
 
-    // 4. Create Meals
-    // Note: prices might range.
-    await Meal.create([
-      {
-        submittedBy: adminUser,
-        place: places[0]._id, // Bacsilog
-        title: "Original Bacsilog",
-        priceRegular: 69,
-        isApproved: true,
-      },
-      {
-        submittedBy: adminUser,
-        place: places[0]._id,
-        title: "Tapsilog",
-        priceRegular: 85,
-        isApproved: true,
-      },
-      {
-        submittedBy: adminUser,
-        place: places[1]._id, // Jollibee
-        title: "1pc Chickenjoy w/ Rice",
-        priceRegular: 89,
-        isApproved: true,
-      },
-      {
-        submittedBy: adminUser,
-        place: places[2]._id, // Dimsum
-        title: "Siomai Rice",
-        priceRegular: 35,
-        isApproved: true,
-      },
-    ]);
+      await Meal.create(mealDocs);
 
-    console.log("Meals Imported...");
+      // Explicitly compute price range to ensure data consistency immediately
+      try {
+        await Meal.computePriceRange(place._id as mongoose.Types.ObjectId);
+      } catch (error) {
+        console.error(
+          `Failed to compute price range for ${place.name}:`,
+          error
+        );
+      }
+    }
+
+    console.log(`Imported ${MASTER_PLACES.length} Places and their meals...`);
 
     // 5. Trigger Re-Calculation Explicitly
     // This ensures that even if the hooks didn't finish in time, we force the update now.
-    await Meal.computePriceRange(places[0]._id); // Bacsilog
-    await Meal.computePriceRange(places[1]._id); // Jollibee
-    await Meal.computePriceRange(places[2]._id); // Dimsum
+    // The price range computation is now handled within the loop for each place.
     console.log("Price Ranges Calculated...");
 
     console.log("Data Imported!");
