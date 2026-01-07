@@ -93,7 +93,7 @@ export default function RegisterForm() {
           render={({ field: { onChange, value } }) => (
             <TextInput
               style={[styles.input, errors.email && styles.inputError]}
-              placeholder="email@email.com"
+              placeholder="email@example.com"
               placeholderTextColor="#999"
               value={value}
               onChangeText={onChange}

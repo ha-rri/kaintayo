@@ -63,7 +63,7 @@ export default function LoginForm() {
           render={({ field: { onChange, value } }) => (
             <TextInput
               style={[styles.input, errors.email && styles.inputError]}
-              placeholder="email@email.com"
+              placeholder="email@example.com"
               placeholderTextColor="#999"
               value={value}
               onChangeText={onChange}

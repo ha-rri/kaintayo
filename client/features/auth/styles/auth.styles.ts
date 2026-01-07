@@ -36,11 +36,11 @@ export const authStyles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 10,
     paddingHorizontal: 15,
-    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "#ddd",
   },
   passwordInput: {
+    paddingVertical: 12,
     flex: 1,
     fontSize: 14,
     color: "#333",
