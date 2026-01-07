@@ -62,8 +62,23 @@ const PlaceSchema = new Schema<IPlace>(
       ref: "User",
     },
   },
-  { timestamps: true }
+  { timestamps: true, id: false }
 );
+
+// Virtual Populate for Meals
+PlaceSchema.virtual("meals", {
+  ref: "Meal",
+  localField: "_id",
+  foreignField: "place",
+  justOne: false,
+});
+
+// Create Indexes
+PlaceSchema.index({ name: "text", categories: "text" });
+
+// Ensure virtuals are included in JSON/Object output
+PlaceSchema.set("toJSON", { virtuals: true });
+PlaceSchema.set("toObject", { virtuals: true });
 
 const Place = mongoose.model<IPlace>("Place", PlaceSchema);
 export default Place;

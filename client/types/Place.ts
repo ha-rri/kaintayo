@@ -13,8 +13,8 @@ export interface Place {
   categories: string[];
   coverImage?: string;
   status: "active" | "pending";
-  submittedBy?: string; // ObjectId as string
+  submittedBy?: { username: string }; // Strictly Object. We trust the backend populate.
   createdAt: string;
   updatedAt: string;
-  meals?: Meal[]; // Optional: Populated/Joined field
+  meals?: Meal[];
 }

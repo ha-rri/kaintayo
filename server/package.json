@@ -8,8 +8,10 @@
     "dev": "tsx watch index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "data:import": "tsx seeder.ts",
-    "data:destroy": "tsx seeder.ts -d"
+    "seed": "tsx seeder.ts",
+    "seed-local": "tsx seeder-local.ts",
+    "seed:destroy": "tsx seeder.ts -d",
+    "seed-local:destroy": "tsx seeder-local.ts -d"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,7 @@
   "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "chalk": "^5.6.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Filter } from "mongodb";
 import Place, { IPlace } from "../models/Place.js";
+import Meal from "../models/Meal.js";
 import { IUser } from "../models/User.js";
 
 // Interface for Protected Request
@@ -9,7 +10,7 @@ interface AuthRequest extends Request {
 }
 
 interface PlaceQueryParams {
-  macro?: string;
+  zoneMacro?: string;
   micro?: string;
   maxPrice?: string;
   search?: string;
@@ -26,14 +27,14 @@ export const getPlaces = async (
   next: NextFunction
 ) => {
   try {
-    const { macro, micro, maxPrice, search, categories, amenities } =
+    const { zoneMacro, micro, maxPrice, search, categories, amenities } =
       req.query as unknown as PlaceQueryParams;
 
     const query: Filter<IPlace> = { status: "active" };
 
     // 1. Filter by Macro Zone (Inside/Outside)
-    if (macro) {
-      query.zoneMacro = macro as IPlace["zoneMacro"];
+    if (zoneMacro) {
+      query.zoneMacro = zoneMacro as IPlace["zoneMacro"];
     }
 
     // 2. Filter by Price (budget <= min price of the place)
@@ -62,13 +63,26 @@ export const getPlaces = async (
       query.amenities = { $all: amenityArray };
     }
 
-    // 6. Search by Name
+    // 6. Search by Name OR Meal Title
     if (search) {
-      query.$or = [{ name: { $regex: search, $options: "i" } }];
+      // Find meals that match the search term
+      const matchedMeals = await Meal.find({
+        title: { $regex: search, $options: "i" },
+      }).select("place");
+
+      const placeIdsFromMeals = matchedMeals.map((m) => m.place);
+
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { _id: { $in: placeIdsFromMeals } },
+      ];
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const places = await Place.find(query as any).sort({ "priceRange.min": 1 });
+    const places = await Place.find(query as any)
+      .populate("meals") // Virtual Populate
+      .populate("submittedBy", "username") // Get Username
+      .sort({ "priceRange.min": 1 });
 
     res.json({
       success: true,
@@ -89,7 +103,9 @@ export const getPlace = async (
   next: NextFunction
 ) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id)
+      .populate("meals")
+      .populate("submittedBy", "username");
 
     if (!place) {
       res.status(404);

@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "../models/User.js";
 
@@ -25,15 +24,11 @@ export const registerUser = async (
   try {
     const { username, email, password } = req.body;
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Create user
+    // Create user (Middleware will hash password)
     const user = await User.create({
       username,
       email,
-      password: hashedPassword,
+      password,
     });
 
     if (user) {
@@ -70,7 +65,7 @@ export const loginUser = async (
     // Check for user email
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password as string))) {
+    if (user && (await user.matchPassword(password))) {
       res.json({
         success: true,
         data: {

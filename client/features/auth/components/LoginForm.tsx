@@ -13,8 +13,7 @@ import { loginSchema } from "@/schemas/authSchema";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { authStyles as styles } from "@/features/auth/styles/auth.styles"; // Shared Styles
-import { errorStyles } from "@/styles/error.styles";
-import { FormError } from "@/components/ui/FormError";
+import { FormError, FieldError } from "@/components/ui/FormError";
 
 // Type derived from schema
 type FormData = import("@/features/auth/services/auth.service").LoginInput;
@@ -72,9 +71,7 @@ export default function LoginForm() {
             />
           )}
         />
-        {errors.email && (
-          <Text style={errorStyles.fieldError}>{errors.email.message}</Text>
-        )}
+        {errors.email && <FieldError message={errors.email.message} />}
       </View>
 
       {/* Password Input */}
@@ -109,9 +106,7 @@ export default function LoginForm() {
             />
           </TouchableOpacity>
         </View>
-        {errors.password && (
-          <Text style={errorStyles.fieldError}>{errors.password.message}</Text>
-        )}
+        {errors.password && <FieldError message={errors.password.message} />}
       </View>
 
       {/* Submit Button */}

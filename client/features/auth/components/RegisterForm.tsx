@@ -12,8 +12,7 @@ import { registerSchema } from "@/schemas/authSchema";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { authStyles as styles } from "@/features/auth/styles/auth.styles";
-import { FormError } from "@/components/ui/FormError";
-import { errorStyles } from "@/styles/error.styles";
+import { FormError, FieldError } from "@/components/ui/FormError";
 
 // Clean import type
 import type {
@@ -79,9 +78,7 @@ export default function RegisterForm() {
             />
           )}
         />
-        {errors.username && (
-          <Text style={errorStyles.fieldError}>{errors.username.message}</Text>
-        )}
+        {errors.username && <FieldError message={errors.username.message} />}
       </View>
 
       {/* Email */}
@@ -102,9 +99,7 @@ export default function RegisterForm() {
             />
           )}
         />
-        {errors.email && (
-          <Text style={errorStyles.fieldError}>{errors.email.message}</Text>
-        )}
+        {errors.email && <FieldError message={errors.email.message} />}
       </View>
 
       {/* Password */}
@@ -139,9 +134,7 @@ export default function RegisterForm() {
             />
           </TouchableOpacity>
         </View>
-        {errors.password && (
-          <Text style={errorStyles.fieldError}>{errors.password.message}</Text>
-        )}
+        {errors.password && <FieldError message={errors.password.message} />}
       </View>
 
       {/* Confirm Password */}
@@ -179,9 +172,7 @@ export default function RegisterForm() {
           </TouchableOpacity>
         </View>
         {errors.confirmPassword && (
-          <Text style={errorStyles.fieldError}>
-            {errors.confirmPassword.message}
-          </Text>
+          <FieldError message={errors.confirmPassword.message} />
         )}
       </View>
 
