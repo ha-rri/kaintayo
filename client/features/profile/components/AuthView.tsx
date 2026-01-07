@@ -1,9 +1,14 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import LoginForm from "@/features/auth/components/LoginForm";
 import RegisterForm from "@/features/auth/components/RegisterForm";
-import { styles } from "../profile.styles";
 
 interface AuthViewProps {
   initialTab: "login" | "register";
@@ -74,3 +79,78 @@ export default function AuthView({ initialTab, onBack }: AuthViewProps) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#e8e8e8",
+  },
+  authHeader: {
+    backgroundColor: "#FF6B35",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  authHeaderTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  authContent: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 30,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#FF6B35",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoText: {
+    fontSize: 50,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#000",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#d0d0d0",
+    borderRadius: 25,
+    padding: 4,
+    marginBottom: 30,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 25,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: "#FF6B35",
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#666",
+  },
+  activeTabText: {
+    color: "#fff",
+  },
+});
