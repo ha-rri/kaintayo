@@ -19,6 +19,7 @@ const importData = async () => {
     await User.deleteMany();
 
     console.log(chalk.green("Creating Users..."));
+    // Middleware wraps User.create, so plain text password will be hashed automatically
     const createdUsers = await User.create(MASTER_USERS);
     // Assuming StudentFoodie is [0] and Admin is [1]
     const mainUser = createdUsers[0]._id;
