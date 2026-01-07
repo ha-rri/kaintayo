@@ -1,6 +1,11 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import { styles } from "../styles/directory.styles";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { Place } from "@/types/Place";
 
 interface PlaceCardProps {
@@ -54,3 +59,81 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  cardContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 15,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  cardImage: {
+    width: "100%",
+    height: 200,
+    backgroundColor: "#e0e0e0",
+  },
+  cardBadge: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "#FF6B35",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  cardBadgeText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  cardContent: {
+    padding: 15,
+  },
+  categoryChip: {
+    backgroundColor: "#FF6B35",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    marginBottom: 8,
+  },
+  categoryChipText: {
+    color: "#fff",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#333",
+    marginBottom: 4,
+  },
+  cardLocation: {
+    fontSize: 13,
+    color: "#666",
+    marginBottom: 8,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  tag: {
+    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  tagText: {
+    fontSize: 11,
+    color: "#666",
+  },
+});

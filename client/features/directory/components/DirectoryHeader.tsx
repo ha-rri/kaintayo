@@ -1,7 +1,11 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { styles } from "../styles/directory.styles";
 
 interface DirectoryHeaderProps {
   searchQuery: string;
@@ -47,3 +51,42 @@ export const DirectoryHeader = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  header: {
+    backgroundColor: "#FF6B35",
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+  },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  locationText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: "#333",
+  },
+});

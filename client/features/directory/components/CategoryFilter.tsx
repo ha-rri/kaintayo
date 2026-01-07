@@ -1,6 +1,4 @@
-import React from "react";
-import { ScrollView, TouchableOpacity, Text } from "react-native";
-import { styles } from "../styles/directory.styles";
+import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
 
 interface CategoryFilterProps {
   activeCategory: string;
@@ -41,3 +39,32 @@ export const CategoryFilter = ({
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  categoryContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    gap: 10,
+  },
+  categoryTab: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
+    marginRight: 10,
+  },
+  categoryTabActive: {
+    backgroundColor: "#FF6B35",
+    borderColor: "#FF6B35",
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#666",
+  },
+  categoryTextActive: {
+    color: "#fff",
+  },
+});
