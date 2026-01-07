@@ -1,4 +1,5 @@
-import { Place, User } from "../types/api";
+import { Place } from "../types/Place";
+import { User } from "../types/User";
 
 export const MOCK_USER: User = {
   _id: "user_123",
@@ -7,13 +8,15 @@ export const MOCK_USER: User = {
   role: "user",
   favorites: ["place_1", "place_3"],
   contributionCount: 12,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 export const MOCK_PLACES: Place[] = [
   {
     _id: "place_1",
     name: "Ate Rica's Bacsilog",
-    zoneMacro: "Outside",
+    zoneMacro: "outside",
     zoneMicro: "Gate 3 Side (P. Noval)",
     priceRange: { min: 69, max: 85 },
     amenities: [],
@@ -42,7 +45,7 @@ export const MOCK_PLACES: Place[] = [
   {
     _id: "place_2",
     name: "Dimsum Treats",
-    zoneMacro: "Inside",
+    zoneMacro: "inside",
     zoneMicro: "Main Building / Quadricentennial",
     priceRange: { min: 35, max: 60 },
     amenities: ["Aircon"],
@@ -71,7 +74,7 @@ export const MOCK_PLACES: Place[] = [
   {
     _id: "place_3",
     name: "Mang Tootz",
-    zoneMacro: "Outside",
+    zoneMacro: "outside",
     zoneMicro: "P. Noval St.",
     priceRange: { min: 20, max: 150 },
     amenities: [],
@@ -101,7 +104,7 @@ export const MOCK_PLACES: Place[] = [
   {
     _id: "place_4",
     name: "University Canteen (Carpark)",
-    zoneMacro: "Inside",
+    zoneMacro: "inside",
     zoneMicro: "Carpark 2nd Floor",
     priceRange: { min: 45, max: 80 },
     amenities: ["Wifi", "Charging", "Aircon"],
@@ -132,7 +135,7 @@ export const MOCK_PLACES: Place[] = [
   {
     _id: "place_5",
     name: "7-Eleven",
-    zoneMacro: "Outside",
+    zoneMacro: "outside",
     zoneMicro: "Gate 1 (España)",
     priceRange: { min: 29, max: 150 },
     amenities: ["Aircon", "Charging"],
