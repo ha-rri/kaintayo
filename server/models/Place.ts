@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IPlace extends Document {
   name: string;
   zoneMacro: "inside" | "outside";
-  zoneMicro?: string;
+  nearestLandmark?: string;
   priceRange: {
     min: number;
     max: number;
@@ -33,9 +33,9 @@ const PlaceSchema = new Schema<IPlace>(
       enum: ["inside", "outside"],
       required: [true, "Please specify if Inside or Outside campus"],
     },
-    zoneMicro: {
+    nearestLandmark: {
       type: String,
-      // Optional: Users might not know the exact "Micro" zone initially.
+      // Optional: Users might not know the exact "Landmark" initially.
     },
 
     // Optimized for Filter Sliders

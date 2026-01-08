@@ -14,7 +14,7 @@ export const getPendingItems = async (
     // 1. Get Pending Places
     const pendingPlaces = await Place.find({ status: "pending" })
       .populate("submittedBy", "username email")
-      .select("name zoneMicro coverImage createdAt submittedBy");
+      .select("name nearestLandmark coverImage createdAt submittedBy");
 
     // 2. Get Pending Meals
     const pendingMeals = await Meal.find({ isApproved: false })

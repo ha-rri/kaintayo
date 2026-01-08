@@ -11,11 +11,11 @@ interface AuthRequest extends Request {
 
 interface PlaceQueryParams {
   zoneMacro?: string;
-  micro?: string;
   maxPrice?: string;
   search?: string;
   categories?: string;
   amenities?: string;
+  scope?: "global" | "store";
 }
 
 // @desc    Get all places with filters
@@ -27,7 +27,7 @@ export const getPlaces = async (
   next: NextFunction
 ) => {
   try {
-    const { zoneMacro, micro, maxPrice, search, categories, amenities } =
+    const { zoneMacro, maxPrice, search, categories, amenities } =
       req.query as unknown as PlaceQueryParams;
 
     const query: Filter<IPlace> = { status: "active" };
@@ -44,38 +44,47 @@ export const getPlaces = async (
       query["priceRange.min"] = { $lte: Number(maxPrice) };
     }
 
-    // 3. Filter by Micro Zone (Exact Match)
-    if (micro) {
-      query.zoneMicro = micro;
-    }
-
-    // 4. Filter by Categories (OR Logic - Discovery)
+    // 3. Filter by Categories (OR Logic - Discovery)
     // "Show me Rice Meals OR Meryenda"
     if (categories) {
       const categoryArray = categories.split(",");
       query.categories = { $in: categoryArray };
     }
 
-    // 5. Filter by Amenities (AND Logic - Constraint)
+    // 4. Filter by Amenities (AND Logic - Constraint)
     // "Must have Wifi AND Aircon"
     if (amenities) {
       const amenityArray = amenities.split(",");
       query.amenities = { $all: amenityArray };
     }
 
-    // 6. Search by Name OR Meal Title
+    // 5. Search Logic
     if (search) {
-      // Find meals that match the search term
-      const matchedMeals = await Meal.find({
-        title: { $regex: search, $options: "i" },
-      }).select("place");
+      // Escape regex characters
+      const safeSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      // Use Word Boundary (\b) for Name (Start of Word matching)
+      const regexPattern = "\\b" + safeSearch;
 
-      const placeIdsFromMeals = matchedMeals.map((m) => m.place);
+      const isStoreScope = req.query.scope === "store";
+      const isLongEnough = search.length >= 2;
 
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { _id: { $in: placeIdsFromMeals } },
+      const orConditions: Filter<IPlace>[] = [
+        { name: { $regex: regexPattern, $options: "i" } },
       ];
+
+      // If Global Scope (Directory) AND Length >= 2, include Meals
+      // (Prevents "f" matching "Chicken Fries", but allows "fri" or "fries" to match)
+      if (!isStoreScope && isLongEnough) {
+        // Find meals that match the search term (Start of Word)
+        const matchedMeals = await Meal.find({
+          title: { $regex: regexPattern, $options: "i" },
+        }).select("place");
+        const placeIdsFromMeals = matchedMeals.map((m) => m.place);
+
+        orConditions.push({ _id: { $in: placeIdsFromMeals } });
+      }
+
+      query.$or = orConditions;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

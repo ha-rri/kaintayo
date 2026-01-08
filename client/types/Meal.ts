@@ -4,7 +4,7 @@ export interface Meal {
   title: string;
   priceRegular: number;
   priceHalf?: number;
-  imageUrl?: string;
+  imageUri?: string;
   isApproved: boolean;
   submittedBy?: string;
   createdAt?: string;

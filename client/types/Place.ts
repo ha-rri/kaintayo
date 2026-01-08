@@ -1,10 +1,12 @@
 import { Meal } from "./Meal";
 
+export type ZoneMacro = "inside" | "outside";
+
 export interface Place {
   _id: string;
   name: string;
-  zoneMacro: "inside" | "outside";
-  zoneMicro?: string;
+  zoneMacro: ZoneMacro;
+  nearestLandmark?: string;
   priceRange: {
     min: number;
     max: number;

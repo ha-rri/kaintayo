@@ -69,7 +69,7 @@ const seedDB = async () => {
       const place = await Place.create({
         name: placeData.name,
         zoneMacro: placeData.zoneMacro,
-        zoneMicro: placeData.zoneMicro,
+        nearestLandmark: placeData.nearestLandmark,
         priceRange: placeData.priceRange,
         amenities: placeData.amenities,
         categories: placeData.categories,

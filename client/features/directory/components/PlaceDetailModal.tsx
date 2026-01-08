@@ -63,7 +63,7 @@ export const PlaceDetailModal = ({
           <View style={styles.modalHeader}>
             <View>
               <Text style={styles.modalTitle}>{place.name}</Text>
-              <Text style={styles.modalLocation}>{place.zoneMicro}</Text>
+              <Text style={styles.modalLocation}>{place.nearestLandmark}</Text>
             </View>
             <View style={styles.modalPriceBadge}>
               <Text style={styles.modalPriceText}>

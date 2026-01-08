@@ -8,7 +8,7 @@ export interface SeedMeal {
 export interface SeedPlace {
   name: string;
   zoneMacro: string;
-  zoneMicro: string;
+  nearestLandmark: string;
   priceRange: {
     min: number;
     max: number;
@@ -44,7 +44,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Streetside Lomi Haus",
     zoneMacro: "outside",
-    zoneMicro: "Gate 1 Side",
+    nearestLandmark: "Gate 1 Side",
     priceRange: { min: 0, max: 0 },
     amenities: [],
     categories: ["Karinderya", "Meryenda"],
@@ -65,7 +65,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Campus Canteen",
     zoneMacro: "inside",
-    zoneMicro: "Main Building",
+    nearestLandmark: "Main Building",
     priceRange: { min: 40, max: 70 },
     amenities: [],
     categories: ["Rice Meals", "Karinderya"],
@@ -91,7 +91,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Coffee Bean Café",
     zoneMacro: "inside",
-    zoneMicro: "Library",
+    nearestLandmark: "Library",
     priceRange: { min: 85, max: 120 },
     amenities: ["Wifi", "Aircon", "Charging"],
     categories: ["Cafe", "Drinks"],
@@ -106,7 +106,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Burger King Express",
     zoneMacro: "outside",
-    zoneMicro: "Gate 2 Side",
+    nearestLandmark: "Gate 2 Side",
     priceRange: { min: 120, max: 180 },
     amenities: ["Aircon", "Wifi"],
     categories: ["Fast Food"],
@@ -121,7 +121,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Tapa King",
     zoneMacro: "outside",
-    zoneMicro: "Gate 3 Side",
+    nearestLandmark: "Gate 3 Side",
     priceRange: { min: 90, max: 95 },
     amenities: ["Aircon"],
     categories: ["Rice Meals"],
@@ -136,7 +136,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Student Hub Cafeteria",
     zoneMacro: "inside",
-    zoneMicro: "Student Center",
+    nearestLandmark: "Student Center",
     priceRange: { min: 25, max: 50 },
     amenities: ["Wifi", "Aircon", "Charging"],
     categories: ["Karinderya", "Meryenda", "Drinks"],
@@ -156,7 +156,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Mang Inasal",
     zoneMacro: "outside",
-    zoneMicro: "Gate 1 Side",
+    nearestLandmark: "Gate 1 Side",
     priceRange: { min: 69, max: 159 },
     amenities: ["Aircon"],
     categories: ["Rice Meals", "Unli Rice", "Fast Food"],
@@ -171,7 +171,7 @@ export const MASTER_PLACES: SeedPlace[] = [
   {
     name: "Milk Tea House",
     zoneMacro: "outside",
-    zoneMicro: "Gate 3 Side",
+    nearestLandmark: "Gate 3 Side",
     priceRange: { min: 80, max: 90 },
     amenities: ["Aircon", "Wifi"],
     categories: ["Drinks"],

@@ -7,12 +7,16 @@ export const usePlaces = (
     search?: string;
     minPrice?: number;
     maxPrice?: number;
+    scope?: "global" | "store";
+    keepPreviousData?: boolean;
   } = {}
 ) => {
   return useQuery({
     queryKey: ["places", filters],
     queryFn: () => placeService.getAll(filters),
     // Optional: Keep previous data while fetching new filter results for smoother UX
-    placeholderData: (previousData) => previousData,
+    // Defaults to true unless explicitly set to false
+    placeholderData: (previousData) =>
+      filters.keepPreviousData !== false ? previousData : undefined,
   });
 };

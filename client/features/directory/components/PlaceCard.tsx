@@ -37,7 +37,7 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
           )}
 
           <Text style={styles.cardTitle}>{place.name}</Text>
-          <Text style={styles.cardLocation}>{place.zoneMicro}</Text>
+          <Text style={styles.cardLocation}>{place.nearestLandmark}</Text>
 
           <ScrollView
             horizontal
