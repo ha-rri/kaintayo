@@ -7,7 +7,7 @@ export interface IMeal extends Document {
   title: string;
   priceRegular: number;
   priceHalf?: number;
-  imageUrl?: string;
+  imageUri?: string;
   isApproved: boolean;
   submittedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -43,7 +43,7 @@ const MealSchema = new Schema<IMeal, IMealModel>(
       // Optional: If exists, UI shows 1/2 icon
     },
 
-    imageUrl: { type: String }, // Cloudinary URL
+    imageUri: { type: String }, // Cloudinary URL
 
     // Moderation
     isApproved: {
