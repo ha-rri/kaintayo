@@ -202,7 +202,7 @@ export const StoreSearch = ({
 };
 
 const styles = StyleSheet.create({
-  container: { marginBottom: 15, zIndex: 50, elevation: 5 },
+  container: { marginBottom: 10, zIndex: 50, elevation: 5 },
   label: {
     fontSize: 13,
     fontWeight: "600",

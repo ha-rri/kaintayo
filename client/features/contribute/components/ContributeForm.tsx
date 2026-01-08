@@ -62,26 +62,30 @@ export const ContributeForm = () => {
         clearErrors={clearErrors}
       />
 
-      {/* Step 2: Meal Details (Only if place context exists) */}
-      {hasPlaceContext && ( // Updated conditional
-        <MealForm control={control} setValue={setValue} errors={errors} />
-      )}
+      {/* Step 2: Meal Details */}
+      <MealForm control={control} setValue={setValue} errors={errors} />
 
       {/* Action Buttons */}
-      {hasPlaceContext && ( // Updated conditional
-        <TouchableOpacity
-          style={[
-            styles.submitBtn,
-            (isSubmitting || isPending) && styles.disabledBtn,
-          ]}
-          onPress={handleSubmit(onSubmit)}
-          disabled={isSubmitting || isPending}
-        >
-          <Text style={styles.submitBtnText}>
-            {isSubmitting || isPending ? "Submitting..." : "Submit"}
-          </Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={[
+          styles.submitBtn,
+          (isSubmitting || isPending) && styles.disabledBtn,
+        ]}
+        onPress={
+          !hasPlaceContext
+            ? () =>
+                Alert.alert(
+                  "Select a Store",
+                  "Please select an existing store or request a new one to continue."
+                )
+            : handleSubmit(onSubmit)
+        }
+        disabled={isSubmitting || isPending}
+      >
+        <Text style={styles.submitBtnText}>
+          {isSubmitting || isPending ? "Submitting..." : "Submit"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -97,7 +101,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
-    marginTop: 20,
   },
   disabledBtn: {
     backgroundColor: "#ffb09c",

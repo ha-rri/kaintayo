@@ -21,8 +21,6 @@ interface MealFormProps {
 
 export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
   const imageUri = useWatch({ control, name: "meal.imageUri" });
-  const isPlaceSelected = useWatch({ control, name: "placeId" });
-  const isNewPlace = useWatch({ control, name: "isNewPlace" });
   const priceHalf = useWatch({ control, name: "meal.priceHalf" });
 
   const [isHalfOrder, setIsHalfOrder] = useState<boolean>(!!priceHalf);
@@ -41,9 +39,6 @@ export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
       setValue("meal.priceHalf", undefined);
     }
   };
-
-  // Only show if a place is selected OR a new place is being created
-  if (!isPlaceSelected && !isNewPlace) return null;
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -176,7 +171,7 @@ export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   sectionHeader: {
     flexDirection: "row",
