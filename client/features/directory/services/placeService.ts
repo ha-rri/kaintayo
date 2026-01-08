@@ -15,12 +15,13 @@ const placeService = {
       search?: string;
       minPrice?: number;
       maxPrice?: number;
+      scope?: "global" | "store";
     } = {}
   ): Promise<Place[]> => {
     // 1. Mock Mode
     if (Config.USE_MOCK_DATA) {
       console.log("⚡ [Mock Mode] Fetching places...", filters);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       let data = [...MOCK_PLACES];
 
@@ -29,12 +30,12 @@ const placeService = {
       }
 
       if (filters.search) {
-        const q = filters.search.toLowerCase();
-        data = data.filter(
-          (p) =>
-            p.name.toLowerCase().includes(q) ||
-            p.categories.some((c: string) => c.toLowerCase().includes(q))
-        );
+        // Use Word Boundary Regex for smarter matching (e.g. "t" matches "Tapa", not "Canteen")
+        const q = filters.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Escape regex chars
+        const regex = new RegExp(`\\b${q}`, "i");
+        // Mock Data doesn't have searchable meals, so we search Name Only.
+        // We removed Category search as per requirement (prevent "f" -> "Fast Food").
+        data = data.filter((p) => regex.test(p.name));
       }
 
       if (filters.maxPrice) {
@@ -49,6 +50,7 @@ const placeService = {
     if (filters.zoneMacro && filters.zoneMacro !== "all")
       params.append("zoneMacro", filters.zoneMacro);
     if (filters.search) params.append("search", filters.search);
+    if (filters.scope) params.append("scope", filters.scope);
     if (filters.minPrice)
       params.append("minPrice", filters.minPrice.toString());
     if (filters.maxPrice)

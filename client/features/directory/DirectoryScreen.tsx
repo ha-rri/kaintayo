@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState, useMemo } from "react";
 import { styles } from "./styles/directory.styles";
 import { usePlaces } from "./hooks/usePlaces";
+import { useDebounce } from "@/hooks/useDebounce";
 import { DirectoryHeader } from "./components/DirectoryHeader";
 import { BudgetSlider } from "./components/BudgetSlider";
 import { CategoryFilter } from "./components/CategoryFilter";
@@ -15,6 +16,7 @@ export default function DirectoryScreen() {
   const [limit, setLimit] = useState(150);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -23,7 +25,7 @@ export default function DirectoryScreen() {
   const filters: any = {};
   if (activeCategory === "Inside Campus") filters.zoneMacro = "inside";
   if (activeCategory === "Outside Campus") filters.zoneMacro = "outside";
-  if (searchQuery) filters.search = searchQuery;
+  if (debouncedSearch) filters.search = debouncedSearch;
 
   const { data: places = [], isLoading } = usePlaces(filters);
 
