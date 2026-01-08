@@ -38,8 +38,6 @@ export default function LoginForm() {
     try {
       await login(data);
     } catch (err: any) {
-      console.log("Login failed:", err.message);
-
       const serverMessage = err.response?.data?.message;
       const fallbackMessage = "Login failed. Please try again.";
 

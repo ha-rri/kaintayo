@@ -48,7 +48,6 @@ export default function RegisterForm() {
       const { confirmPassword, ...apiData } = data;
       await register(apiData as RegisterRequest);
     } catch (err: any) {
-      console.log("Registration error:", err);
       setErrorMsg(
         err.response?.data?.message || "Registration failed. Try again."
       );
