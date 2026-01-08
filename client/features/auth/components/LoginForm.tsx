@@ -9,7 +9,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { loginSchema } from "@/schemas/authSchema";
+import { loginSchema } from "@/features/auth/schemas/authSchema";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { authStyles as styles } from "@/features/auth/styles/auth.styles"; // Shared Styles

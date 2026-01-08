@@ -2,6 +2,7 @@ import api from "@/lib/axios";
 import Config from "@/constants/Config";
 import { Place } from "@/types/Place";
 import { MOCK_PLACES } from "@/constants/mockData";
+import { APIResponse } from "@/types/common";
 
 // --- Service ---
 const placeService = {
@@ -53,7 +54,9 @@ const placeService = {
     if (filters.maxPrice)
       params.append("maxPrice", filters.maxPrice.toString()); // Note: Controller might expect 'priceMax' or check logic
 
-    const { data } = await api.get(`/places?${params.toString()}`);
+    const { data } = await api.get<APIResponse<Place[]>>(
+      `/places?${params.toString()}`
+    );
     return data.data;
   },
 
@@ -63,7 +66,7 @@ const placeService = {
       return MOCK_PLACES.find((p) => p._id === id);
     }
 
-    const { data } = await api.get(`/places/${id}`);
+    const { data } = await api.get<APIResponse<Place>>(`/places/${id}`);
     return data.data;
   },
 };

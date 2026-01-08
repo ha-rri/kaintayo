@@ -1,8 +1,12 @@
 import api from "@/lib/axios";
 import { User } from "@/types/User";
 import { z } from "zod";
-import { loginSchema, registerSchema } from "@/schemas/authSchema";
+import {
+  loginSchema,
+  registerSchema,
+} from "@/features/auth/schemas/authSchema";
 import * as SecureStore from "expo-secure-store";
+import { APIResponse } from "@/types/common";
 
 const TOKEN_KEY = "token";
 
@@ -18,19 +22,25 @@ interface AuthResult extends User {
 const authService = {
   // 1. Register
   register: async (data: RegisterRequest): Promise<AuthResult> => {
-    const response = await api.post("/auth/register", data);
+    const response = await api.post<APIResponse<AuthResult>>(
+      "/auth/register",
+      data
+    );
     return response.data.data;
   },
 
   // 2. Login
   login: async (data: LoginInput): Promise<AuthResult> => {
-    const response = await api.post("/auth/login", data);
+    const response = await api.post<APIResponse<AuthResult>>(
+      "/auth/login",
+      data
+    );
     return response.data.data;
   },
 
   // 3. Get Current User (Me)
   getMe: async (): Promise<User> => {
-    const response = await api.get("/auth/me");
+    const response = await api.get<APIResponse<User>>("/auth/me");
     // The server returns { success: true, data: User } or just User depending on controller.
     // Based on standard established: { success: true, data: User }
     return response.data.data;
