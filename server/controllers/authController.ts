@@ -1,17 +1,10 @@
-import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "../models/User.js";
+import { authService } from "../services/authService.js";
 
 interface AuthRequest extends Request {
   user?: IUser;
 }
-
-// Generate JWT (Expires in 30 days)
-const generateToken = (id: string) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET as string, {
-    expiresIn: "30d",
-  });
-};
 
 // @desc    Register new user
 // @route   POST /api/v1/auth/register
@@ -39,7 +32,7 @@ export const registerUser = async (
           username: user.username,
           email: user.email,
           role: user.role,
-          token: generateToken(user._id.toString()),
+          token: authService.generateToken(user._id.toString()),
         },
       });
     } else {
@@ -73,7 +66,7 @@ export const loginUser = async (
           username: user.username,
           email: user.email,
           role: user.role,
-          token: generateToken(user._id.toString()),
+          token: authService.generateToken(user._id.toString()),
         },
       });
     } else {

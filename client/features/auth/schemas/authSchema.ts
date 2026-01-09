@@ -16,7 +16,7 @@ export const registerSchema = z.object({
     confirmPassword: z.string({ error: "Confirm password is required" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    error: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
