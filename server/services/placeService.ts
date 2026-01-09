@@ -121,4 +121,40 @@ export const placeService = {
 
     return existing;
   },
+
+  /**
+   * Get all pending places for Admin
+   */
+  async getPendingPlaces() {
+    return Place.find({ status: "pending" })
+      .populate("submittedBy", "username email")
+      .select("name nearestLandmark coverImage createdAt submittedBy");
+  },
+
+  /**
+   * Approve a place
+   */
+  async approvePlace(id: string) {
+    const place = await Place.findById(id);
+    if (!place) {
+      throw new Error("Place not found");
+    }
+
+    place.status = "active";
+    await place.save();
+    return place;
+  },
+
+  /**
+   * Delete (Reject) a place
+   */
+  async deletePlace(id: string) {
+    const place = await Place.findById(id);
+    if (!place) {
+      throw new Error("Place not found");
+    }
+
+    await place.deleteOne();
+    return { message: "Place deleted" };
+  },
 };

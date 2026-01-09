@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import Meal from "../models/Meal.js";
-import Place from "../models/Place.js";
 import { IUser } from "../models/User.js";
+import { mealService } from "../services/mealService.js";
 
 // Interface for Protected Request (has user)
 interface AuthRequest extends Request {
@@ -17,11 +16,7 @@ export const getMealsByPlace = async (
   next: NextFunction
 ) => {
   try {
-    // Check if place exists for the Menu Screen; only Approved Meals
-    const meals = await Meal.find({
-      place: req.params.placeId,
-      isApproved: true,
-    }).sort({ priceRegular: 1 });
+    const meals = await mealService.getMealsByPlace(req.params.placeId);
 
     res.json({
       success: true,
@@ -42,25 +37,16 @@ export const createMeal = async (
   next: NextFunction
 ) => {
   try {
-    req.body.place = req.params.placeId;
-
-    // Ensure user exists (should be handled by protect, but for TS safety)
     if (!req.user) {
       res.status(401);
       throw new Error("User not authenticated");
     }
-    req.body.submittedBy = req.user._id;
 
-    const place = await Place.findById(req.params.placeId);
-    if (!place) {
-      res.status(404);
-      throw new Error("Place not found");
-    }
-
-    // Moderation Logic: Always pending
-    req.body.isApproved = false;
-
-    const meal = await Meal.create(req.body);
+    const meal = await mealService.createMeal(
+      req.params.placeId,
+      req.body,
+      req.user._id.toString()
+    );
 
     res.status(201).json({
       success: true,
@@ -68,6 +54,25 @@ export const createMeal = async (
       message: "Meal submitted for review",
     });
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Place not found") {
+        res.status(404);
+      }
+      if (error.message === "DuplicateApproved") {
+        res.status(409).json({
+          success: false,
+          message: "This meal is already on the menu.",
+        });
+        return;
+      }
+      if (error.message === "DuplicatePending") {
+        res.status(409).json({
+          success: false,
+          message: "A request for this meal is currently pending review.",
+        });
+        return;
+      }
+    }
     next(error);
   }
 };
@@ -81,21 +86,12 @@ export const updateMeal = async (
   next: NextFunction
 ) => {
   try {
-    const meal = await Meal.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!meal) {
-      res.status(404);
-      throw new Error("Meal not found");
-    }
-
-    // Trigger price recalc for the place
-    await Meal.computePriceRange(meal.place);
-
+    const meal = await mealService.updateMeal(req.params.id, req.body);
     res.json({ success: true, data: meal });
   } catch (error) {
+    if (error instanceof Error && error.message === "Meal not found") {
+      res.status(404);
+    }
     next(error);
   }
 };
@@ -109,17 +105,12 @@ export const deleteMeal = async (
   next: NextFunction
 ) => {
   try {
-    const meal = await Meal.findById(req.params.id);
-
-    if (!meal) {
-      res.status(404);
-      throw new Error("Meal not found");
-    }
-
-    await meal.deleteOne(); // Triggers computePriceRange middleware
-
-    res.json({ success: true, data: {}, message: "Meal deleted" });
+    const result = await mealService.deleteMeal(req.params.id);
+    res.json({ success: true, data: {}, message: result.message });
   } catch (error) {
+    if (error instanceof Error && error.message === "Meal not found") {
+      res.status(404);
+    }
     next(error);
   }
 };
