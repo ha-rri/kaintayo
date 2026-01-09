@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CATEGORIES, AMENITIES, ZONES } from "../constants/taxonomy";
+import { CATEGORIES, AMENITIES, ZONES } from "@/constants/taxonomy";
 
 // Helper to create Zod enum from const array with custom error messages
 const CategoryEnum = z.enum(CATEGORIES, {
@@ -17,7 +17,9 @@ export const placeSchema = z.object({
   zone: ZoneEnum,
   nearestLandmark: z
     .string()
-    .min(2, { error: "Please specify a nearby landmark to help others find it." }),
+    .min(2, {
+      error: "Please specify a nearby landmark to help others find it.",
+    }),
   categories: z
     .array(CategoryEnum)
     .min(1, { error: "Select at least one category" }),

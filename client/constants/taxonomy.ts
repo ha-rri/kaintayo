@@ -9,6 +9,12 @@ export const CATEGORIES = [
   "Unli Rice",
 ] as const;
 
-export const AMENITIES = ["Aircon", "Wifi", "Charging", "Parking", "Toilets"] as const;
+export const AMENITIES = [
+  "Aircon",
+  "Wifi",
+  "Charging",
+  "Parking",
+  "Toilets",
+] as const;
 
 export const ZONES = ["Inside Campus", "Outside Campus"] as const;

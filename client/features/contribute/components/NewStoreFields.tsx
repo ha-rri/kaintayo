@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Control, Controller } from "react-hook-form";
 import { ContributeFormData } from "../types/contribute.types";
-import { CATEGORIES, AMENITIES, ZONES } from "../constants/taxonomy";
+import { CATEGORIES, AMENITIES, ZONES } from "@/constants/taxonomy";
 import { FieldError } from "@/components/ui/FormError";
 
 interface NewStoreFieldsProps {

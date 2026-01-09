@@ -7,6 +7,8 @@ export const usePlaces = (
     search?: string;
     minPrice?: number;
     maxPrice?: number;
+    categories?: string[];
+    amenities?: string[];
     scope?: "global" | "store";
     keepPreviousData?: boolean;
   } = {}
