@@ -13,28 +13,25 @@ const ZoneEnum = z.enum(ZONES, {
 export const placeSchema = z.object({
   name: z
     .string()
-    .min(2, { error: "Place name must be at least 2 characters" }),
+    .min(2, { error: "Please enter the full name of the place." }),
   zone: ZoneEnum,
   nearestLandmark: z
     .string()
-    .min(2, { error: "Landmark must be at least 2 characters" })
-    .optional(),
+    .min(2, { error: "Please specify a nearby landmark to help others find it." }),
   categories: z
     .array(CategoryEnum)
     .min(1, { error: "Select at least one category" }),
   amenities: z.array(AmenityEnum).optional(),
-  coverImage: z.url({ message: "Cover image must be a valid URL" }).optional(),
+  coverImage: z.url({ error: "Cover image must be a valid URL" }).optional(),
 });
 
 export const mealSchema = z
   .object({
-    title: z
-      .string()
-      .min(2, { error: "Meal name must be at least 2 characters" }),
+    title: z.string().min(2, { error: "Please enter the name of the meal." }),
     // using pipe to ensure output is number
     priceRegular: z.coerce
-      .number({ error: "Price must be a number" })
-      .min(1, { error: "Price must be valid" }),
+      .number({ error: "Please enter a valid price." })
+      .min(1, "Please enter a valid price."),
     priceHalf: z.coerce.number().optional(),
     imageUri: z.string().optional(),
   })
@@ -46,7 +43,7 @@ export const mealSchema = z
       return true;
     },
     {
-      message: "Half order price must be less than regular price",
+      error: "Half order price must be less than regular price",
       path: ["priceHalf"],
     }
   );

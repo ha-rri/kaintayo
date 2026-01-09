@@ -1,10 +1,13 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import { securityMiddleware } from "./middleware/securityMiddleware.js";
 
 // Routes Imports
 import authRoutes from "./routes/authRoutes.js";
@@ -24,10 +27,23 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Security Middleware
+app.use(helmet()); // Security Headers
+
+// Rate Limiting (Global: 100 requests per 10 mins)
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(securityMiddleware); // Prevent NoSQL Injection
 
 // Static Assets (Local Images Backup)
 app.use("/images", express.static(path.join(__dirname, "public/images")));

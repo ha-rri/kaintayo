@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import Place from "../models/Place.js";
-import Meal from "../models/Meal.js";
+import { placeService } from "../services/placeService.js";
+import { mealService } from "../services/mealService.js";
 
 // @desc    Get all pending items (Places & Meals)
 // @route   GET /api/v1/admin/pending
@@ -11,16 +11,11 @@ export const getPendingItems = async (
   next: NextFunction
 ) => {
   try {
-    // 1. Get Pending Places
-    const pendingPlaces = await Place.find({ status: "pending" })
-      .populate("submittedBy", "username email")
-      .select("name nearestLandmark coverImage createdAt submittedBy");
-
-    // 2. Get Pending Meals
-    const pendingMeals = await Meal.find({ isApproved: false })
-      .populate("place", "name zoneMacro")
-      .populate("submittedBy", "username email")
-      .select("title priceRegular place createdAt submittedBy");
+    // 1. Get Pending Places & Meals via Services
+    const [pendingPlaces, pendingMeals] = await Promise.all([
+      placeService.getPendingPlaces(),
+      mealService.getPendingMeals(),
+    ]);
 
     res.json({
       success: true,
@@ -48,39 +43,23 @@ export const approveItem = async (
     const { type, id } = req.params;
 
     if (type === "place") {
-      const place = await Place.findById(id);
-      if (!place) {
-        res.status(404);
-        throw new Error("Place not found");
-      }
-
-      place.status = "active";
-      await place.save();
-
+      const place = await placeService.approvePlace(id);
       return res.json({
         success: true,
         message: "Place approved!",
         data: place,
       });
     } else if (type === "meal") {
-      const meal = await Meal.findById(id);
-      if (!meal) {
-        res.status(404);
-        throw new Error("Meal not found");
-      }
-
-      meal.isApproved = true;
-      await meal.save();
-
-      // Trigger Price Calculation for the parent Place
-      await Meal.computePriceRange(meal.place);
-
+      const meal = await mealService.approveMeal(id);
       return res.json({ success: true, message: "Meal approved!", data: meal });
     } else {
       res.status(400);
       throw new Error("Invalid type. Must be 'place' or 'meal'");
     }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("not found")) {
+      res.status(404);
+    }
     next(error);
   }
 };
@@ -97,28 +76,19 @@ export const rejectItem = async (
     const { type, id } = req.params;
 
     if (type === "place") {
-      const place = await Place.findById(id);
-      if (!place) {
-        res.status(404);
-        throw new Error("Place not found");
-      }
-
-      await place.deleteOne();
+      await placeService.deletePlace(id);
       return res.json({ success: true, message: "Place rejected (deleted)." });
     } else if (type === "meal") {
-      const meal = await Meal.findById(id);
-      if (!meal) {
-        res.status(404);
-        throw new Error("Meal not found");
-      }
-
-      await meal.deleteOne();
+      await mealService.deleteMeal(id);
       return res.json({ success: true, message: "Meal rejected (deleted)." });
     } else {
       res.status(400);
       throw new Error("Invalid type. Must be 'place' or 'meal'");
     }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("not found")) {
+      res.status(404);
+    }
     next(error);
   }
 };
