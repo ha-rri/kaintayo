@@ -21,11 +21,12 @@
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React Native (Expo SDK 50+), **Expo Router** (File-based routing), TypeScript.
-- **Styling:** React Native StyleSheet OR NativeWind (Tailwind CSS).
-- **Backend:** Node.js, Express.js.
-- **Database:** MongoDB Atlas (M0 Sandbox).
-- **State Management:** React Context API (Auth, Filters).
+- **Frontend:** React Native (Expo SDK 54+), **Expo Router** (File-based routing), TypeScript.
+- **Styling:** React Native StyleSheet.
+- **Backend:** Node.js, Express.js, TypeScript.
+- **Database:** MongoDB Atlas, Mongoose ODM.
+- **State Management:** TanStack Query (React Query) for server state.
+- **Forms:** React Hook Form + Zod (Validation).
 - **Hardware:** Expo Sensors (Accelerometer for Shake).
 
 ---
@@ -43,23 +44,23 @@ We follow a strict Git workflow to keep our codebase clean and stable.
 
 1. **Sync with Develop:** Always pull the latest changes before starting.
 
-    ```bash
-    git checkout develop
-    git pull origin develop
-    ```
+   ```bash
+   git checkout develop
+   git pull origin develop
+   ```
 
 2. **Create a Branch:** Name it `feature/your-feature-name`.
 
-    ```bash
-    git checkout -b feature/login-page
-    ```
+   ```bash
+   git checkout -b feature/login-page
+   ```
 
 3. **Work & Commit:** Make your changes and commit them.
 4. **Push:** Push your branch to the repo.
 
-    ```bash
-    git push origin feature/login-page
-    ```
+   ```bash
+   git push origin feature/login-page
+   ```
 
 5. **Open a Pull Request (PR):** Go to GitHub and open a PR to merge your branch into `develop`.
 6. **Notify Team:** Let the team know your PR is ready for review! 🚀
@@ -149,17 +150,19 @@ npx expo start
 Your physical phone cannot access `http://localhost:5000`. You must use your computer's **Local IP Address**.
 
 1. **Find your IP Address:**
-    - **Windows:** Open CMD, run `ipconfig`. Look for **IPv4 Address** (e.g., `192.168.1.5`).
-    - **Mac/Linux:** Open Terminal, run `ifconfig | grep "inet " | grep -v 127.0.0.1`.
+
+   - **Windows:** Open CMD, run `ipconfig`. Look for **IPv4 Address** (e.g., `192.168.1.5`).
+   - **Mac/Linux:** Open Terminal, run `ifconfig | grep "inet " | grep -v 127.0.0.1`.
 
 2. **Update the API Config:**
-    - Open `client/services/api.ts` (or `client/constants/Config.ts`).
-    - Change the base URL:
 
-    ```typescript
-    // REPLACE localhost with your IP!
-    const BASE_URL = "http://192.168.1.5:5000/api/v1";
-    ```
+   - Open `client/services/api.ts` (or `client/constants/Config.ts`).
+   - Change the base URL:
+
+   ```typescript
+   // REPLACE localhost with your IP!
+   const BASE_URL = "http://192.168.1.5:5000/api/v1";
+   ```
 
 3. **Check Wi-Fi:** Ensure your phone and computer are connected to the **exact same Wi-Fi network**.
 
@@ -171,16 +174,20 @@ Your physical phone cannot access `http://localhost:5000`. You must use your com
 kaintayo-app/
 ├── client/                 # React Native App (Expo Router)
 │   ├── app/                # Screens & File-based Navigation
-│   │   ├── (tabs)/         # Bottom Tab Screens (Directory, Shake, etc)
-│   │   └── _layout.tsx     # Root Layout
 │   ├── components/         # Reusable UI (PlaceCard, Slider)
-│   ├── context/            # Global State (AuthContext)
-│   ├── services/           # API Calls (Axios)
+│   ├── constants/          # App constants & Config
+│   ├── features/           # Feature-based logic
+│   ├── hooks/              # Custom Hooks
+│   ├── lib/                # Libraries & Utils (Axios)
 │   └── ...
-├── server/                 # Express API
+├── server/                 # Express API (TypeScript)
+│   ├── config/             # DB & App Configuration
+│   ├── controllers/        # Route Logic
+│   ├── middleware/         # Auth & Error Handling
 │   ├── models/             # Mongoose Schemas (Place, Meal, User)
 │   ├── routes/             # API Endpoints
-│   ├── controllers/        # Logic
+│   ├── schemas/            # Zod Validation Schemas
+│   ├── services/           # Business Logic
 │   └── ...
 └── README.md               # You are here
 ```
