@@ -16,6 +16,8 @@ const placeService = {
       minPrice?: number;
       maxPrice?: number;
       scope?: "global" | "store";
+      categories?: string[];
+      amenities?: string[];
       page?: number;
       limit?: number;
     } = {}
@@ -59,8 +61,15 @@ const placeService = {
     if (filters.scope) params.append("scope", filters.scope);
     if (filters.minPrice)
       params.append("minPrice", filters.minPrice.toString());
+    if (filters.minPrice)
+      params.append("minPrice", filters.minPrice.toString());
     if (filters.maxPrice)
       params.append("maxPrice", filters.maxPrice.toString());
+
+    if (filters.categories && filters.categories.length > 0)
+      params.append("categories", filters.categories.join(","));
+    if (filters.amenities && filters.amenities.length > 0)
+      params.append("amenities", filters.amenities.join(","));
 
     // Pagination
     params.append("page", (filters.page || 1).toString());
