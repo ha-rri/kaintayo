@@ -16,6 +16,8 @@ const placeService = {
       minPrice?: number;
       maxPrice?: number;
       scope?: "global" | "store";
+      page?: number;
+      limit?: number;
     } = {}
   ): Promise<Place[]> => {
     // 1. Mock Mode
@@ -42,7 +44,11 @@ const placeService = {
         data = data.filter((p) => p.priceRange.min <= filters.maxPrice!);
       }
 
-      return data;
+      // Mock Pagination
+      const page = filters.page || 1;
+      const limit = filters.limit || 10;
+      const start = (page - 1) * limit;
+      return data.slice(start, start + limit);
     }
 
     // 2. Real Mode
@@ -54,8 +60,14 @@ const placeService = {
     if (filters.minPrice)
       params.append("minPrice", filters.minPrice.toString());
     if (filters.maxPrice)
-      params.append("maxPrice", filters.maxPrice.toString()); // Note: Controller might expect 'priceMax' or check logic
+      params.append("maxPrice", filters.maxPrice.toString());
 
+    // Pagination
+    params.append("page", (filters.page || 1).toString());
+    params.append("limit", (filters.limit || 10).toString());
+
+    // Response is { success: true, data: Place[], meta: ... }
+    // APIResponse<Place[]> maps 'data' to Place[]
     const { data } = await api.get<APIResponse<Place[]>>(
       `/places?${params.toString()}`
     );

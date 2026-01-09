@@ -42,8 +42,14 @@ export const ContributeForm = () => {
         [{ text: "OK" }]
       );
       reset(); // Reset form on success
-    } catch {
-      Alert.alert("Error", "Failed to submit contribution. Please try again.");
+    } catch (error: any) {
+      const status = error.response?.status;
+      const message =
+        error.response?.data?.message ||
+        "Failed to submit contribution. Please try again.";
+
+      const title = status === 409 ? "Submission Notice" : "Error";
+      Alert.alert(title, message);
     }
   };
 
