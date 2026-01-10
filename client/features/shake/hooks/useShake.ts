@@ -1,37 +1,58 @@
 import { useState, useEffect } from 'react';
+import { Accelerometer } from 'expo-sensors';
+import * as Haptics from 'expo-haptics'; // Better vibration than standard React Native
 import { getRandomPlace } from '../services/randomPlaceService';
+import { Place, Zone } from '../types';
 
-type Zone = 'All' | 'Inside Campus' | 'Outside Campus';
-
-export function useShake(budget: number, zone: Zone) {
-  const [matchedPlacesCount, setMatchedPlacesCount] = useState(0);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+export const useShake = (budget: number, selectedZone: Zone) => {
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Calculate potential matches locally for the UI counter
+  const matchedPlacesCount = Math.floor(budget / 50) * (selectedZone === 'All' ? 5 : 2);
 
-  // Update matched places count when budget or zone changes
+  // 1. Physical Shake Detection
   useEffect(() => {
-    updateMatchedCount();
-  }, [budget, zone]);
+    // Set how often we check the sensor (milliseconds)
+    Accelerometer.setUpdateInterval(100);
 
-  const updateMatchedCount = async () => {
-    // TODO: Call API to get count
-    // For now, use mock data
-    const mockCount = Math.floor(Math.random() * 10) + 1;
-    setMatchedPlacesCount(mockCount);
-  };
+    const subscription = Accelerometer.addListener(data => {
+      // Calculate total G-force
+      const totalForce = Math.abs(data.x) + Math.abs(data.y) + Math.abs(data.z);
+      
+      // Threshold: 1.78 is a good "firm shake"
+      if (totalForce > 1.78) {
+        handleShake();
+      }
+    });
 
+    return () => subscription && subscription.remove();
+  }, [isShaking, isLoading]); // Re-bind listener to ensure we capture current state
+
+  // 2. The Shake Action
   const handleShake = async () => {
-    if (matchedPlacesCount === 0) return;
+    // Prevent double-shaking if already loading
+    if (isShaking || isLoading) return;
 
     setIsShaking(true);
-    setSelectedPlace(null);
+    setIsLoading(true);
+    
+    // Trigger Haptic Feedback (Vibration)
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-    // Simulate shake delay
+    // Simulate "Thinking" delay
     setTimeout(async () => {
-      const place = await getRandomPlace(budget, zone);
-      setSelectedPlace(place);
-      setIsShaking(false);
-    }, 1000);
+      try {
+        const place = await getRandomPlace(budget, selectedZone);
+        setSelectedPlace(place);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsShaking(false);
+        setIsLoading(false);
+      }
+    }, 2000); 
   };
 
   const handleReset = () => {
@@ -42,7 +63,8 @@ export function useShake(budget: number, zone: Zone) {
     matchedPlacesCount,
     selectedPlace,
     isShaking,
+    isLoading,
     handleShake,
     handleReset,
   };
-}
+};

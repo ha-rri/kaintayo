@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { styles } from '../styles/shake.styles';
-
-type Zone = 'All' | 'Inside Campus' | 'Outside Campus';
+import { Zone } from '../types';
 
 interface ZoneSelectorProps {
   selectedZone: Zone;

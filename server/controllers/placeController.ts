@@ -1,16 +1,54 @@
 import { Request, Response, NextFunction } from "express";
-import Place from "../models/Place.js";
+import Place, { IPlace } from "../models/Place.js";
 import { IUser } from "../models/User.js";
 import { placeService } from "../services/placeService.js";
 
-// Interface for Protected Request
 interface AuthRequest extends Request {
   user?: IUser;
 }
 
+// ✅ NEW: Shake Feature Controller (Fixed)
+export const getShakePlaces = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { maxBudget, zone } = req.query;
+
+    // ✅ FIX: Using 'any' bypasses the strict Mongoose type check
+    // This removes the red underline while keeping the query logic valid
+    const query: any = { status: "active" };
+
+    // Map Frontend "Inside Campus" -> Backend "inside"
+    if (zone === "Inside Campus") {
+      query.zoneMacro = "inside";
+    } else if (zone === "Outside Campus") {
+      query.zoneMacro = "outside";
+    }
+
+    // Handle Budget (Price Range)
+    if (maxBudget) {
+      // Check if the MINIMUM price of the place is <= User's Budget
+      query["priceRange.min"] = { $lte: Number(maxBudget) };
+    }
+
+    // Fetch the data
+    const places = await Place.find(query)
+      .select("name zoneMacro nearestLandmark priceRange coverImage amenities categories")
+      .lean();
+
+    res.json({
+      success: true,
+      count: places.length,
+      data: places,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all places with filters
-// @route   GET /api/v1/places
-// @access  Public
 export const getPlaces = async (
   req: Request,
   res: Response,
@@ -50,7 +88,7 @@ export const getPlaces = async (
 
     res.json({
       success: true,
-      ...result, // { data, meta }
+      ...result,
     });
   } catch (error) {
     next(error);
@@ -58,8 +96,6 @@ export const getPlaces = async (
 };
 
 // @desc    Get single place
-// @route   GET /api/v1/places/:id
-// @access  Public
 export const getPlace = async (
   req: Request,
   res: Response,
@@ -85,8 +121,6 @@ export const getPlace = async (
 };
 
 // @desc    Update place
-// @route   PUT /api/v1/places/:id
-// @access  Private/Admin
 export const updatePlace = async (
   req: Request,
   res: Response,
@@ -110,8 +144,6 @@ export const updatePlace = async (
 };
 
 // @desc    Delete place
-// @route   DELETE /api/v1/places/:id
-// @access  Private/Admin
 export const deletePlace = async (
   req: Request,
   res: Response,
@@ -134,30 +166,24 @@ export const deletePlace = async (
 };
 
 // @desc    Create a new place
-// @route   POST /api/v1/places
-// @access  Private
 export const createPlace = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    // Safety First: All submissions (even Admin) start as pending
-    // This allows reviewing data before it goes live.
     if (!req.user) {
       res.status(401);
       throw new Error("User not found");
     }
 
-    // Duplicate Check
     const existingPending = await placeService.checkDuplicatePending(
       req.body.name
     );
     if (existingPending) {
       res.status(409).json({
         success: false,
-        message:
-          "A request for this place already exists and is pending review.",
+        message: "A request for this place already exists and is pending review.",
         data: existingPending,
       });
       return;

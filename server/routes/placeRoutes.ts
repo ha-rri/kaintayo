@@ -6,6 +6,7 @@ import {
   createPlace,
   updatePlace,
   deletePlace,
+  getShakePlaces, // ✅ Imported here
 } from "../controllers/placeController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import validate from "../middleware/validateRequest.js";
@@ -13,15 +14,20 @@ import {
   createPlaceSchema,
   updatePlaceSchema,
 } from "../schemas/placeSchema.js";
+import mealRouter from "./mealRoutes.js";
 
 // Re-route into other resource routers
-import mealRouter from "./mealRoutes.js";
 router.use("/:placeId/meals", mealRouter);
 
 // Public: Get all places (Feed)
 router.get("/", getPlaces);
 
-// Protected: Create new place (Pending for regular users)
+// ---------------------------------------------------------
+// ✅ NEW SHAKE ROUTE (Must be before /:id)
+router.get("/shake", getShakePlaces);
+// ---------------------------------------------------------
+
+// Protected: Create new place
 router.post("/", protect, validate(createPlaceSchema), createPlace);
 
 // Single Place Operations

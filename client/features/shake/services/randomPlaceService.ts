@@ -1,51 +1,45 @@
-type Zone = 'All' | 'Inside Campus' | 'Outside Campus';
+import { Zone, Place } from '../types';
+import { endpoints, mapZoneToServer } from '../../../config/api';
 
-// Mock data - Replace with actual API call
-const mockPlaces = [
-  {
-    id: 1,
-    name: 'Streetside Lomi Haus',
-    location: { landmark: 'Near Gate 1', campusLocation: 'Outside Campus' },
-    priceRange: { min: 25, max: 150 },
-  },
-  {
-    id: 2,
-    name: 'Campus Canteen',
-    location: { landmark: 'Main Building', campusLocation: 'Inside Campus' },
-    priceRange: { min: 30, max: 80 },
-  },
-  {
-    id: 3,
-    name: 'Coffee Bean Café',
-    location: { landmark: 'Near Library', campusLocation: 'Inside Campus' },
-    priceRange: { min: 50, max: 200 },
-  },
-];
+export async function getRandomPlace(budget: number, zone: Zone): Promise<Place | null> {
+  try {
+    const zoneMacro = mapZoneToServer(zone);
+    
+    // 1. Build query params to filter on the SERVER side
+    // Adjust these param names ('maxPrice', 'zoneMacro') to match your Backend Controller
+    const params = new URLSearchParams();
+    if (budget > 0) params.append('maxPrice', budget.toString());
+    if (zoneMacro) params.append('zoneMacro', zoneMacro);
 
-export async function getRandomPlace(budget: number, zone: Zone) {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`${API_URL}/places/random?budget=${budget}&zone=${zone}`);
-  
-  // Filter places based on criteria
-  const filtered = mockPlaces.filter(place => {
-    const matchesBudget = place.priceRange.min <= budget;
-    const matchesZone = zone === 'All' || place.location.campusLocation === zone;
-    return matchesBudget && matchesZone;
-  });
+    console.log(`Fetching: ${endpoints.places.getAll}?${params.toString()}`);
 
-  // Return random place
-  if (filtered.length === 0) return null;
-  const randomIndex = Math.floor(Math.random() * filtered.length);
-  return filtered[randomIndex];
-}
+    // 2. The Real API Call
+    const response = await fetch(`${endpoints.places.getAll}?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
 
-export async function getMatchedPlacesCount(budget: number, zone: Zone): Promise<number> {
-  // TODO: Replace with actual API call
-  const filtered = mockPlaces.filter(place => {
-    const matchesBudget = place.priceRange.min <= budget;
-    const matchesZone = zone === 'All' || place.location.campusLocation === zone;
-    return matchesBudget && matchesZone;
-  });
-  
-  return filtered.length;
+    const result = await response.json();
+    
+    // Assuming your API returns { success: true, data: [...] }
+    // Adjust 'result.data' if your API structure is different
+    const places: Place[] = result.data || [];
+
+    if (places.length === 0) return null;
+
+    // 3. Pick a random winner from the filtered list
+    const randomIndex = Math.floor(Math.random() * places.length);
+    return places[randomIndex];
+
+  } catch (error) {
+    console.error('Error fetching random place:', error);
+    // Optional: Re-throw error if you want to show an alert in the UI
+    throw error;
+  }
 }

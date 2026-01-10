@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native';
-import Slider from '@react-native-community/slider';
+import React from 'react';
+import { View, Text, TextInput } from 'react-native';
 import { styles } from '../styles/shake.styles';
 
 interface BudgetDisplayProps {
@@ -8,24 +8,32 @@ interface BudgetDisplayProps {
 }
 
 export default function BudgetDisplay({ budget, onBudgetChange }: BudgetDisplayProps) {
+  
+  const handleChange = (text: string) => {
+    // 1. Remove non-numeric characters (prevents copy-paste errors)
+    const cleanNumber = text.replace(/[^0-9]/g, '');
+    
+    // 2. Update state (if empty, default to 0 to prevent NaN errors)
+    onBudgetChange(Number(cleanNumber));
+  };
+
   return (
     <View style={styles.budgetCard}>
       <Text style={styles.budgetLabel}>Set Max Budget</Text>
-      <View style={styles.budgetDisplay}>
-        <Text style={styles.budgetIcon}>₱</Text>
-        <Text style={styles.budgetAmount}>{budget}</Text>
+      
+      {/* The Grey Input Box */}
+      <View style={styles.budgetInputContainer}>
+        <Text style={styles.budgetCurrency}>₱</Text>
+        <TextInput
+          style={styles.budgetInput}
+          value={budget === 0 ? '' : budget.toString()}
+          onChangeText={handleChange}
+          keyboardType="numeric"
+          placeholder="0"
+          placeholderTextColor="#999"
+          maxLength={5} // Prevents crazy large numbers
+        />
       </View>
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={300}
-        step={10}
-        value={budget}
-        onValueChange={onBudgetChange}
-        minimumTrackTintColor="#FF6B35"
-        maximumTrackTintColor="#e0e0e0"
-        thumbTintColor="#FF6B35"
-      />
     </View>
   );
 }

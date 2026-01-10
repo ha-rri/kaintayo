@@ -5,6 +5,8 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  
+  // --- Header Section ---
   header: {
     backgroundColor: '#FF6B35',
     paddingTop: 50,
@@ -37,10 +39,14 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 8,
   },
+
+  // --- Main Content ---
   content: {
     padding: 20,
     gap: 16,
   },
+
+  // --- Budget Card (UPDATED) ---
   budgetCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -55,31 +61,38 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 12,
+    fontWeight: '500',
   },
-  budgetDisplay: {
+  // The Grey Input Box
+  budgetInputContainer: {
+    backgroundColor: '#F0EFEB', 
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
   },
-  budgetIcon: {
-    fontSize: 32,
-    fontWeight: '700',
+  budgetCurrency: {
+    fontSize: 24,
+    fontWeight: '800',
     color: '#FF6B35',
-    marginRight: 8,
+    marginRight: 10,
   },
-  budgetAmount: {
-    fontSize: 48,
-    fontWeight: '700',
-    color: '#333',
+  budgetInput: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#000',
+    flex: 1, 
+    padding: 0,
   },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
+
+  // --- Zone & Match Row ---
   row: {
     flexDirection: 'row',
     gap: 12,
   },
+  
+  // --- Zone Selector ---
   zoneCard: {
     flex: 1,
     backgroundColor: '#fff',
@@ -121,6 +134,8 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
   },
+
+  // --- Match Counter ---
   matchCard: {
     flex: 1,
     backgroundColor: '#fff',
@@ -147,6 +162,8 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     color: '#999',
   },
+
+  // --- Shake Button Area ---
   shakeContainer: {
     alignItems: 'center',
     marginVertical: 40,
@@ -174,6 +191,8 @@ export const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
   },
+
+  // --- Result Popup ---
   resultCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
