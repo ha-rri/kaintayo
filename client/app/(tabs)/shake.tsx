@@ -1,3 +1,5 @@
-import ShakeScreen from '@/features/shake/ShakeScreen';
+import ShakeScreen from "@/features/shake/ShakeScreen";
 
-export default ShakeScreen;
+export default function ShakePage() {
+  return <ShakeScreen />;
+}

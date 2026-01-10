@@ -1,33 +1,41 @@
-import { Tabs } from 'expo-router';
-import { MaterialCommunityIcons, Ionicons, AntDesign } from '@expo/vector-icons';
+import { Tabs } from "expo-router";
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  AntDesign,
+} from "@expo/vector-icons";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#FF6B35',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: "#FF6B35",
+        tabBarInactiveTintColor: "#999",
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
           borderTopWidth: 1,
-          borderTopColor: '#eee',
+          borderTopColor: "#eee",
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '500',
+          fontWeight: "500",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Food',
+          title: "Food",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="silverware-fork-knife" size={size} color={color} />
+            <MaterialCommunityIcons
+              name="silverware-fork-knife"
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -35,7 +43,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shake"
         options={{
-          title: 'Shake',
+          title: "Shake",
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="shake" size={size} color={color} />
           ),
@@ -45,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="contribute"
         options={{
-          title: 'Contribute',
+          title: "Contribute",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="add-circle-outline" size={size + 4} color={color} />
           ),
@@ -55,7 +63,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),

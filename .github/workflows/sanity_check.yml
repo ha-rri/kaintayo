@@ -13,6 +13,9 @@ jobs:
       - name: Install Server Deps
         working-directory: ./server
         run: npm ci
+      - name: Build Server
+        working-directory: ./server
+        run: npm run build
 
   check-client:
     runs-on: ubuntu-latest
@@ -24,3 +27,6 @@ jobs:
       - name: Lint Client
         working-directory: ./client
         run: npm run lint
+      - name: Type Check Client
+        working-directory: ./client
+        run: npm run type-check

@@ -37,7 +37,7 @@ export default function ShakeButton({ onShake, isShaking, disabled }: ShakeButto
         }),
       ]).start();
     }
-  }, [isShaking]);
+  }, [isShaking, shakeAnimation]);
 
   return (
     <View style={styles.shakeContainer}>
