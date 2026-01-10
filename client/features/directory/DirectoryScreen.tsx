@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { styles } from "./styles/directory.styles";
 import { usePlaces } from "./hooks/usePlaces";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -39,6 +39,16 @@ export default function DirectoryScreen() {
   // However, based on requirements, I'll stick to the hybrid approach but ensure 'limit' from modal updates our local limit state.
 
   const { data: places = [], isLoading } = usePlaces(filters);
+
+  // Sync selectedPlace with fresh data when places update (e.g. after edit)
+  useEffect(() => {
+    if (selectedPlace) {
+      const freshData = places.find((p) => p._id === selectedPlace._id);
+      if (freshData) {
+        setSelectedPlace(freshData);
+      }
+    }
+  }, [places, selectedPlace]);
 
   // Client-Side Filtering (Price):
   // Filter locally to maintain immediate responsiveness for the slider (no network lag).

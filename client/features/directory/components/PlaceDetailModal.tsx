@@ -14,10 +14,13 @@ import { formatRelativeTime } from "@/lib/dateUtils";
 import { FavoriteButton } from "@/features/common/components/FavoriteButton";
 import { useToast, ToastUI } from "@/features/common/context/ToastContext";
 import { AppImage } from "@/components/ui/AppImage";
+import { useAuth } from "@/features/auth/context/AuthContext"; // Speculative Fix: It's likely exported from context or a hook in auth feature
+import { useQueryClient } from "@tanstack/react-query";
+import { AdminEditModal } from "@/features/admin/components/AdminEditModal";
 
 interface PlaceDetailModalProps {
   visible: boolean;
-  place: Place | null;
+  place?: Place | null; // Allow null to match DirectoryScreen state
   limit: number;
   onClose: () => void;
   getAffordableMeals: (meals: Meal[]) => Meal[];
@@ -31,14 +34,73 @@ export const PlaceDetailModal = ({
   getAffordableMeals,
 }: PlaceDetailModalProps) => {
   const {
+    showToast,
     visible: toastVisible,
     message: toastMessage,
     fadeAnim: toastFadeAnim,
   } = useToast();
 
-  if (!place) return null;
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  // Simplified role check as per user instruction (only user and admin exist)
+  const isAdmin = user?.role === "admin";
 
-  // Ensure meals exists (it might be undefined if not populated/fetched)
+  // Edit State
+  const [editModalVisible, setEditModalVisible] = React.useState(false);
+  const [editType, setEditType] = React.useState<"place" | "meal" | null>(null);
+  const [editTarget, setEditTarget] = React.useState<Place | Meal | null>(null);
+
+  if (!visible || !place) return null;
+
+  const handleEditPlace = () => {
+    setEditType("place");
+    setEditTarget(place);
+    setEditModalVisible(true);
+  };
+
+  const handleEditMeal = (meal: Meal) => {
+    setEditType("meal");
+    setEditTarget(meal);
+    setEditModalVisible(true);
+  };
+
+  /* Hook moved to top level */
+
+  const handleEditSuccess = (updatedData?: any) => {
+    setEditModalVisible(false);
+
+    // Manual Cache Update for Instant Feedback
+    if (updatedData) {
+      queryClient.setQueryData(["places"], (oldPlaces: Place[] | undefined) => {
+        if (!oldPlaces) return [];
+
+        if (editType === "place") {
+          // Update Place: Replace the entire object
+          return oldPlaces.map((p) =>
+            p._id === updatedData._id ? updatedData : p
+          );
+        } else if (editType === "meal" && place) {
+          // Update Meal: Find the place, then update the specific meal in its array
+          return oldPlaces.map((p) => {
+            if (p._id === place._id) {
+              const updatedMeals = (p.meals || []).map((m) =>
+                m._id === updatedData._id ? updatedData : m
+              );
+              return { ...p, meals: updatedMeals };
+            }
+            return p;
+          });
+        }
+        return oldPlaces;
+      });
+    } else {
+      // Fallback if no data returned (shouldn't happen with updated forms)
+      queryClient.invalidateQueries({ queryKey: ["places"] });
+    }
+
+    showToast("Updated successfully", "success");
+  };
+
   const meals = place.meals || [];
   const affordableMeals = getAffordableMeals(meals);
 
@@ -60,7 +122,17 @@ export const PlaceDetailModal = ({
           <TouchableOpacity style={styles.modalBackButton} onPress={onClose}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <FavoriteButton placeId={place._id} style={styles.modalHeartButton} />
+          <View style={styles.headerActions}>
+            {isAdmin && (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={handleEditPlace}
+              >
+                <Ionicons name="pencil" size={20} color="#fff" />
+              </TouchableOpacity>
+            )}
+            <FavoriteButton placeId={place._id} size={24} color="#fff" />
+          </View>
         </View>
 
         {/* Restaurant Info */}
@@ -91,12 +163,31 @@ export const PlaceDetailModal = ({
                 <View style={styles.menuItemContent}>
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
-                    {/* Display Updated Time */}
                     Updated {formatRelativeTime(place.updatedAt)}
-                    {place.submittedBy && ` by @${place.submittedBy.username}`}
                   </Text>
-                  <Text style={styles.menuItemPrice}>₱{meal.priceRegular}</Text>
+
+                  {/* New Price Display: Regular First, Half as Badge */}
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.regularPrice}>
+                      ₱{meal.priceRegular}
+                    </Text>
+                    {meal.priceHalf && (
+                      <View style={styles.halfPriceBadge}>
+                        <Text style={styles.halfPriceText}>
+                          ₱{meal.priceHalf} Half
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 </View>
+                {isAdmin && (
+                  <TouchableOpacity
+                    style={styles.mealEditBtn}
+                    onPress={() => handleEditMeal(meal)}
+                  >
+                    <Ionicons name="pencil" size={16} color="#666" />
+                  </TouchableOpacity>
+                )}
               </View>
             ))}
 
@@ -120,6 +211,15 @@ export const PlaceDetailModal = ({
           fadeAnim={toastFadeAnim}
           style={styles.localToastPosition}
         />
+
+        {/* Admin Edit Modal */}
+        <AdminEditModal
+          visible={editModalVisible}
+          type={editType}
+          target={editTarget}
+          onClose={() => setEditModalVisible(false)}
+          onSuccess={handleEditSuccess}
+        />
       </View>
     </Modal>
   );
@@ -137,6 +237,7 @@ const styles = StyleSheet.create({
   modalImage: {
     width: "100%",
     height: "100%",
+    resizeMode: "cover",
   },
   modalBackButton: {
     position: "absolute",
@@ -148,21 +249,28 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 10,
   },
-  modalHeartButton: {
+  headerActions: {
     position: "absolute",
     top: 50,
     right: 20,
+    flexDirection: "row",
+    gap: 10,
+    zIndex: 10,
+  },
+  editButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 10, // Ensure it's clickable above the image
   },
+  // modalHeartButton style is no longer needed as FavoriteButton is now inside headerActions
   modalContent: {
     flex: 1,
+    padding: 20, // Added padding as per instruction
   },
   modalHeader: {
     backgroundColor: "#fff",
@@ -170,6 +278,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    marginHorizontal: -20, // Compensate for modalContent padding
+    marginTop: -20, // Compensate for modalContent padding
+    marginBottom: 10,
   },
   modalTitle: {
     fontSize: 24,
@@ -194,8 +305,8 @@ const styles = StyleSheet.create({
   },
   menuSection: {
     backgroundColor: "#fff",
-    marginTop: 10,
     padding: 20,
+    marginHorizontal: -20, // Compensate for modalContent padding
   },
   menuTitle: {
     fontSize: 20,
@@ -207,6 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 20,
     gap: 15,
+    alignItems: "center", // Align items vertically
   },
   menuItemIcon: {
     width: 60,
@@ -225,12 +337,34 @@ const styles = StyleSheet.create({
   menuItemMeta: {
     fontSize: 12,
     color: "#999",
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  menuItemPrice: {
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  regularPrice: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#333",
+    color: "#FF6B35",
+  },
+  halfPriceBadge: {
+    backgroundColor: "#FFF0E6", // Light orange background for compatibility with primary color
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#FFDcc2",
+  },
+  halfPriceText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#FF6B35",
+  },
+  // Removed old price styles to keep clean
+  mealEditBtn: {
+    padding: 8,
   },
   noMealsContainer: {
     alignItems: "center",

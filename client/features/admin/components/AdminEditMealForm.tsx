@@ -1,0 +1,136 @@
+import React from "react";
+import { View, StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { mealService } from "@/features/directory/services/mealService";
+import { mealSchema } from "@/features/contribute/schemas/contributeSchema";
+import { MealForm } from "@/features/contribute/components/MealForm";
+import { Meal } from "@/types/Meal";
+import { z } from "zod";
+
+// Create a schema specifically for editing a meal
+// We need to match the structure expected by MealForm: { meal: { ... } }
+const editMealSchema = z.object({
+  meal: mealSchema,
+});
+
+type EditMealFormData = z.infer<typeof editMealSchema>;
+
+interface AdminEditMealFormProps {
+  meal: Meal;
+  onSuccess: (updatedMeal: Meal) => void;
+  onCancel: () => void;
+}
+
+export const AdminEditMealForm = ({
+  meal,
+  onSuccess,
+  onCancel,
+}: AdminEditMealFormProps) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue, // We need setValue for MealForm if we want to support toggling logic from parent, but MealForm handles it internally via control?
+    // Wait, MealForm props are: { control, setValue, errors }. So we DO need setValue.
+  } = useForm<EditMealFormData>({
+    resolver: zodResolver(editMealSchema) as any, // Cast to avoid strict coercion type mismatch
+    defaultValues: {
+      meal: {
+        title: meal.title,
+        priceRegular: meal.priceRegular,
+        priceHalf: meal.priceHalf,
+        imageUri: meal.imageUri,
+      },
+    },
+  });
+
+  const onSubmit = async (data: EditMealFormData) => {
+    try {
+      const result = await mealService.updateMeal(meal._id, data.meal);
+      Alert.alert("Success", "Meal updated successfully");
+      onSuccess(result);
+    } catch (error) {
+      console.error("Update Meal Error:", error);
+      Alert.alert("Error", "Failed to update meal");
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.headerTitle}>Edit Meal</Text>
+      <Text style={styles.headerSubtitle}>{meal.title}</Text>
+
+      {/* Reusing MealForm with casted control to bypass strict ContributeFormData mismatch */}
+      <MealForm control={control as any} setValue={setValue} errors={errors} />
+
+      <View style={styles.actions}>
+        <TouchableOpacity
+          style={[styles.btn, styles.cancelBtn]}
+          onPress={onCancel}
+          disabled={isSubmitting}
+        >
+          <Text style={styles.cancelBtnText}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.btn, styles.saveBtn, isSubmitting && styles.disabled]}
+          onPress={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
+        >
+          <Text style={styles.saveBtnText}>
+            {isSubmitting ? "Saving..." : "Save Changes"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 20,
+  },
+  btn: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  cancelBtn: {
+    backgroundColor: "#f5f5f5",
+  },
+  saveBtn: {
+    backgroundColor: "#FF6B35",
+  },
+  cancelBtnText: {
+    color: "#666",
+    fontWeight: "600",
+  },
+  saveBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  disabled: {
+    opacity: 0.7,
+  },
+});
