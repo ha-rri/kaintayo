@@ -23,6 +23,11 @@ export const usePendingItems = () => {
       // Merge and Sort by Created Date (Newest First)
       // Assuming 'createdAt' exists on both models
       const allItems = [...taggedPlaces, ...taggedMeals].sort((a, b) => {
+        // 1. Sort by Type (Places First)
+        if (a.type !== b.type) {
+          return a.type === "place" ? -1 : 1;
+        }
+        // 2. Sort by Date (Newest First)
         const dateA = new Date(a.createdAt || 0).getTime();
         const dateB = new Date(b.createdAt || 0).getTime();
         return dateB - dateA; // Descending

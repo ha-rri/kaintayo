@@ -15,11 +15,7 @@ export const placeSchema = z.object({
     .string()
     .min(2, { error: "Please enter the full name of the place." }),
   zone: ZoneEnum,
-  nearestLandmark: z
-    .string()
-    .min(2, {
-      error: "Please specify a nearby landmark to help others find it.",
-    }),
+  nearestLandmark: z.string().optional(),
   categories: z
     .array(CategoryEnum)
     .min(1, { error: "Select at least one category" }),
