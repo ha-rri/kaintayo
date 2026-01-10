@@ -57,6 +57,14 @@ export default function DashboardView({ user, onLogout }: DashboardViewProps) {
             <Text style={styles.sectionLabel}>ACCOUNT MANAGEMENT</Text>
 
             <ActionCard
+              title="Favorites"
+              subtitle="Your saved places"
+              icon="heart"
+              color="#E91E63"
+              onPress={() => router.push("/favorites")}
+            />
+
+            <ActionCard
               title="My Contributions"
               subtitle="View pending places and meals"
               icon="list"
