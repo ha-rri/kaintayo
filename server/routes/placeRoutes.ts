@@ -6,8 +6,13 @@ import {
   createPlace,
   updatePlace,
   deletePlace,
+  getMyPendingPlaces,
 } from "../controllers/placeController.js";
-import { protect, admin } from "../middleware/authMiddleware.js";
+import {
+  protect,
+  admin,
+  optionalProtect,
+} from "../middleware/authMiddleware.js";
 import validate from "../middleware/validateRequest.js";
 import {
   createPlaceSchema,
@@ -19,7 +24,8 @@ import mealRouter from "./mealRoutes.js";
 router.use("/:placeId/meals", mealRouter);
 
 // Public: Get all places (Feed)
-router.get("/", getPlaces);
+router.get("/", optionalProtect, getPlaces);
+router.get("/my-pending", protect, getMyPendingPlaces);
 
 // Protected: Create new place (Pending for regular users)
 router.post("/", protect, validate(createPlaceSchema), createPlace);

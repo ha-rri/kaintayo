@@ -50,7 +50,7 @@ export const StoreSearch = ({
     isFetching,
   } = usePlaces({
     search: debouncedQuery.length > 0 ? debouncedQuery : undefined,
-    scope: "store",
+    scope: "my_pending_inclusion",
     keepPreviousData: false, // Prevent flash of stale options
   });
 
@@ -147,7 +147,14 @@ export const StoreSearch = ({
               style={styles.dropdownItem}
               onPress={() => handleSelectPlace(place)}
             >
-              <Text style={styles.placeName}>{place.name}</Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.placeName}>{place.name}</Text>
+                {place.status === "pending" && (
+                  <View style={styles.pendingBadge}>
+                    <Text style={styles.pendingText}>Pending (Me)</Text>
+                  </View>
+                )}
+              </View>
               <Text style={styles.placeDetail}>{place.nearestLandmark}</Text>
             </TouchableOpacity>
           ))}
@@ -299,4 +306,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   existingStoreBadgeText: { fontSize: 12, color: "#4CAF50", fontWeight: "600" },
+  nameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  pendingBadge: {
+    backgroundColor: "#FFF3E0",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  pendingText: { fontSize: 10, color: "#FF6B35", fontWeight: "700" },
 });

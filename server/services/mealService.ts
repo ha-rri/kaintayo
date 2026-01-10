@@ -24,6 +24,18 @@ export const mealService = {
   },
 
   /**
+   * Get Pending Meals for a specific user
+   */
+  async getMyPendingMeals(userId: string) {
+    return Meal.find({
+      isApproved: false,
+      submittedBy: userId,
+    })
+      .populate("place", "name")
+      .sort({ createdAt: -1 });
+  },
+
+  /**
    * Create a new meal (Always sets isApproved=false)
    */
   async createMeal(
