@@ -1,5 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { User } from "@/types/User";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 interface DashboardViewProps {
   user: User | null;
@@ -7,6 +9,7 @@ interface DashboardViewProps {
 }
 
 export default function DashboardView({ user, onLogout }: DashboardViewProps) {
+  const router = useRouter();
   if (!user) return null; // Should be handled by parent, but safety first
 
   return (
@@ -21,6 +24,16 @@ export default function DashboardView({ user, onLogout }: DashboardViewProps) {
         <Text style={styles.ctaTitle}>Welcome back!</Text>
 
         {/* Add logged-in content here later */}
+
+        {user.role === "admin" && (
+          <TouchableOpacity
+            style={styles.adminButton}
+            onPress={() => router.push("/admin" as any)}
+          >
+            <Ionicons name="shield-checkmark" size={20} color="#fff" />
+            <Text style={styles.adminButtonText}>Admin Panel</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
           <Text style={styles.logoutButtonText}>Log Out</Text>
@@ -53,11 +66,12 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     color: "#fff",
+    marginBottom: 5,
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: "#fff",
-    opacity: 0.8,
+    opacity: 0.9,
   },
   ctaTitle: {
     fontSize: 24,
@@ -80,6 +94,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ddd",
+  },
+  adminButton: {
+    backgroundColor: "#FF6B35",
+    borderRadius: 10,
+    paddingVertical: 14,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+    width: "100%",
+    shadowColor: "#FF6B35",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  adminButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
   logoutButtonText: {
     fontSize: 16,

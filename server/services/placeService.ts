@@ -128,7 +128,9 @@ export const placeService = {
   async getPendingPlaces() {
     return Place.find({ status: "pending" })
       .populate("submittedBy", "username email")
-      .select("name nearestLandmark coverImage createdAt submittedBy");
+      .select(
+        "name nearestLandmark coverImage createdAt submittedBy amenities categories zoneMacro"
+      );
   },
 
   /**
