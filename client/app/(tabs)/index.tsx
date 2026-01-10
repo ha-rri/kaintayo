@@ -1,5 +1,9 @@
-import DirectoryScreen from "@/features/directory/DirectoryScreen";
+import Onboarding from "@/features/onboarding/onboarding";
 
-export default function FoodScreen() {
-  return <DirectoryScreen />;
+export const options = {
+  headerShown: false,
+};
+
+export default function OnboardingScreen() {
+  return <Onboarding />;
 }
