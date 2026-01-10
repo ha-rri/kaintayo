@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import User, { IUser } from "../models/User.js";
+import { IUser } from "../models/User.js";
 import { authService } from "../services/authService.js";
 
 interface AuthRequest extends Request {
@@ -16,29 +16,12 @@ export const registerUser = async (
 ) => {
   try {
     const { username, email, password } = req.body;
+    const user = await authService.registerUser({ username, email, password });
 
-    // Create user (Middleware will hash password)
-    const user = await User.create({
-      username,
-      email,
-      password,
+    res.status(201).json({
+      success: true,
+      data: user,
     });
-
-    if (user) {
-      res.status(201).json({
-        success: true,
-        data: {
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          token: authService.generateToken(user._id.toString()),
-        },
-      });
-    } else {
-      res.status(400);
-      throw new Error("Invalid user data");
-    }
   } catch (error) {
     next(error);
   }
@@ -54,25 +37,12 @@ export const loginUser = async (
 ) => {
   try {
     const { email, password } = req.body;
+    const user = await authService.loginUser({ email, password });
 
-    // Check for user email
-    const user = await User.findOne({ email });
-
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        success: true,
-        data: {
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          token: authService.generateToken(user._id.toString()),
-        },
-      });
-    } else {
-      res.status(401);
-      throw new Error("Incorrect email or password");
-    }
+    res.json({
+      success: true,
+      data: user,
+    });
   } catch (error) {
     next(error);
   }
