@@ -53,7 +53,6 @@ export default function AdminPanelScreen() {
         <Text style={styles.headerTitle}>Admin Panel</Text>
         <Text style={styles.headerSubtitle}>Manage community submissions</Text>
       </View>
-      <View style={{ width: 24 }} />
     </View>
   );
 
@@ -164,28 +163,30 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 20,
-    backgroundColor: "#FF6B35", // BRAND ORANGE
-    borderBottomWidth: 0, // Remove border for cleaner look
-    elevation: 4, // Shadow for depth
+    backgroundColor: "#FF6B35",
+    borderBottomWidth: 0,
+    elevation: 4,
   },
   backButton: {
-    padding: 4,
+    marginRight: 12,
+    marginTop: 4,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
-    color: "#fff", // White text
-    textAlign: "center",
+    color: "#fff",
+    textAlign: "left",
+    lineHeight: 28,
   },
   headerTitleContainer: {
-    alignItems: "center",
+    alignItems: "flex-start",
+    flex: 1,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.9)", // Semi-transparent white
+    color: "rgba(255,255,255,0.9)",
     marginTop: 2,
   },
   tabContainer: {

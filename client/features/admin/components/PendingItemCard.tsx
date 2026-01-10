@@ -28,12 +28,17 @@ export default function PendingItemCard({
         <View style={styles.header}>
           <View
             style={[
-              styles.badge,
-              isPlace ? styles.badgePlace : styles.badgeMeal,
+              styles.typeBadge,
+              isPlace ? styles.bgOrange : styles.bgGreen,
             ]}
           >
-            <Text style={styles.badgeText}>
-              {isPlace ? "NEW PLACE" : "NEW MEAL"}
+            <Text
+              style={[
+                styles.typeBadgeText,
+                isPlace ? styles.textOrange : styles.textGreen,
+              ]}
+            >
+              {isPlace ? "STORE" : "MEAL"}
             </Text>
           </View>
           <Text style={styles.date}>
@@ -44,6 +49,11 @@ export default function PendingItemCard({
         <Text style={styles.title} numberOfLines={1}>
           {isPlace ? (item as any).name : (item as any).title}
         </Text>
+        {!isPlace && (
+          <Text style={styles.placeName} numberOfLines={1}>
+            at {(item as any).place?.name || "Unknown Place"}
+          </Text>
+        )}
         <Text style={styles.subtitle} numberOfLines={1}>
           Submitted by:{" "}
           {typeof item.submittedBy === "object"
@@ -89,22 +99,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  badge: {
+  // New Pill Styles
+  typeBadge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
+    borderWidth: 1,
   },
-  badgePlace: {
-    backgroundColor: "#E3F2FD", // Light Blue
-  },
-  badgeMeal: {
-    backgroundColor: "#FFF3E0", // Light Orange
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#333",
-  },
+  bgOrange: { backgroundColor: "#fff5ed", borderColor: "#FF6B35" },
+  bgGreen: { backgroundColor: "#e8f5e9", borderColor: "#4CAF50" },
+  typeBadgeText: { fontSize: 10, fontWeight: "700" },
+  textOrange: { color: "#FF6B35" },
+  textGreen: { color: "#4CAF50" },
+
   date: {
     fontSize: 10,
     color: "#999",
@@ -114,6 +121,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     marginTop: 4,
+  },
+  placeName: {
+    fontSize: 12,
+    color: "#FF6B35",
+    fontWeight: "500",
+    marginBottom: 2,
   },
   subtitle: {
     fontSize: 12,
