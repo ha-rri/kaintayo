@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User.js";
+import { userService } from "./userService.js";
 
 export const authService = {
   /**
@@ -33,10 +34,7 @@ export const authService = {
 
     if (user) {
       return {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
+        ...userService.formatUserResponse(user),
         token: this.generateToken(user._id.toString()),
       };
     } else {
@@ -55,10 +53,7 @@ export const authService = {
 
     if (user && (await user.matchPassword(password!))) {
       return {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
+        ...userService.formatUserResponse(user),
         token: this.generateToken(user._id.toString()),
       };
     } else {

@@ -14,6 +14,7 @@ import authRoutes from "./routes/authRoutes.js";
 import placeRoutes from "./routes/placeRoutes.js";
 import mealRoutes from "./routes/mealRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Load env vars
 dotenv.config();
@@ -50,6 +51,7 @@ app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/places", placeRoutes);
 app.use("/api/v1/meals", mealRoutes);
 app.use("/api/v1/admin", adminRoutes);

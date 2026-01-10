@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { IUser } from "../models/User.js";
 import { authService } from "../services/authService.js";
+import { userService } from "../services/userService.js";
 
 interface AuthRequest extends Request {
   user?: IUser;
@@ -66,12 +67,7 @@ export const getMe = async (
 
     res.status(200).json({
       success: true,
-      data: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      data: userService.formatUserResponse(user),
     });
   } catch (error) {
     next(error);
