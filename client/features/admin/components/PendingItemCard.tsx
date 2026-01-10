@@ -1,6 +1,7 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { AppImage } from "@/components/ui/AppImage";
 import { PendingItem } from "../hooks/usePendingItems";
 
 interface PendingItemCardProps {
@@ -13,16 +14,16 @@ export default function PendingItemCard({
   onPress,
 }: PendingItemCardProps) {
   const isPlace = item.type === "place";
+  // Check for imageUri (standard), startPhoto/images (legacy places), or image (legacy meals)
   const imageUrl = isPlace
-    ? (item as any).startPhoto || (item as any).images?.[0]
-    : (item as any).image;
+    ? (item as any).startPhoto ||
+      (item as any).images?.[0] ||
+      (item as any).coverImage
+    : (item as any).imageUri || (item as any).image;
 
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
-      <Image
-        source={{ uri: imageUrl || "https://via.placeholder.com/150" }}
-        style={styles.image}
-      />
+      <AppImage uri={imageUrl} style={styles.image} />
 
       <View style={styles.content}>
         <View style={styles.header}>
