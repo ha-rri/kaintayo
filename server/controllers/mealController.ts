@@ -1,11 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { IUser } from "../models/User.js";
 import { mealService } from "../services/mealService.js";
-
-// Interface for Protected Request (has user)
-interface AuthRequest extends Request {
-  user?: IUser;
-}
+import { AuthRequest } from "../middleware/authMiddleware.js";
 
 // @desc    Get meals for a specific place
 // @route   GET /api/v1/places/:placeId/meals
@@ -17,6 +12,28 @@ export const getMealsByPlace = async (
 ) => {
   try {
     const meals = await mealService.getMealsByPlace(req.params.placeId);
+    res.json({ success: true, count: meals.length, data: meals });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get current user's pending meals
+// @route   GET /api/v1/meals/my-pending
+// @access  Private
+export const getMyPendingMeals = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as AuthRequest).user?._id.toString();
+    if (!userId) {
+      res.status(401);
+      throw new Error("Not authorized");
+    }
+
+    const meals = await mealService.getMyPendingMeals(userId);
 
     res.json({
       success: true,
@@ -28,56 +45,47 @@ export const getMealsByPlace = async (
   }
 };
 
-// @desc    Add a meal to a place
+// @desc    Create a meal
 // @route   POST /api/v1/places/:placeId/meals
 // @access  Private
 export const createMeal = async (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    if (!req.user) {
-      res.status(401);
-      throw new Error("User not authenticated");
-    }
-
+    const userId = (req as AuthRequest).user?._id.toString();
     const meal = await mealService.createMeal(
       req.params.placeId,
       req.body,
-      req.user._id.toString()
+      userId!
     );
-
     res.status(201).json({
       success: true,
       data: meal,
-      message: "Meal submitted for review",
+      message: "Meal submitted for approval",
     });
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === "Place not found") {
-        res.status(404);
-      }
-      if (error.message === "DuplicateApproved") {
-        res.status(409).json({
-          success: false,
-          message: "This meal is already on the menu.",
-        });
-        return;
-      }
-      if (error.message === "DuplicatePending") {
-        res.status(409).json({
-          success: false,
-          message: "A request for this meal is currently pending review.",
-        });
-        return;
-      }
+    // Convert duplicate error to 409
+    if (
+      error instanceof Error &&
+      (error.message === "DuplicateApproved" ||
+        error.message === "DuplicatePending")
+    ) {
+      res.status(409).json({
+        success: false,
+        message:
+          error.message === "DuplicateApproved"
+            ? "This meal already exists and is approved."
+            : "This meal is already pending approval.",
+      });
+      return;
     }
     next(error);
   }
 };
 
-// @desc    Update meal
+// @desc    Update a meal
 // @route   PUT /api/v1/meals/:id
 // @access  Private/Admin
 export const updateMeal = async (
@@ -89,14 +97,11 @@ export const updateMeal = async (
     const meal = await mealService.updateMeal(req.params.id, req.body);
     res.json({ success: true, data: meal });
   } catch (error) {
-    if (error instanceof Error && error.message === "Meal not found") {
-      res.status(404);
-    }
     next(error);
   }
 };
 
-// @desc    Delete meal
+// @desc    Delete a meal
 // @route   DELETE /api/v1/meals/:id
 // @access  Private/Admin
 export const deleteMeal = async (
@@ -106,11 +111,8 @@ export const deleteMeal = async (
 ) => {
   try {
     const result = await mealService.deleteMeal(req.params.id);
-    res.json({ success: true, data: {}, message: result.message });
+    res.json({ success: true, ...result });
   } catch (error) {
-    if (error instanceof Error && error.message === "Meal not found") {
-      res.status(404);
-    }
     next(error);
   }
 };

@@ -1,6 +1,9 @@
+// Place can be ID string OR populated object
+import { Place } from "./Place";
+
 export interface Meal {
   _id: string;
-  place: string; // ObjectId of the parent Place
+  place: string | Place; // ObjectId of the parent Place OR populated Place
   title: string;
   priceRegular: number;
   priceHalf?: number;
