@@ -9,11 +9,14 @@ import {
   StyleSheet,
 } from "react-native";
 
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
+
 interface AppImageProps {
   uri?: string | null;
   style?: StyleProp<ImageStyle>;
   placeholder?: ImageSourcePropType;
   resizeMode?: "cover" | "contain" | "stretch" | "center";
+  optimizeWidth?: number;
 }
 
 export const AppImage = ({
@@ -21,13 +24,17 @@ export const AppImage = ({
   style,
   placeholder = require("@/assets/images/no-image.png"),
   resizeMode = "cover",
+  optimizeWidth,
 }: AppImageProps) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Optimize URI if it exists
+  const optimizedUri = getOptimizedImageUrl(uri, optimizeWidth);
+
   // Determine source
-  const isPlaceholder = !uri || error;
-  const source = isPlaceholder ? placeholder : { uri };
+  const isPlaceholder = !optimizedUri || error;
+  const source = isPlaceholder ? placeholder : { uri: optimizedUri };
 
   // Handle loading state only if we have a valid URI and no error
   const shouldShowLoading = loading && !isPlaceholder;

@@ -1,4 +1,3 @@
-
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AppImage } from "@/components/ui/AppImage";
@@ -23,7 +22,7 @@ export default function PendingItemCard({
 
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
-      <AppImage uri={imageUrl} style={styles.image} />
+      <AppImage uri={imageUrl} style={styles.image} optimizeWidth={200} />
 
       <View style={styles.content}>
         <View style={styles.header}>

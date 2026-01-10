@@ -20,7 +20,11 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.card} onPress={() => onPress(place)}>
-        <AppImage uri={place.coverImage} style={styles.cardImage} />
+        <AppImage
+          uri={place.coverImage}
+          style={styles.cardImage}
+          optimizeWidth={400}
+        />
         <View style={styles.cardBadge}>
           <Text style={styles.cardBadgeText}>
             ₱{place.priceRange.min} - ₱{place.priceRange.max}

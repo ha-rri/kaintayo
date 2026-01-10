@@ -63,3 +63,35 @@ export const uploadToCloudinary = async (
     return null;
   }
 };
+
+export const getOptimizedImageUrl = (
+  url: string | null | undefined,
+  width?: number
+): string | null | undefined => {
+  if (!url) return url;
+
+  // Check if it's a Cloudinary URL
+  if (!url.includes("res.cloudinary.com")) {
+    return url;
+  }
+
+  // Define transformations
+  // f_auto: Automatically deliver best format (WebP/AVIF)
+  // q_auto: Automatically adjust quality for optimization
+  const transformations = ["f_auto", "q_auto"];
+
+  if (width) {
+    transformations.push(`w_${width}`);
+  }
+
+  const transformString = transformations.join(",");
+
+  // Inject transformations after "/upload/"
+  const uploadToken = "/upload/";
+  if (url.includes(uploadToken)) {
+    const parts = url.split(uploadToken);
+    return `${parts[0]}${uploadToken}${transformString}/${parts[1]}`;
+  }
+
+  return url;
+};

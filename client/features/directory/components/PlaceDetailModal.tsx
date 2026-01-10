@@ -52,7 +52,11 @@ export const PlaceDetailModal = ({
       <View style={styles.modalContainer}>
         {/* Restaurant Image Header */}
         <View style={styles.modalImageContainer}>
-          <AppImage uri={place.coverImage} style={styles.modalImage} />
+          <AppImage
+            uri={place.coverImage}
+            style={styles.modalImage}
+            optimizeWidth={800}
+          />
           <TouchableOpacity style={styles.modalBackButton} onPress={onClose}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
@@ -79,7 +83,11 @@ export const PlaceDetailModal = ({
 
             {affordableMeals.map((meal) => (
               <View key={meal._id} style={styles.menuItem}>
-                <AppImage uri={meal.imageUri} style={styles.menuItemIcon} />
+                <AppImage
+                  uri={meal.imageUri}
+                  style={styles.menuItemIcon}
+                  optimizeWidth={200}
+                />
                 <View style={styles.menuItemContent}>
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
