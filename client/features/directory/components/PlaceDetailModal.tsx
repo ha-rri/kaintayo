@@ -41,10 +41,6 @@ export const PlaceDetailModal = ({
   // Ensure meals exists (it might be undefined if not populated/fetched)
   const meals = place.meals || [];
   const affordableMeals = getAffordableMeals(meals);
-  console.log(
-    "DEBUG: PlaceDetailModal Meals:",
-    JSON.stringify(affordableMeals, null, 2)
-  );
 
   return (
     <Modal
