@@ -35,7 +35,9 @@ export const ContributeForm = () => {
 
   const onSubmit = async (data: ContributeFormData) => {
     try {
+      // The hook handles uploads automatically
       await submitContribution(data);
+
       Alert.alert(
         "Success",
         "Your contribution has been submitted for review!",
@@ -43,6 +45,7 @@ export const ContributeForm = () => {
       );
       reset(); // Reset form on success
     } catch (error: any) {
+      console.error("Submission Error:", error);
       const status = error.response?.status;
       const message =
         error.response?.data?.message ||

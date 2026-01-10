@@ -10,6 +10,7 @@ import { Control, Controller } from "react-hook-form";
 import { ContributeFormData } from "../types/contribute.types";
 import { CATEGORIES, AMENITIES, ZONES } from "@/constants/taxonomy";
 import { FieldError } from "@/components/ui/FormError";
+import { FormImagePicker } from "@/features/common/components/FormImagePicker";
 
 interface NewStoreFieldsProps {
   control: Control<ContributeFormData>;
@@ -141,6 +142,16 @@ export const NewStoreFields = ({ control, errors }: NewStoreFieldsProps) => {
             {/* Optional field, but if there's an error, show it */}
           </View>
         )}
+      />
+
+      {/* Cover Image Picker */}
+      <FormImagePicker
+        control={control}
+        name="place.coverImage"
+        label="Cover Image (Optional)"
+        placeholderText="Add Store Photo"
+        aspect={[16, 9]}
+        imageHeight={200}
       />
     </View>
   );

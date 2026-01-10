@@ -2,7 +2,6 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Modal,
   ScrollView,
@@ -14,6 +13,7 @@ import { Meal } from "@/types/Meal";
 import { formatRelativeTime } from "@/lib/dateUtils";
 import { FavoriteButton } from "@/features/common/components/FavoriteButton";
 import { useToast, ToastUI } from "@/features/common/context/ToastContext";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface PlaceDetailModalProps {
   visible: boolean;
@@ -52,12 +52,11 @@ export const PlaceDetailModal = ({
       <View style={styles.modalContainer}>
         {/* Restaurant Image Header */}
         <View style={styles.modalImageContainer}>
-          {place.coverImage && (
-            <Image
-              source={{ uri: place.coverImage }}
-              style={styles.modalImage}
-            />
-          )}
+          <AppImage
+            uri={place.coverImage}
+            style={styles.modalImage}
+            optimizeWidth={800}
+          />
           <TouchableOpacity style={styles.modalBackButton} onPress={onClose}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
@@ -84,7 +83,11 @@ export const PlaceDetailModal = ({
 
             {affordableMeals.map((meal) => (
               <View key={meal._id} style={styles.menuItem}>
-                <View style={styles.menuItemIcon} />
+                <AppImage
+                  uri={meal.imageUri}
+                  style={styles.menuItemIcon}
+                  optimizeWidth={200}
+                />
                 <View style={styles.menuItemContent}>
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
@@ -208,7 +211,6 @@ const styles = StyleSheet.create({
   menuItemIcon: {
     width: 60,
     height: 60,
-    backgroundColor: "#FF6B35",
     borderRadius: 8,
   },
   menuItemContent: {

@@ -20,7 +20,7 @@ export const placeSchema = z.object({
     .array(CategoryEnum)
     .min(1, { error: "Select at least one category" }),
   amenities: z.array(AmenityEnum).optional(),
-  coverImage: z.url({ error: "Cover image must be a valid URL" }).optional(),
+  coverImage: z.string({ error: "Cover image must be a valid URL" }).optional(),
 });
 
 export const mealSchema = z
@@ -31,7 +31,7 @@ export const mealSchema = z
       .number({ error: "Please enter a valid price." })
       .min(1, "Please enter a valid price."),
     priceHalf: z.coerce.number().optional(),
-    imageUri: z.string().optional(),
+    imageUri: z.string({ error: "Image must be a valid URL" }).optional(),
   })
   .refine(
     (data) => {
