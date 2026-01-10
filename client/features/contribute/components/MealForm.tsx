@@ -5,13 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
 } from "react-native";
 import { Control, Controller, useWatch } from "react-hook-form";
 import { ContributeFormData } from "../types/contribute.types";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { FieldError } from "@/components/ui/FormError";
-import * as ImagePicker from "expo-image-picker";
+import { FormImagePicker } from "@/features/common/components/FormImagePicker";
 
 interface MealFormProps {
   control: Control<ContributeFormData>;
@@ -20,7 +19,6 @@ interface MealFormProps {
 }
 
 export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
-  const imageUri = useWatch({ control, name: "meal.imageUri" });
   const priceHalf = useWatch({ control, name: "meal.priceHalf" });
 
   const [isHalfOrder, setIsHalfOrder] = useState<boolean>(!!priceHalf);
@@ -40,19 +38,6 @@ export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
     }
   };
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: "images", // Strict string literal
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    }); // Fixed: Using string literal 'images' instead of ImagePicker.MediaTypeOptions.Images
-
-    if (!result.canceled && result.assets[0]) {
-      setValue("meal.imageUri", result.assets[0].uri);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
@@ -61,16 +46,14 @@ export const MealForm = ({ control, setValue, errors }: MealFormProps) => {
       </View>
 
       {/* Image Upload */}
-      <TouchableOpacity style={styles.imageUpload} onPress={pickImage}>
-        {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
-        ) : (
-          <View style={styles.placeholder}>
-            <Ionicons name="camera-outline" size={40} color="#999" />
-            <Text style={styles.uploadText}>Tap to Upload Photo</Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      <FormImagePicker
+        control={control}
+        name="meal.imageUri"
+        placeholderText="Tap to Upload Meal Photo"
+        aspect={[1, 1]}
+        imageHeight={250}
+        containerStyle={{ marginBottom: 20 }}
+      />
 
       {/* Meal Name */}
       <Controller
@@ -189,24 +172,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 14,
     color: "#333",
-    borderWidth: 1,
     borderColor: "#e0e0e0",
   },
-  imageUpload: {
-    backgroundColor: "#f5f5f5",
-    borderWidth: 2,
-    borderStyle: "dashed",
-    borderColor: "#ddd",
-    borderRadius: 15,
-    height: 250,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    overflow: "hidden",
-  },
-  placeholder: { alignItems: "center" },
-  uploadedImage: { width: "100%", height: "100%", resizeMode: "cover" },
-  uploadText: { fontSize: 14, color: "#999", marginTop: 10 },
   row: { flexDirection: "row", gap: 12, marginBottom: 20 },
   priceField: { flex: 1 },
   labelContainer: {
