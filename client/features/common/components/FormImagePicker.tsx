@@ -3,13 +3,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ViewStyle,
 } from "react-native";
 import { Control, Controller } from "react-hook-form";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface FormImagePickerProps {
   control: Control<any>;
@@ -56,7 +56,11 @@ export const FormImagePicker = ({
             onPress={() => pickImage(onChange)}
           >
             {value ? (
-              <Image source={{ uri: value }} style={styles.image} />
+              <AppImage
+                uri={value}
+                style={styles.image}
+                optimizeWidth={400} // Optimize for picker preview
+              />
             ) : (
               <View style={styles.placeholder}>
                 <Ionicons name="camera-outline" size={32} color="#999" />

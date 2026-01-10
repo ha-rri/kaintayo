@@ -100,7 +100,8 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   listContent: {
-    padding: 12, // Reduced from 16
+    paddingVertical: 12,
+    paddingHorizontal: 0,
   },
   center: {
     flex: 1,

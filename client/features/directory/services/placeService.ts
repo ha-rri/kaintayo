@@ -100,6 +100,19 @@ const placeService = {
     const { data } = await api.get<APIResponse<Place>>(`/places/${id}`);
     return data.data;
   },
+
+  updatePlace: async (id: string, updates: Partial<Place>): Promise<Place> => {
+    if (Config.USE_MOCK_DATA) {
+      // Mock update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return { ...MOCK_PLACES.find((p) => p._id === id), ...updates } as Place;
+    }
+    const { data } = await api.put<APIResponse<Place>>(
+      `/places/${id}`,
+      updates
+    );
+    return data.data;
+  },
 };
 
 export default placeService;

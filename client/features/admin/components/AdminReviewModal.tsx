@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { PendingItem } from "../hooks/usePendingItems";
+import { AdminEditModal } from "./AdminEditModal";
+import { useToast } from "@/features/common/context/ToastContext";
 
 interface AdminReviewModalProps {
   visible: boolean;
@@ -19,6 +21,7 @@ interface AdminReviewModalProps {
   onClose: () => void;
   onApprove: (type: "place" | "meal", id: string) => void;
   onReject: (type: "place" | "meal", id: string) => void;
+  onUpdate?: (updatedItem: any) => void; // Optional callback for instant updates
 }
 
 export default function AdminReviewModal({
@@ -27,7 +30,11 @@ export default function AdminReviewModal({
   onClose,
   onApprove,
   onReject,
+  onUpdate,
 }: AdminReviewModalProps) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const { showToast } = useToast();
+
   if (!item) return null;
 
   const isPlace = item.type === "place";
@@ -70,7 +77,7 @@ export default function AdminReviewModal({
     );
   };
 
-  const handleReject = () => {
+  const handleRejectAction = () => {
     Alert.alert(
       "Reject Submission",
       "This cannot be undone. The item will be deleted.",
@@ -236,8 +243,16 @@ export default function AdminReviewModal({
 
         <View style={styles.footer}>
           <TouchableOpacity
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => setIsEditing(true)}
+          >
+            <Ionicons name="pencil" size={20} color="#fff" />
+            <Text style={styles.actionText}>Edit</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.actionButton, styles.rejectButton]}
-            onPress={handleReject}
+            onPress={handleRejectAction}
           >
             <Ionicons name="close-circle-outline" size={20} color="#fff" />
             <Text style={styles.actionText}>Reject</Text>
@@ -251,6 +266,21 @@ export default function AdminReviewModal({
             <Text style={styles.actionText}>Approve</Text>
           </TouchableOpacity>
         </View>
+
+        <AdminEditModal
+          visible={isEditing}
+          type={item.type}
+          target={item as any}
+          onClose={() => setIsEditing(false)}
+          onSuccess={(updatedData) => {
+            setIsEditing(false);
+            if (updatedData && onUpdate) {
+              onUpdate(updatedData);
+            }
+            showToast("Item updated successfully", "success");
+            // Don't close the modal, keep it open to show updated data (handled by parent update)
+          }}
+        />
       </SafeAreaView>
     </Modal>
   );
@@ -367,6 +397,7 @@ const styles = StyleSheet.create({
   },
   rejectButton: { backgroundColor: "#FF3B30" }, // iOS Red
   approveButton: { backgroundColor: "#34C759" }, // iOS Green
+  editButton: { backgroundColor: "#FF9500" }, // iOS Orange/Yellow for Warning/Edit
   actionText: {
     color: "#fff",
     fontSize: 15, // Reduced font size

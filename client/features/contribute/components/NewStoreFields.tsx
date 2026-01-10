@@ -20,6 +20,16 @@ interface NewStoreFieldsProps {
 export const NewStoreFields = ({ control, errors }: NewStoreFieldsProps) => {
   return (
     <View style={styles.container}>
+      {/* Cover Image Picker */}
+      <FormImagePicker
+        control={control}
+        name="place.coverImage"
+        label="Cover Image (Optional)"
+        placeholderText="Add Store Photo"
+        aspect={[16, 9]}
+        imageHeight={200}
+      />
+
       {/* Zone Dropdown */}
       <Controller
         control={control}
@@ -142,16 +152,6 @@ export const NewStoreFields = ({ control, errors }: NewStoreFieldsProps) => {
             {/* Optional field, but if there's an error, show it */}
           </View>
         )}
-      />
-
-      {/* Cover Image Picker */}
-      <FormImagePicker
-        control={control}
-        name="place.coverImage"
-        label="Cover Image (Optional)"
-        placeholderText="Add Store Photo"
-        aspect={[16, 9]}
-        imageHeight={200}
       />
     </View>
   );

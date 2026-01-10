@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   View,
   Text,
@@ -40,6 +41,24 @@ export default function AdminPanelScreen() {
       { type, id },
       {
         onSuccess: () => setSelectedItem(null), // Close modal on success
+      }
+    );
+  };
+
+  const queryClient = useQueryClient();
+
+  const handleUpdateItem = (updatedItem: any) => {
+    // 1. Update local selected item (Instant Modal Refresh)
+    setSelectedItem((prev: any) => ({ ...prev, ...updatedItem }));
+
+    // 2. Update React Query Cache (Instant List Refresh)
+    queryClient.setQueryData(
+      ["admin", "pending"],
+      (oldItems: any[] | undefined) => {
+        if (!oldItems) return [];
+        return oldItems.map((item) =>
+          item._id === updatedItem._id ? { ...item, ...updatedItem } : item
+        );
       }
     );
   };
@@ -150,6 +169,7 @@ export default function AdminPanelScreen() {
         onClose={() => setSelectedItem(null)}
         onApprove={handleApprove}
         onReject={handleReject}
+        onUpdate={handleUpdateItem}
       />
     </SafeAreaView>
   );
