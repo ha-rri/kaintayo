@@ -1,12 +1,14 @@
 import React, { useState, useRef, useCallback } from "react";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
   ViewToken,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 // Expo Icons
 import { Feather, Ionicons } from "@expo/vector-icons";
 // Import Styles
@@ -21,6 +23,7 @@ type IconProps = {
 const Onboarding = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const router = useRouter();
 
   const slides = [
     {
@@ -65,14 +68,18 @@ const Onboarding = () => {
     viewAreaCoveragePercentThreshold: 50,
   }).current;
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (currentSlide < slides.length - 1) {
       flatListRef.current?.scrollToIndex({ index: currentSlide + 1 });
     } else {
-      // Logic for completion is removed, but you might want to console log here
-      console.log("Onboarding Finished");
+      try {
+        await AsyncStorage.setItem("hasSeenOnboarding", "true");
+        router.replace("/(tabs)/food");
+      } catch (error) {
+        console.error("Error saving onboarding status:", error);
+      }
     }
-  }, [currentSlide, slides.length]);
+  }, [currentSlide, slides.length, router]);
 
   const handleBack = useCallback(() => {
     if (currentSlide > 0) {

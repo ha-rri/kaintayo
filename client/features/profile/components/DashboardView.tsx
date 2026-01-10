@@ -10,6 +10,7 @@ import { User } from "@/types/User";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DebugOnboardingButton } from "@/features/common/components/DebugOnboardingButton";
 
 interface DashboardViewProps {
   user: User | null;
@@ -90,6 +91,7 @@ export default function DashboardView({ user, onLogout }: DashboardViewProps) {
             </TouchableOpacity>
 
             <Text style={styles.versionText}>v1.0.0 Student Edition</Text>
+            <DebugOnboardingButton />
           </View>
         </View>
       </ScrollView>

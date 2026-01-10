@@ -13,10 +13,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/features/auth/context/AuthContext";
 import { ToastProvider } from "@/features/common/context/ToastContext";
 
-export const unstable_settings = {
-  anchor: "(tabs)",
-};
-
 // Create a client
 const queryClient = new QueryClient();
 
@@ -42,6 +38,14 @@ export default function RootLayout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen name="favorites" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="onboarding"
+                options={{
+                  headerShown: false,
+                  animation: "fade",
+                  gestureEnabled: false,
+                }}
+              />
             </Stack>
             <StatusBar style="auto" />
           </ThemeProvider>
