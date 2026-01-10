@@ -15,7 +15,7 @@ export interface Place {
   categories: string[];
   coverImage?: string;
   status: "active" | "pending";
-  submittedBy?: { username: string }; // Strictly Object. We trust the backend populate.
+  submittedBy?: { _id: string; username: string }; // Strictly Object. We trust the backend populate.
   createdAt: string;
   updatedAt: string;
   meals?: Meal[];

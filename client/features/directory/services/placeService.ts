@@ -15,7 +15,8 @@ const placeService = {
       search?: string;
       minPrice?: number;
       maxPrice?: number;
-      scope?: "global" | "store";
+      scope?: "global" | "store" | "my_pending_inclusion" | string;
+      includePendingForUser?: string;
       categories?: string[];
       amenities?: string[];
       page?: number;
@@ -83,6 +84,13 @@ const placeService = {
     return data.data;
   },
 
+  async getMyPending() {
+    const { data } = await api.get<{
+      success: boolean;
+      data: Place[];
+    }>("/places/my-pending");
+    return data.data;
+  },
   getById: async (id: string): Promise<Place | undefined> => {
     if (Config.USE_MOCK_DATA) {
       await new Promise((resolve) => setTimeout(resolve, 300));

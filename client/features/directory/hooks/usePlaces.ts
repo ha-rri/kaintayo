@@ -9,7 +9,7 @@ export const usePlaces = (
     maxPrice?: number;
     categories?: string[];
     amenities?: string[];
-    scope?: "global" | "store";
+    scope?: "global" | "store" | string;
     keepPreviousData?: boolean;
   } = {}
 ) => {
