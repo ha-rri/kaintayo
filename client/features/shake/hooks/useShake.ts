@@ -1,23 +1,20 @@
 import { useState, useEffect } from 'react';
-import { getRandomPlace } from '../services/randomPlaceService';
-
-type Zone = 'All' | 'Inside Campus' | 'Outside Campus';
+import { Vibration } from 'react-native'; 
+import { getRandomPlace, getMatchedPlacesCount } from '../services/randomPlaceService';
+import { Place, Zone } from '../types';
 
 export function useShake(budget: number, zone: Zone) {
   const [matchedPlacesCount, setMatchedPlacesCount] = useState(0);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isShaking, setIsShaking] = useState(false);
 
-  // Update matched places count when budget or zone changes
   useEffect(() => {
     updateMatchedCount();
   }, [budget, zone]);
 
   const updateMatchedCount = async () => {
-    // TODO: Call API to get count
-    // For now, use mock data
-    const mockCount = Math.floor(Math.random() * 10) + 1;
-    setMatchedPlacesCount(mockCount);
+    const count = await getMatchedPlacesCount(budget, zone);
+    setMatchedPlacesCount(count);
   };
 
   const handleShake = async () => {
@@ -25,13 +22,15 @@ export function useShake(budget: number, zone: Zone) {
 
     setIsShaking(true);
     setSelectedPlace(null);
+    Vibration.vibrate(100); 
 
-    // Simulate shake delay
+    // ✅ UPDATED: Increased to 5 seconds (5000ms)
+    // This gives the animation plenty of time to show the "Kainan Found" state
     setTimeout(async () => {
       const place = await getRandomPlace(budget, zone);
       setSelectedPlace(place);
       setIsShaking(false);
-    }, 1000);
+    }, 5000); 
   };
 
   const handleReset = () => {

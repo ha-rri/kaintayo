@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { styles } from "./styles/shake.styles";
+import { Zone } from "./types";
+import { useShake } from "./hooks/useShake";
+
+// Components
 import BudgetDisplay from "./components/BudgetDisplay";
 import ZoneSelector from "./components/ZoneSelector";
 import MatchCounter from "./components/MatchCounter";
 import ShakeButton from "./components/ShakeButton";
-import { useShake } from "./hooks/useShake";
-import { styles } from "./styles/shake.styles";
+import ShakeResultModal from "./components/ShakeResultModal";
+import ShakeAnimationOverlay from "./components/ShakeAnimationOverlay"; // ✅ Imported
 
 export default function ShakeScreen() {
   const [budget, setBudget] = useState(150);
-  const [selectedZone, setSelectedZone] = useState<
-    "All" | "Inside Campus" | "Outside Campus"
-  >("All");
+  const [selectedZone, setSelectedZone] = useState<Zone>("All");
 
   const {
     matchedPlacesCount,
@@ -22,7 +25,7 @@ export default function ShakeScreen() {
   } = useShake(budget, selectedZone);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
@@ -31,14 +34,10 @@ export default function ShakeScreen() {
             Can&apos;t decide? Let us shake it for you
           </Text>
         </View>
-        {selectedPlace && (
-          <Text style={styles.resetButton} onPress={handleReset}>
-            Reset
-          </Text>
-        )}
+        {/* We hide the text reset button here because the Modal handles it now */}
       </View>
 
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         {/* Budget Display */}
         <BudgetDisplay budget={budget} onBudgetChange={setBudget} />
 
@@ -57,18 +56,21 @@ export default function ShakeScreen() {
           isShaking={isShaking}
           disabled={matchedPlacesCount === 0}
         />
+      </ScrollView>
 
-        {/* Selected Place Display */}
-        {selectedPlace && (
-          <View style={styles.resultCard}>
-            <Text style={styles.resultTitle}>We recommend:</Text>
-            <Text style={styles.placeName}>{selectedPlace.name}</Text>
-            <Text style={styles.placeLocation}>
-              {selectedPlace.location.landmark}
-            </Text>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+      {/* Result Modal (Shows AFTER animation finishes) */}
+      <ShakeResultModal 
+        visible={selectedPlace !== null}
+        place={selectedPlace}
+        onClose={handleReset} 
+        onAccept={() => {
+            Alert.alert("Enjoy!", `Navigating to ${selectedPlace?.name}...`);
+            handleReset();
+        }}
+      />
+
+      {/* ✅ Animation Overlay (Shows DURING shaking) */}
+      <ShakeAnimationOverlay visible={isShaking} />
+    </View>
   );
 }

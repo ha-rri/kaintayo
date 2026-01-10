@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../styles/shake.styles';
+import { View, Text, TouchableOpacity, Animated, Image, StyleSheet } from 'react-native';
 
 interface ShakeButtonProps {
   onShake: () => void;
@@ -14,28 +12,27 @@ export default function ShakeButton({ onShake, isShaking, disabled }: ShakeButto
 
   useEffect(() => {
     if (isShaking) {
-      Animated.sequence([
-        Animated.timing(shakeAnimation, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: -10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shakeAnimation, {
+            toValue: 10,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnimation, {
+            toValue: -10,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shakeAnimation, {
+            toValue: 0,
+            duration: 100,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      shakeAnimation.setValue(0);
     }
   }, [isShaking, shakeAnimation]);
 
@@ -48,7 +45,11 @@ export default function ShakeButton({ onShake, isShaking, disabled }: ShakeButto
         activeOpacity={0.8}
       >
         <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-          <Ionicons name="phone-portrait-outline" size={80} color="#fff" />
+          {/* ✅ UPDATED: Using 'shaketayo.png' */}
+          <Image 
+            source={require('../../../assets/images/icons/shaketayo.png')} 
+            style={styles.logoImage}
+          />
         </Animated.View>
       </TouchableOpacity>
       <Text style={styles.shakeText}>
@@ -57,3 +58,44 @@ export default function ShakeButton({ onShake, isShaking, disabled }: ShakeButto
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  shakeContainer: {
+    alignItems: 'center',
+    marginVertical: 40,
+  },
+  shakeButton: {
+    marginTop: -100,
+    marginBottom: -100,
+    width: 350, 
+    height: 350,
+    borderRadius: 175,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+    // ✅ REMOVED: backgroundColor and shadow 
+    // (Because your image already has the orange color and shadow!)
+    backgroundColor: 'transparent', 
+    elevation: 0, 
+  },
+  shakeButtonDisabled: {
+    backgroundColor: '#ccc', // We keep this for when it's disabled
+    borderRadius: 110,
+  },
+  logoImage: {
+    // ✅ FULL SIZE: The image fills the entire button area
+    width: 220, 
+    height: 220,
+    resizeMode: 'contain',
+    
+    // ✅ REMOVED: tintColor (So the orange color shows!)
+    // ✅ REMOVED: margins (It is already centered!)
+  },
+  shakeText: {
+    marginBottom: -100,
+    marginTop: 20,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+});

@@ -1,5 +1,5 @@
-import { View, Text } from 'react-native';
-import Slider from '@react-native-community/slider';
+import React from 'react';
+import { View, Text, TextInput } from 'react-native';
 import { styles } from '../styles/shake.styles';
 
 interface BudgetDisplayProps {
@@ -11,21 +11,23 @@ export default function BudgetDisplay({ budget, onBudgetChange }: BudgetDisplayP
   return (
     <View style={styles.budgetCard}>
       <Text style={styles.budgetLabel}>Set Max Budget</Text>
-      <View style={styles.budgetDisplay}>
+      
+      {/* Input Container */}
+      <View style={styles.budgetInputContainer}>
         <Text style={styles.budgetIcon}>₱</Text>
-        <Text style={styles.budgetAmount}>{budget}</Text>
+        <TextInput
+          style={styles.budgetInput}
+          value={budget > 0 ? budget.toString() : ''}
+          placeholder="0"
+          placeholderTextColor="#999"
+          keyboardType="numeric"
+          onChangeText={(text) => {
+            // Only allow numbers
+            const numericValue = parseInt(text.replace(/[^0-9]/g, '')) || 0;
+            onBudgetChange(numericValue);
+          }}
+        />
       </View>
-      <Slider
-        style={styles.slider}
-        minimumValue={0}
-        maximumValue={300}
-        step={10}
-        value={budget}
-        onValueChange={onBudgetChange}
-        minimumTrackTintColor="#FF6B35"
-        maximumTrackTintColor="#e0e0e0"
-        thumbTintColor="#FF6B35"
-      />
     </View>
   );
 }

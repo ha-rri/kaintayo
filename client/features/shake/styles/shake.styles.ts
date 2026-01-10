@@ -36,45 +36,61 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 8,
+    overflow: 'hidden', // Ensures background clip works on text
   },
   content: {
     padding: 20,
     gap: 16,
   },
   budgetCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: 'white',
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 16,
     elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
   },
   budgetLabel: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 12,
+  },
+  // The gray box container
+  budgetInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EFEEEA', // Light gray background from screenshot
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 80, 
+  },
+  budgetIcon: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FF6B35', // Primary Orange
+    marginRight: 10,
+  },
+  // The actual text input field
+  budgetInput: {
+    flex: 1,
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#333',
+    height: '100%',
+    padding: 0, // Removes default Android padding
   },
   budgetDisplay: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  budgetIcon: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#FF6B35',
-    marginRight: 8,
-  },
   budgetAmount: {
     fontSize: 48,
     fontWeight: '700',
     color: '#333',
-  },
-  slider: {
-    width: '100%',
-    height: 40,
   },
   row: {
     flexDirection: 'row',
