@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useMemo } from "react";
 import { styles } from "./styles/directory.styles";
@@ -49,6 +49,7 @@ export default function DirectoryScreen() {
   const handleSearch = () => {
     console.log("Searching for:", searchQuery);
     // Hook automatically triggers on searchQuery change
+    Keyboard.dismiss();
   };
 
   const openRestaurantModal = (place: Place) => {

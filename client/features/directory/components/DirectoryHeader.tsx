@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 interface DirectoryHeaderProps {
   searchQuery: string;
@@ -18,6 +19,8 @@ export const DirectoryHeader = ({
   setSearchQuery,
   handleSearch,
 }: DirectoryHeaderProps) => {
+  const router = useRouter();
+
   return (
     <View style={styles.header}>
       <View style={styles.headerTop}>
@@ -25,7 +28,7 @@ export const DirectoryHeader = ({
           <Ionicons name="location" size={20} color="#fff" />
           <Text style={styles.locationText}>Cavite State University</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/favorites")}>
           <Ionicons name="heart-outline" size={28} color="#fff" />
         </TouchableOpacity>
       </View>

@@ -22,6 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const queryClient = useQueryClient();
   const [isReady, setIsReady] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
 
   // 1. Fetch User (Me) if token exists
   const {
@@ -32,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     queryKey: ["authUser"],
     queryFn: authService.getMe,
     retry: false,
-    enabled: false, // Wait until we check for token
+    enabled: isReady && hasToken, // Only fetch if we've checked for token and found one
   });
 
   // 2. Initial Token Check
@@ -40,12 +41,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const checkToken = async () => {
       const token = await authService.getToken();
       if (token) {
-        refetch(); // Trigger fetch if token exists
+        setHasToken(true);
       }
       setIsReady(true);
     };
     checkToken();
-  }, [refetch]);
+  }, []);
 
   // 3. Mutations
   const loginMutation = useMutation({
@@ -53,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     onSuccess: async (data) => {
       if (data.token) {
         await authService.setToken(data.token);
+        setHasToken(true);
         queryClient.invalidateQueries({ queryKey: ["authUser"] });
         refetch(); // Immediately custom-fetch user
       }
@@ -64,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     onSuccess: async (data) => {
       if (data.token) {
         await authService.setToken(data.token);
+        setHasToken(true);
         queryClient.invalidateQueries({ queryKey: ["authUser"] });
         refetch();
       }
@@ -72,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     await authService.logout();
+    setHasToken(false);
     queryClient.setQueryData(["authUser"], null); // Clear cache
     queryClient.clear(); // Clear all queries
   };

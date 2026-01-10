@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { DebugOnboardingButton } from "@/features/common/components/DebugOnboardingButton";
 
 interface GuestViewProps {
   onLoginPress: () => void;
@@ -47,6 +48,8 @@ export default function GuestView({
           >
             <Text style={styles.registerButtonText}>Register</Text>
           </TouchableOpacity>
+
+          <DebugOnboardingButton />
         </View>
       </View>
     </View>

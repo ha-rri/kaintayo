@@ -1,12 +1,12 @@
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
 } from "react-native";
 import { Place } from "@/types/Place";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface PlaceCardProps {
   place: Place;
@@ -20,9 +20,11 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
   return (
     <View style={styles.cardContainer}>
       <TouchableOpacity style={styles.card} onPress={() => onPress(place)}>
-        {place.coverImage && (
-          <Image source={{ uri: place.coverImage }} style={styles.cardImage} />
-        )}
+        <AppImage
+          uri={place.coverImage}
+          style={styles.cardImage}
+          optimizeWidth={400}
+        />
         <View style={styles.cardBadge}>
           <Text style={styles.cardBadgeText}>
             ₱{place.priceRange.min} - ₱{place.priceRange.max}

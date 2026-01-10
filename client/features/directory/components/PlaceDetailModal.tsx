@@ -2,7 +2,6 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Modal,
   ScrollView,
@@ -12,6 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { Place } from "@/types/Place";
 import { Meal } from "@/types/Meal";
 import { formatRelativeTime } from "@/lib/dateUtils";
+import { FavoriteButton } from "@/features/common/components/FavoriteButton";
+import { useToast, ToastUI } from "@/features/common/context/ToastContext";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface PlaceDetailModalProps {
   visible: boolean;
@@ -28,6 +30,12 @@ export const PlaceDetailModal = ({
   onClose,
   getAffordableMeals,
 }: PlaceDetailModalProps) => {
+  const {
+    visible: toastVisible,
+    message: toastMessage,
+    fadeAnim: toastFadeAnim,
+  } = useToast();
+
   if (!place) return null;
 
   // Ensure meals exists (it might be undefined if not populated/fetched)
@@ -44,18 +52,15 @@ export const PlaceDetailModal = ({
       <View style={styles.modalContainer}>
         {/* Restaurant Image Header */}
         <View style={styles.modalImageContainer}>
-          {place.coverImage && (
-            <Image
-              source={{ uri: place.coverImage }}
-              style={styles.modalImage}
-            />
-          )}
+          <AppImage
+            uri={place.coverImage}
+            style={styles.modalImage}
+            optimizeWidth={800}
+          />
           <TouchableOpacity style={styles.modalBackButton} onPress={onClose}>
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalHeartButton}>
-            <Ionicons name="heart-outline" size={28} color="#fff" />
-          </TouchableOpacity>
+          <FavoriteButton placeId={place._id} style={styles.modalHeartButton} />
         </View>
 
         {/* Restaurant Info */}
@@ -78,7 +83,11 @@ export const PlaceDetailModal = ({
 
             {affordableMeals.map((meal) => (
               <View key={meal._id} style={styles.menuItem}>
-                <View style={styles.menuItemIcon} />
+                <AppImage
+                  uri={meal.imageUri}
+                  style={styles.menuItemIcon}
+                  optimizeWidth={200}
+                />
                 <View style={styles.menuItemContent}>
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
@@ -103,6 +112,14 @@ export const PlaceDetailModal = ({
             )}
           </View>
         </ScrollView>
+
+        {/* Reusable Toast for Modal Visibility */}
+        <ToastUI
+          visible={toastVisible}
+          message={toastMessage}
+          fadeAnim={toastFadeAnim}
+          style={styles.localToastPosition}
+        />
       </View>
     </Modal>
   );
@@ -142,6 +159,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 10, // Ensure it's clickable above the image
   },
   modalContent: {
     flex: 1,
@@ -193,7 +211,6 @@ const styles = StyleSheet.create({
   menuItemIcon: {
     width: 60,
     height: 60,
-    backgroundColor: "#FF6B35",
     borderRadius: 8,
   },
   menuItemContent: {
@@ -229,5 +246,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#999",
     textAlign: "center",
+  },
+  localToastPosition: {
+    bottom: 50, // Slightly higher than tab bar
   },
 });

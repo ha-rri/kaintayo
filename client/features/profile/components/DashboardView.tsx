@@ -10,6 +10,7 @@ import { User } from "@/types/User";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DebugOnboardingButton } from "@/features/common/components/DebugOnboardingButton";
 
 interface DashboardViewProps {
   user: User | null;
@@ -57,6 +58,14 @@ export default function DashboardView({ user, onLogout }: DashboardViewProps) {
             <Text style={styles.sectionLabel}>ACCOUNT MANAGEMENT</Text>
 
             <ActionCard
+              title="Favorites"
+              subtitle="Your saved places"
+              icon="heart"
+              color="#E91E63"
+              onPress={() => router.push("/favorites")}
+            />
+
+            <ActionCard
               title="My Contributions"
               subtitle="View pending places and meals"
               icon="list"
@@ -82,6 +91,7 @@ export default function DashboardView({ user, onLogout }: DashboardViewProps) {
             </TouchableOpacity>
 
             <Text style={styles.versionText}>v1.0.0 Student Edition</Text>
+            <DebugOnboardingButton />
           </View>
         </View>
       </ScrollView>
