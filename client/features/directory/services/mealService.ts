@@ -17,6 +17,11 @@ export const mealService = {
     }>("/meals/my-pending");
     return data.data;
   },
+
+  async updateMeal(id: string, updates: Partial<Meal>) {
+    const { data } = await api.put<APIResponse<Meal>>(`/meals/${id}`, updates);
+    return data.data;
+  },
 };
 
 export default mealService;
