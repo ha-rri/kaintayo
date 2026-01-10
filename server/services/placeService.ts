@@ -1,4 +1,5 @@
 import { Filter } from "mongodb";
+import mongoose from "mongoose";
 import Place, { IPlace } from "../models/Place.js";
 import Meal from "../models/Meal.js";
 import { createAccentRegex } from "../utils/stringUtils.js";
@@ -9,9 +10,10 @@ interface GetAllPlacesParams {
   search?: string;
   categories?: string;
   amenities?: string;
-  scope?: "global" | "store";
+  scope?: "global" | "store" | string;
   page?: number;
   limit?: number;
+  includePendingForUser?: string;
 }
 
 export const placeService = {
@@ -28,9 +30,31 @@ export const placeService = {
       scope,
       page = 1,
       limit = 10, // Default Limit
+      includePendingForUser,
     } = params;
 
     const query: Filter<IPlace> = { status: "active" };
+
+    // List of conditions to be combined with AND
+    const andConditions: Filter<IPlace>[] = [];
+
+    // 0. Base Status Scope Logic
+    if (includePendingForUser) {
+      // Hybrid Scope: Active Places OR My Pending Places
+      delete query.status; // Remove strict "active" constraint
+      andConditions.push({
+        $or: [
+          { status: "active" },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          { status: "pending", submittedBy: includePendingForUser as any },
+        ],
+      });
+    } else {
+      // Default: Strict Active
+      // Logic handled by initial `query` { status: "active" }
+      // But if we use $and, we might want to be explicit here if conflict arises,
+      // though sticking to `query.status` is fine unless overwritten.
+    }
 
     // 1. Zone Filter
     if (zoneMacro) {
@@ -57,11 +81,10 @@ export const placeService = {
     // 5. Search Logic (Accent Insensitive via Regex)
     if (search) {
       const regexPattern = "\\b" + createAccentRegex(search);
-
       const isStoreScope = scope === "store";
       const isLongEnough = search.length >= 2;
 
-      const orConditions: Filter<IPlace>[] = [
+      const searchOrConditions: Filter<IPlace>[] = [
         { name: { $regex: regexPattern, $options: "i" } },
       ];
 
@@ -72,10 +95,21 @@ export const placeService = {
           isApproved: true,
         }).select("place");
         const placeIdsFromMeals = matchedMeals.map((m) => m.place);
-        orConditions.push({ _id: { $in: placeIdsFromMeals } });
+        searchOrConditions.push({ _id: { $in: placeIdsFromMeals } });
       }
 
-      query.$or = orConditions;
+      // Add Search Scope to AND list
+      andConditions.push({ $or: searchOrConditions });
+    }
+
+    // Final Assembly
+    if (andConditions.length > 0) {
+      if (andConditions.length === 1 && !query.status) {
+        // Optimization: If only one complex condition and no status conflict
+        query.$or = andConditions[0].$or;
+      } else {
+        query.$and = andConditions;
+      }
     }
 
     // 6. Pagination Logic
@@ -123,6 +157,16 @@ export const placeService = {
   },
 
   /**
+   * Get Pending Places for a specific user
+   */
+  async getMyPendingPlaces(userId: string) {
+    return Place.find({
+      status: "pending",
+      submittedBy: new mongoose.Types.ObjectId(userId),
+    }).sort({ createdAt: -1 });
+  },
+
+  /**
    * Get all pending places for Admin
    */
   async getPendingPlaces() {
@@ -156,7 +200,10 @@ export const placeService = {
       throw new Error("Place not found");
     }
 
+    // Cascade Delete: Delete all meals associated with this place
+    await Meal.deleteMany({ place: id });
+
     await place.deleteOne();
-    return { message: "Place deleted" };
+    return { message: "Place and associated meals deleted" };
   },
 };

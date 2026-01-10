@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import Place from "../models/Place.js";
-import { IUser } from "../models/User.js";
 import { placeService } from "../services/placeService.js";
-
-// Interface for Protected Request
-interface AuthRequest extends Request {
-  user?: IUser;
-}
+import { AuthRequest } from "../middleware/authMiddleware.js";
 
 // @desc    Get all places with filters
 // @route   GET /api/v1/places
@@ -32,7 +27,7 @@ export const getPlaces = async (
       search?: string;
       categories?: string;
       amenities?: string;
-      scope?: "global" | "store";
+      scope?: string;
       page?: string;
       limit?: string;
     };
@@ -46,11 +41,43 @@ export const getPlaces = async (
       scope,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 10,
+      includePendingForUser:
+        (scope === "my_pending_inclusion" || scope === "my_pending_only") &&
+        (req as AuthRequest).user
+          ? (req as AuthRequest).user?._id.toString()
+          : undefined,
     });
 
     res.json({
       success: true,
       ...result, // { data, meta }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get current user's pending places
+// @route   GET /api/v1/places/my-pending
+// @access  Private
+export const getMyPendingPlaces = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as AuthRequest).user?._id.toString();
+    if (!userId) {
+      res.status(401);
+      throw new Error("Not authorized");
+    }
+
+    const places = await placeService.getMyPendingPlaces(userId);
+
+    res.json({
+      success: true,
+      count: places.length,
+      data: places,
     });
   } catch (error) {
     next(error);
