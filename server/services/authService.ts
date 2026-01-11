@@ -18,11 +18,16 @@ export const authService = {
   async registerUser(userData: Partial<IUser>) {
     const { username, email, password } = userData;
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
+    // Check if user exists (Email)
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      throw new Error("User already exists"); // Generic or specific "Email already taken"
+    }
 
-    if (userExists) {
-      throw new Error("User already exists");
+    // Check if username exists
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      throw new Error("Username already taken");
     }
 
     // Create user
