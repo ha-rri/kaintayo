@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { Place } from "@/types/Place";
 import { AppImage } from "@/components/ui/AppImage";
+import { theme } from "@/lib/theme";
 
 interface PlaceCardProps {
   place: Place;
@@ -64,64 +65,64 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 15,
+    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 15,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    shadowColor: theme.shadows.md.shadowColor,
+    shadowOffset: theme.shadows.md.shadowOffset,
+    shadowOpacity: theme.shadows.md.shadowOpacity,
+    shadowRadius: theme.shadows.md.shadowRadius,
+    elevation: theme.shadows.md.elevation,
   },
   cardImage: {
     width: "100%",
     height: 200,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: theme.colors.border, // #e0e0e0 -> border
   },
   cardBadge: {
     position: "absolute",
     top: 10,
     right: 10,
-    backgroundColor: "#FF6B35",
-    paddingHorizontal: 12,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.sm,
     paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: theme.radius.md,
   },
   cardBadgeText: {
-    color: "#fff",
+    color: theme.colors.text.light,
     fontWeight: "700",
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
   },
   cardContent: {
-    padding: 15,
+    padding: theme.spacing.md,
   },
   categoryChip: {
-    backgroundColor: "#FF6B35",
+    backgroundColor: theme.colors.primary,
     alignSelf: "flex-start",
-    paddingHorizontal: 12,
+    paddingHorizontal: theme.spacing.sm,
     paddingVertical: 6,
-    borderRadius: 6,
-    marginBottom: 8,
+    borderRadius: theme.radius.sm,
+    marginBottom: theme.spacing.xs,
   },
   categoryChipText: {
-    color: "#fff",
-    fontSize: 11,
+    color: theme.colors.text.light,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginBottom: 4,
   },
   cardLocation: {
-    fontSize: 13,
-    color: "#666",
-    marginBottom: 8,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.xs,
   },
   tagsContainer: {
     flexDirection: "row",
@@ -129,13 +130,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tag: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: theme.colors.background,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: theme.radius.lg,
   },
   tagText: {
-    fontSize: 11,
-    color: "#666",
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.secondary,
   },
 });

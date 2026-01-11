@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { PendingItem } from "../hooks/usePendingItems";
+import { theme } from "@/lib/theme";
 import { AdminEditModal } from "./AdminEditModal";
 import { useToast } from "@/features/common/context/ToastContext";
 
@@ -246,7 +247,7 @@ export default function AdminReviewModal({
             style={[styles.actionButton, styles.editButton]}
             onPress={() => setIsEditing(true)}
           >
-            <Ionicons name="pencil" size={20} color="#fff" />
+            <Ionicons name="pencil" size={16} color="#fff" />
             <Text style={styles.actionText}>Edit</Text>
           </TouchableOpacity>
 
@@ -289,20 +290,20 @@ export default function AdminReviewModal({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.surface,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    padding: theme.spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: theme.colors.border,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600", // Standardized to 600
-    color: "#333",
+    fontSize: theme.fontSizes.lg,
+    fontWeight: "600",
+    color: theme.colors.text.primary,
   },
   closeButton: {
     padding: 4,
@@ -313,36 +314,48 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: 250,
-    backgroundColor: "#eee",
+    backgroundColor: theme.colors.border,
   },
   details: {
-    padding: 16,
+    padding: theme.spacing.md,
   },
   badgeRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: theme.radius.sm,
   },
   badgePlace: { backgroundColor: "#E3F2FD" },
   badgeMeal: { backgroundColor: "#FFF3E0" },
-  badgeText: { fontSize: 12, fontWeight: "700", color: "#333" },
-  date: { color: "#999", fontSize: 12 },
-  title: { fontSize: 24, fontWeight: "700", color: "#333", marginBottom: 4 },
+  badgeText: {
+    fontSize: theme.fontSizes.xs,
+    fontWeight: "700",
+    color: theme.colors.text.primary,
+  },
+  date: {
+    color: theme.colors.text.disabled,
+    fontSize: theme.fontSizes.xs,
+  },
+  title: {
+    fontSize: theme.fontSizes.header,
+    fontWeight: "700",
+    color: theme.colors.text.primary,
+    marginBottom: 4,
+  },
   placeName: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.sm,
     fontWeight: "500",
   },
   category: {
-    fontSize: 14,
-    color: "#FF6B35",
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.primary,
     marginBottom: 2,
     fontWeight: "600",
   },
@@ -351,56 +364,90 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginBottom: 2,
   },
-  subtitle: { fontSize: 14, color: "#666", marginBottom: 24 },
-  section: { marginBottom: 24 },
+  subtitle: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.lg,
+  },
+  section: {
+    marginBottom: theme.spacing.lg,
+  },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginBottom: 8,
     textTransform: "uppercase",
   },
-  sectionText: { fontSize: 16, color: "#444", lineHeight: 24 },
-  row: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
-  infoText: { fontSize: 16, color: "#444" },
-  chipContainer: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  sectionText: {
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.text.primary,
+    lineHeight: 24,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.text.primary,
+  },
+  chipContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
   chip: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: theme.colors.background,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: theme.radius.xl,
   },
-  chipText: { fontSize: 14, color: "#555" },
-  priceRow: { flexDirection: "row" },
-  priceLabel: { fontSize: 12, color: "#888", marginBottom: 2 },
-  priceValue: { fontSize: 18, fontWeight: "700", color: "#333" },
+  chipText: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+  },
+  priceRow: {
+    flexDirection: "row",
+  },
+  priceLabel: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.disabled,
+    marginBottom: 2,
+  },
+  priceValue: {
+    fontSize: theme.fontSizes.lg,
+    fontWeight: "700",
+    color: theme.colors.text.primary,
+  },
   footer: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     flexDirection: "row",
-    padding: 16,
-    backgroundColor: "#fff",
+    padding: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
-    gap: 12,
+    borderTopColor: theme.colors.border,
+    gap: theme.spacing.md,
   },
   actionButton: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 12, // Reduced padding
-    borderRadius: 8, // Slightly tighter radius
-    gap: 6, // Reduced gap
+    padding: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    gap: 6,
   },
-  rejectButton: { backgroundColor: "#FF3B30" }, // iOS Red
-  approveButton: { backgroundColor: "#34C759" }, // iOS Green
-  editButton: { backgroundColor: "#FF9500" }, // iOS Orange/Yellow for Warning/Edit
+  rejectButton: { backgroundColor: theme.colors.status.error },
+  approveButton: { backgroundColor: theme.colors.status.success },
+  editButton: { backgroundColor: theme.colors.status.warning },
   actionText: {
-    color: "#fff",
-    fontSize: 15, // Reduced font size
+    color: theme.colors.text.light,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
   },
 });

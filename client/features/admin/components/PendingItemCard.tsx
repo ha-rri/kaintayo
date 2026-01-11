@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AppImage } from "@/components/ui/AppImage";
+import { theme } from "@/lib/theme"; // Import theme
 import { PendingItem } from "../hooks/usePendingItems";
 
 interface PendingItemCardProps {
@@ -25,23 +26,16 @@ export default function PendingItemCard({
       <AppImage uri={imageUrl} style={styles.image} optimizeWidth={200} />
 
       <View style={styles.content}>
-        <View style={styles.header}>
+        <View style={styles.headerRow}>
           <View
             style={[
-              styles.typeBadge,
-              isPlace ? styles.bgOrange : styles.bgGreen,
+              styles.badge,
+              isPlace ? styles.badgePlace : styles.badgeMeal,
             ]}
           >
-            <Text
-              style={[
-                styles.typeBadgeText,
-                isPlace ? styles.textOrange : styles.textGreen,
-              ]}
-            >
-              {isPlace ? "STORE" : "MEAL"}
-            </Text>
+            <Text style={styles.badgeText}>{isPlace ? "STORE" : "MEAL"}</Text>
           </View>
-          <Text style={styles.date}>
+          <Text style={styles.dateText}>
             {new Date(item.createdAt || "").toLocaleDateString()}
           </Text>
         </View>
@@ -63,7 +57,11 @@ export default function PendingItemCard({
 
         <View style={styles.footer}>
           <Text style={styles.reviewText}>Review Submission</Text>
-          <Ionicons name="chevron-forward" size={16} color="#FF6B35" />
+          <Ionicons
+            name="chevron-forward"
+            size={16}
+            color={theme.colors.primary}
+          />
         </View>
       </View>
     </TouchableOpacity>
@@ -72,66 +70,79 @@ export default function PendingItemCard({
 
 const styles = StyleSheet.create({
   card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.md,
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowColor: theme.shadows.sm.shadowColor,
+    shadowOffset: theme.shadows.sm.shadowOffset,
+    shadowOpacity: theme.shadows.sm.shadowOpacity,
+    shadowRadius: theme.shadows.sm.shadowRadius,
+    elevation: theme.shadows.sm.elevation,
   },
   image: {
     width: 80,
     height: 80,
-    borderRadius: 8,
-    backgroundColor: "#eee",
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.border,
+    marginRight: theme.spacing.md,
   },
   content: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
-  header: {
+  headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginBottom: 4,
   },
-  // New Pill Styles
-  typeBadge: {
+  badge: {
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
+    paddingVertical: 4,
+    borderRadius: theme.radius.sm,
   },
-  bgOrange: { backgroundColor: "#fff5ed", borderColor: "#FF6B35" },
-  bgGreen: { backgroundColor: "#e8f5e9", borderColor: "#4CAF50" },
-  typeBadgeText: { fontSize: 10, fontWeight: "700" },
-  textOrange: { color: "#FF6B35" },
-  textGreen: { color: "#4CAF50" },
-
-  date: {
+  badgePlace: {
+    backgroundColor: "#E3F2FD",
+  },
+  badgeMeal: {
+    backgroundColor: "#FFF3E0",
+  },
+  badgeText: {
     fontSize: 10,
-    color: "#999",
+    fontWeight: "700",
+    color: theme.colors.text.primary,
   },
   title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginTop: 4,
-  },
-  placeName: {
-    fontSize: 12,
-    color: "#FF6B35",
-    fontWeight: "500",
-    marginBottom: 2,
+    fontSize: theme.fontSizes.md,
+    fontWeight: "700",
+    color: theme.colors.text.primary,
+    flex: 1,
+    marginRight: 8,
   },
   subtitle: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 8,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    marginBottom: 4,
+  },
+  placeName: {
+    fontSize: theme.fontSizes.sm,
+    fontWeight: "500",
+    marginBottom: 2,
+    color: theme.colors.primary,
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userText: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.secondary,
+  },
+  dateText: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.disabled,
   },
   footer: {
     flexDirection: "row",
@@ -141,8 +152,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   reviewText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: "#FF6B35",
+    color: theme.colors.primary,
   },
 });
