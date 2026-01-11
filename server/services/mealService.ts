@@ -20,7 +20,7 @@ export const mealService = {
     return Meal.find({ isApproved: false })
       .populate("place", "name zoneMacro")
       .populate("submittedBy", "username email")
-      .select("title priceRegular place createdAt submittedBy");
+      .select("title priceRegular place createdAt submittedBy imageUri");
   },
 
   /**

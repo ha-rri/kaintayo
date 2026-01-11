@@ -173,7 +173,7 @@ export const placeService = {
     return Place.find({ status: "pending" })
       .populate("submittedBy", "username email")
       .select(
-        "name nearestLandmark coverImage createdAt submittedBy amenities categories zoneMacro"
+        "name nearestLandmark coverImage startPhoto images createdAt submittedBy amenities categories zoneMacro"
       );
   },
 

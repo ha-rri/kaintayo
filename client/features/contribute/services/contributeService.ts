@@ -20,6 +20,7 @@ export const contributeService = {
       nearestLandmark: data?.nearestLandmark, // Correct field name
       categories: data?.categories,
       amenities: data?.amenities,
+      coverImage: data?.coverImage, // ✅ Fix: Include coverImage!
     };
 
     const response = await axios.post<APIResponse<Place>>("/places", payload);
