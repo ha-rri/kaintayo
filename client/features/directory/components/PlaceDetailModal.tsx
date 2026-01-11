@@ -79,6 +79,13 @@ export const PlaceDetailModal = ({
       queryClient.invalidateQueries({ queryKey: ["places", place._id] });
     }
 
+    // Check if the item was deleted
+    if (updatedData?.isDeleted) {
+      onClose(); // Close the parent modal
+      showToast("Deleted successfully", "success");
+      return;
+    }
+
     showToast("Updated successfully", "success");
   };
 

@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     backgroundColor: "#fff",
   },
-  activeChip: { backgroundColor: "#FF6B35", borderColor: "#FF6B35" },
+  activeChip: { backgroundColor: "#FFF0E6", borderColor: "#FF6B35" },
   chipText: { color: "#666" },
-  activeChipText: { color: "#fff", fontWeight: "600" },
+  activeChipText: { color: "#FF6B35", fontWeight: "600" },
 });

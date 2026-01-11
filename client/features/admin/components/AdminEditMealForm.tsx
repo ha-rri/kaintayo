@@ -53,8 +53,33 @@ export const AdminEditMealForm = ({
       onSuccess(result);
     } catch (error) {
       console.error("Update Meal Error:", error);
+      console.error("Update Meal Error:", error);
       Alert.alert("Error", "Failed to update meal");
     }
+  };
+
+  const onDelete = () => {
+    Alert.alert(
+      "Delete Meal?",
+      "Are you sure you want to delete this meal? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await mealService.deleteMeal(meal._id);
+              Alert.alert("Success", "Meal deleted successfully");
+              onSuccess({ ...meal, isDeleted: true } as any); // Type cast since isDeleted isn't in Meal type
+            } catch (error) {
+              console.error("Delete Meal Error:", error);
+              Alert.alert("Error", "Failed to delete meal");
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -64,9 +89,14 @@ export const AdminEditMealForm = ({
           <Text style={styles.headerTitle}>Edit Meal</Text>
           <Text style={styles.headerSubtitle}>{meal.title}</Text>
         </View>
-        <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color="#666" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={onDelete} style={styles.iconBtn}>
+            <Ionicons name="trash-outline" size={24} color="#DC2626" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onCancel} style={styles.iconBtn}>
+            <Ionicons name="close" size={24} color="#666" />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.divider} />
 
@@ -116,8 +146,14 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 4,
   },
-  closeButton: {
-    padding: 4,
+  headerActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  iconBtn: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: "#f5f5f5",
   },
   divider: {
     height: 1,

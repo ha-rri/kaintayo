@@ -22,6 +22,13 @@ export const mealService = {
     const { data } = await api.put<APIResponse<Meal>>(`/meals/${id}`, updates);
     return data.data;
   },
+
+  async deleteMeal(id: string) {
+    const { data } = await api.delete<APIResponse<{ message: string }>>(
+      `/meals/${id}`
+    );
+    return data;
+  },
 };
 
 export default mealService;

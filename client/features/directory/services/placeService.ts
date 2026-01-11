@@ -117,6 +117,14 @@ const placeService = {
     );
     return data.data;
   },
+
+  deletePlace: async (id: string): Promise<void> => {
+    if (Config.USE_MOCK_DATA) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return;
+    }
+    await api.delete<APIResponse<void>>(`/places/${id}`);
+  },
 };
 
 export default placeService;
