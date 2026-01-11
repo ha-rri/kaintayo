@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Vibration } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { shakeService } from "../services/shakeService";
 import { Place } from "@/types/Place";
 import { Zone } from "../types";
+
+import { useDebounce } from "@/hooks/useDebounce";
 
 export function useShake(
   budget: number,
@@ -14,12 +16,29 @@ export function useShake(
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isShaking, setIsShaking] = useState(false);
 
+  // Debounce API calls to prevent 429 Rate Limit
+  const debouncedBudget = useDebounce(budget, 500);
+  const debouncedZone = useDebounce(zone, 500);
+
   // 1. Live Match Count
   const { data: matchedPlacesCount = 0 } = useQuery({
-    queryKey: ["shake", "count", budget, zone, categories, amenities],
+    queryKey: [
+      "shake",
+      "count",
+      debouncedBudget,
+      debouncedZone,
+      categories,
+      amenities,
+    ],
     queryFn: () =>
-      shakeService.getMatchCount({ budget, zone, categories, amenities }),
+      shakeService.getMatchCount({
+        budget: debouncedBudget,
+        zone: debouncedZone,
+        categories,
+        amenities,
+      }),
     staleTime: 5000,
+    placeholderData: keepPreviousData, // V5 Standard
   });
 
   const handleShake = async () => {

@@ -33,6 +33,9 @@ export default function DirectoryScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
 
+  // Debounce Limit (Price) to prevent API spam
+  const debouncedLimit = useDebounce(limit, 500);
+
   // Server-Side Filtering
   const filters: any = {};
   if (activeCategory === "Inside Campus") filters.zoneMacro = "inside";
@@ -40,6 +43,8 @@ export default function DirectoryScreen() {
   if (categories.length > 0) filters.categories = categories;
   if (amenities.length > 0) filters.amenities = amenities;
   if (debouncedSearch) filters.search = debouncedSearch;
+  // Add Max Price Filter (Server-Side)
+  filters.maxPrice = debouncedLimit;
 
   // Use Infinite Query Hook
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -60,7 +65,8 @@ export default function DirectoryScreen() {
     }
   }, [isLoading]);
 
-  // Flatten Pages
+  // Flatten Data
+  // Removed client-side filtering for price, relying on server-side 'filters' now
   const allPlaces = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || [];
   }, [data]);

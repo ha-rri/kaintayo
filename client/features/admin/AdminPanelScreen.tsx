@@ -56,7 +56,7 @@ export default function AdminPanelScreen() {
     queryClient.setQueryData(
       ["admin", "pending"],
       (oldItems: any[] | undefined) => {
-        if (!oldItems) return [];
+        if (!oldItems || !Array.isArray(oldItems)) return oldItems || [];
         return oldItems.map((item) =>
           item._id === updatedItem._id ? { ...item, ...updatedItem } : item
         );

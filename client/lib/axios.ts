@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DeviceEventEmitter } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import Config from "@/constants/Config";
 
@@ -44,6 +45,15 @@ api.interceptors.response.use(
       await SecureStore.deleteItemAsync("token");
       console.log("Session expired. Logging out...");
     }
+
+    // Handle Rate Limiting (429) w/ Friendly Toast
+    if (error.response?.status === 429) {
+      DeviceEventEmitter.emit("SHOW_TOAST", {
+        message: "Whoa! Too many requests. Please slow down.",
+        type: "error",
+      });
+    }
+
     return Promise.reject(error);
   }
 );

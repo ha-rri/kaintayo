@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { View, Text, StyleSheet, Animated, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  Platform,
+  DeviceEventEmitter,
+} from "react-native";
 
 type ToastType = "success" | "error" | "info";
 
@@ -89,6 +96,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     [fadeAnim]
   );
+
+  // Global Event Listener
+  React.useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener(
+      "SHOW_TOAST",
+      ({ message, type }: { message: string; type?: ToastType }) => {
+        showToast(message, type);
+      }
+    );
+    return () => {
+      subscription.remove();
+    };
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={{ showToast, visible, message, fadeAnim }}>

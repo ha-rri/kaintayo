@@ -76,30 +76,56 @@ export const PlaceDetailModal = ({
       // This ensures both usePlaces({}) and usePlaces({ filter }) caches are updated.
       queryClient.setQueriesData(
         { queryKey: ["places"] },
-        (oldPlaces: Place[] | undefined) => {
-          if (!oldPlaces) return [];
+        (oldData: any | undefined) => {
+          if (!oldData) return oldData;
 
-          if (editType === "place") {
-            // Update Place: Merge updated fields but PRESERVE existing meals
-            // API only returns updated fields, not relations like meals
-            return oldPlaces.map((p) =>
-              p._id === updatedData._id
-                ? { ...p, ...updatedData, meals: p.meals }
-                : p
-            );
-          } else if (editType === "meal" && place) {
-            // Update Meal: Find the place, then update the specific meal in its array
-            return oldPlaces.map((p) => {
-              if (p._id === place._id) {
-                const updatedMeals = (p.meals || []).map((m) =>
-                  m._id === updatedData._id ? updatedData : m
-                );
-                return { ...p, meals: updatedMeals };
-              }
-              return p;
-            });
+          // Helper to update a list of places
+          const updateList = (list: Place[]) => {
+            if (editType === "place") {
+              return list.map((p) =>
+                p._id === updatedData._id
+                  ? { ...p, ...updatedData, meals: p.meals }
+                  : p
+              );
+            } else if (editType === "meal" && place) {
+              return list.map((p) => {
+                if (p._id === place._id) {
+                  const updatedMeals = (p.meals || []).map((m) =>
+                    m._id === updatedData._id ? updatedData : m
+                  );
+                  return { ...p, meals: updatedMeals };
+                }
+                return p;
+              });
+            }
+            return list;
+          };
+
+          // Case 1: Simple Array (Legacy or Flat List)
+          if (Array.isArray(oldData)) {
+            return updateList(oldData);
           }
-          return oldPlaces;
+
+          // Case 2: Paginated Response { data: Place[], meta: ... }
+          if (oldData.data && Array.isArray(oldData.data)) {
+            return {
+              ...oldData,
+              data: updateList(oldData.data),
+            };
+          }
+
+          // Case 3: Infinite Query Response { pages: [{ data: ... }], ... }
+          if (oldData.pages && Array.isArray(oldData.pages)) {
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                data: updateList(page.data || []),
+              })),
+            };
+          }
+
+          return oldData;
         }
       );
     } else {
