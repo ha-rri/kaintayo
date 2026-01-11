@@ -71,66 +71,12 @@ export const PlaceDetailModal = ({
     setEditModalVisible(false);
 
     // Manual Cache Update for Instant Feedback
-    if (updatedData) {
-      // FIX: Use setQueriesData with { queryKey: ['places'] } to fuzzy match and update ALL place lists
-      // This ensures both usePlaces({}) and usePlaces({ filter }) caches are updated.
-      queryClient.setQueriesData(
-        { queryKey: ["places"] },
-        (oldData: any | undefined) => {
-          if (!oldData) return oldData;
-
-          // Helper to update a list of places
-          const updateList = (list: Place[]) => {
-            if (editType === "place") {
-              return list.map((p) =>
-                p._id === updatedData._id
-                  ? { ...p, ...updatedData, meals: p.meals }
-                  : p
-              );
-            } else if (editType === "meal" && place) {
-              return list.map((p) => {
-                if (p._id === place._id) {
-                  const updatedMeals = (p.meals || []).map((m) =>
-                    m._id === updatedData._id ? updatedData : m
-                  );
-                  return { ...p, meals: updatedMeals };
-                }
-                return p;
-              });
-            }
-            return list;
-          };
-
-          // Case 1: Simple Array (Legacy or Flat List)
-          if (Array.isArray(oldData)) {
-            return updateList(oldData);
-          }
-
-          // Case 2: Paginated Response { data: Place[], meta: ... }
-          if (oldData.data && Array.isArray(oldData.data)) {
-            return {
-              ...oldData,
-              data: updateList(oldData.data),
-            };
-          }
-
-          // Case 3: Infinite Query Response { pages: [{ data: ... }], ... }
-          if (oldData.pages && Array.isArray(oldData.pages)) {
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page: any) => ({
-                ...page,
-                data: updateList(page.data || []),
-              })),
-            };
-          }
-
-          return oldData;
-        }
-      );
-    } else {
-      // Fallback
-      queryClient.invalidateQueries({ queryKey: ["places"] });
+    // Force a re-fetch of the place list and details
+    // This ensures the Place Price Range (computed on server) matches the updated meals
+    queryClient.invalidateQueries({ queryKey: ["places"] });
+    // Also invalidate specific place details if you have a specific query for it
+    if (place) {
+      queryClient.invalidateQueries({ queryKey: ["places", place._id] });
     }
 
     showToast("Updated successfully", "success");

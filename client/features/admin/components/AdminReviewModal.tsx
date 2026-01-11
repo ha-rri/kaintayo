@@ -39,10 +39,12 @@ export default function AdminReviewModal({
   if (!item) return null;
 
   const isPlace = item.type === "place";
-  // Safe image access
+  // Safe image access: Align with PendingItemCard logic
   const imageUrl = isPlace
-    ? (item as any).startPhoto || (item as any).images?.[0]
-    : (item as any).image;
+    ? (item as any).coverImage ||
+      (item as any).startPhoto ||
+      (item as any).images?.[0]
+    : (item as any).imageUri || (item as any).image;
 
   const name = isPlace ? (item as any).name : (item as any).title;
   const submittedBy =
