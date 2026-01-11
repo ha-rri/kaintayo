@@ -65,7 +65,15 @@ export const FavoriteButton = ({
   };
 
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={handlePress}>
+    <TouchableOpacity
+      style={[styles.button, style]}
+      onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel={
+        isFavoriteLocal ? "Remove from favorites" : "Add to favorites"
+      }
+      accessibilityState={{ selected: isFavoriteLocal }}
+    >
       {isPending ? (
         // Optional: Can keep spinner or just let the heart fill instantly.
         // User requested instant fill, so maybe removing spinner logic or keeping it subtle?

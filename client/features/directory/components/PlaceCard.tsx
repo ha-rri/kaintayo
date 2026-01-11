@@ -20,7 +20,17 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
 
   return (
     <View style={styles.cardContainer}>
-      <TouchableOpacity style={styles.card} onPress={() => onPress(place)}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => onPress(place)}
+        accessibilityRole="button"
+        accessibilityHint={`Double tap to view details for ${place.name}`}
+        accessibilityLabel={`${place.name}, located at ${
+          place.nearestLandmark || "unknown location"
+        }. Price range ${place.priceRange.min} to ${
+          place.priceRange.max
+        } pesos. Categories: ${(place.categories || []).join(", ")}`}
+      >
         <AppImage
           uri={place.coverImage}
           style={styles.cardImage}

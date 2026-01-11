@@ -90,6 +90,12 @@ export const ContributeForm = () => {
             : handleSubmit(onSubmit)
         }
         disabled={isSubmitting || isPending}
+        accessibilityRole="button"
+        accessibilityLabel="Submit Contribution"
+        accessibilityState={{
+          disabled: isSubmitting || isPending,
+          busy: isSubmitting || isPending,
+        }}
       >
         <Text style={styles.submitBtnText}>
           {isSubmitting || isPending ? "Submitting..." : "Submit"}

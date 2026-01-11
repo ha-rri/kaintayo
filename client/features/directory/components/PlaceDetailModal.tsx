@@ -108,7 +108,12 @@ export const PlaceDetailModal = ({
             optimizeWidth={800}
           />
           <View style={styles.headerButtons}>
-            <TouchableOpacity style={styles.iconButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
               <Ionicons
                 name="arrow-back"
                 size={24}
@@ -120,6 +125,8 @@ export const PlaceDetailModal = ({
                 <TouchableOpacity
                   style={[styles.iconButton]}
                   onPress={handleEditPlace}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit Place Details"
                 >
                   <Ionicons
                     name="pencil"
@@ -156,7 +163,11 @@ export const PlaceDetailModal = ({
             </View>
 
             {/* Price Badge (Right) */}
-            <View style={styles.modalPriceBadge}>
+            <View
+              style={styles.modalPriceBadge}
+              accessible={true}
+              accessibilityLabel={`Price range: ${place.priceRange.min} to ${place.priceRange.max} pesos`}
+            >
               <Text style={styles.modalPriceText}>
                 ₱{place.priceRange.min} - ₱{place.priceRange.max}
               </Text>
@@ -207,7 +218,17 @@ export const PlaceDetailModal = ({
                   style={styles.menuItemIcon}
                   optimizeWidth={200}
                 />
-                <View style={styles.menuItemContent}>
+                <View
+                  style={styles.menuItemContent}
+                  accessible={true}
+                  accessibilityLabel={`${meal.title}, Regular price ${
+                    meal.priceRegular
+                  } pesos${
+                    meal.priceHalf
+                      ? `, Half order available for ${meal.priceHalf} pesos`
+                      : ""
+                  }`}
+                >
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
                     Updated {formatRelativeTime(place.updatedAt)}
@@ -233,6 +254,8 @@ export const PlaceDetailModal = ({
                   <TouchableOpacity
                     style={styles.mealEditBtn}
                     onPress={() => handleEditMeal(meal)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Edit ${meal.title}`}
                   >
                     <Ionicons name="pencil" size={16} color="#666" />
                   </TouchableOpacity>

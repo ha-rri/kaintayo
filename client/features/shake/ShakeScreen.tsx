@@ -104,7 +104,7 @@ export default function ShakeScreen() {
         {/* 2. Action Area (Bottom) */}
         <View style={styles.actionSection}>
           {/* Status Pill */}
-          <View style={styles.statusPill}>
+          <View style={styles.statusPill} accessibilityLiveRegion="polite">
             {matchedPlacesCount === 0 ? (
               <Text style={styles.statusTextDisabled}>No places found</Text>
             ) : (

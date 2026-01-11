@@ -66,6 +66,8 @@ export default function LoginForm() {
               onChangeText={onChange}
               autoCapitalize="none"
               keyboardType="email-address"
+              accessibilityLabel="Email Address"
+              accessibilityHint="Enter your email address"
             />
           )}
         />
@@ -93,10 +95,18 @@ export default function LoginForm() {
                 onChangeText={onChange}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                accessibilityLabel="Password"
+                accessibilityHint="Enter your password"
               />
             )}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              showPassword ? "Hide password" : "Show password"
+            }
+          >
             <Ionicons
               name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={20}
@@ -112,6 +122,9 @@ export default function LoginForm() {
         style={styles.submitButton}
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
+        accessibilityRole="button"
+        accessibilityLabel="Login"
+        accessibilityState={{ disabled: isSubmitting, busy: isSubmitting }}
       >
         {isSubmitting ? (
           <ActivityIndicator color="#fff" />

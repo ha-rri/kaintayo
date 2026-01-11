@@ -74,6 +74,8 @@ export default function RegisterForm() {
               value={value}
               onChangeText={onChange}
               autoCapitalize="none"
+              accessibilityLabel="Username"
+              accessibilityHint="Choose a unique username"
             />
           )}
         />
@@ -95,6 +97,8 @@ export default function RegisterForm() {
               onChangeText={onChange}
               keyboardType="email-address"
               autoCapitalize="none"
+              accessibilityLabel="Email Address"
+              accessibilityHint="Enter your email address"
             />
           )}
         />
@@ -122,10 +126,18 @@ export default function RegisterForm() {
                 onChangeText={onChange}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                accessibilityLabel="Password"
+                accessibilityHint="Create a secure password"
               />
             )}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              showPassword ? "Hide password" : "Show password"
+            }
+          >
             <Ionicons
               name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={20}
@@ -157,11 +169,17 @@ export default function RegisterForm() {
                 onChangeText={onChange}
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
+                accessibilityLabel="Confirm Password"
+                accessibilityHint="Re-enter your password"
               />
             )}
           />
           <TouchableOpacity
             onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              showConfirmPassword ? "Hide password" : "Show password"
+            }
           >
             <Ionicons
               name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
@@ -179,6 +197,9 @@ export default function RegisterForm() {
       <TouchableOpacity
         style={styles.checkboxContainer}
         onPress={() => setAgreeTerms(!agreeTerms)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: agreeTerms }}
+        accessibilityLabel="I certify I am a student and will post real, accurate data."
       >
         <View style={[styles.checkbox, agreeTerms && styles.checkboxActive]}>
           {agreeTerms && <Ionicons name="checkmark" size={16} color="#fff" />}
@@ -193,6 +214,9 @@ export default function RegisterForm() {
         style={styles.submitButton}
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
+        accessibilityRole="button"
+        accessibilityLabel="Register Account"
+        accessibilityState={{ disabled: isSubmitting, busy: isSubmitting }}
       >
         {isSubmitting ? (
           <ActivityIndicator color="#fff" />

@@ -72,6 +72,9 @@ export default function ShakeButton({
         delayLongPress={500}
         disabled={disabled}
         activeOpacity={1}
+        accessibilityRole="button"
+        accessibilityLabel="Shake to find a place"
+        accessibilityHint="Long press to simulate a shake or start shaking"
       >
         <Animated.View
           style={{
