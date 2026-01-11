@@ -6,7 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useFavorites } from "../hooks/useFavorites";
@@ -17,6 +17,7 @@ import { Meal } from "@/types/Meal";
 
 const FavoritesScreen = () => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: favorites, isLoading } = useFavorites();
   const [selectedPlace, setSelectedPlace] = React.useState<Place | null>(null);
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -29,7 +30,7 @@ const FavoritesScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* White Header as requested */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -58,7 +59,10 @@ const FavoritesScreen = () => {
         <FlatList
           data={favorites}
           keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: insets.bottom + 20 },
+          ]}
           renderItem={({ item }) => (
             // Using the Shared PlaceCard
             <PlaceCard place={item} onPress={handlePress} />
@@ -74,7 +78,7 @@ const FavoritesScreen = () => {
         onClose={() => setModalVisible(false)}
         getAffordableMeals={getAffordableMeals}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

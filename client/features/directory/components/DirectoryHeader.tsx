@@ -8,6 +8,7 @@ import {
 import { theme } from "@/lib/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface DirectoryHeaderProps {
   searchQuery: string;
@@ -21,9 +22,10 @@ export const DirectoryHeader = ({
   handleSearch,
 }: DirectoryHeaderProps) => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
       <View style={styles.headerTop}>
         <View style={styles.locationContainer}>
           <Ionicons name="location" size={20} color={theme.colors.text.light} />
@@ -67,7 +69,6 @@ export const DirectoryHeader = ({
 const styles = StyleSheet.create({
   header: {
     backgroundColor: theme.colors.primary,
-    paddingTop: 50,
     paddingHorizontal: theme.spacing.md,
     paddingBottom: 40,
   },

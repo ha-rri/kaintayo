@@ -115,19 +115,19 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
   },
   title: {
-    fontSize: theme.fontSizes.md,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "700",
     color: theme.colors.text.primary,
     flex: 1,
     marginRight: 8,
   },
   subtitle: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.text.secondary,
     marginBottom: 4,
   },
   placeName: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "500",
     marginBottom: 2,
     color: theme.colors.primary,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   reviewText: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
     color: theme.colors.primary,
   },

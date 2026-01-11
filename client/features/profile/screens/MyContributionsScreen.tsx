@@ -6,7 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"; // FIXED: Use safe-area-context
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +19,7 @@ import { mealService } from "@/features/directory/services/mealService";
 
 export default function MyContributionsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
   // Fetch My Pending Places
@@ -106,7 +107,7 @@ export default function MyContributionsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -135,7 +136,10 @@ export default function MyContributionsScreen() {
             data={combinedItems}
             renderItem={renderItem as any}
             keyExtractor={(item) => item._id}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[
+              styles.list,
+              { paddingBottom: insets.bottom + 20 },
+            ]}
           />
         ) : (
           <View style={styles.emptyState}>
@@ -144,7 +148,7 @@ export default function MyContributionsScreen() {
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePendingItems } from "./hooks/usePendingItems";
 import { useAdminActions } from "./hooks/useAdminActions";
 import PendingItemCard from "./components/PendingItemCard";
@@ -19,6 +19,7 @@ import { theme } from "@/lib/theme"; // Import theme
 
 export default function AdminPanelScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<"pending" | "reported">("pending");
   const [selectedItem, setSelectedItem] = useState<any | null>(null); // State for modal
 
@@ -150,7 +151,10 @@ export default function AdminPanelScreen() {
             onPress={(item) => setSelectedItem(item)}
           />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
         onRefresh={refetch}
         refreshing={isLoading}
       />
@@ -158,7 +162,7 @@ export default function AdminPanelScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {renderHeader()}
       {renderTabs()}
       <View style={styles.content}>{renderContent()}</View>
@@ -172,7 +176,7 @@ export default function AdminPanelScreen() {
         onReject={handleReject}
         onUpdate={handleUpdateItem}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
