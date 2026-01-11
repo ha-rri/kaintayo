@@ -114,22 +114,18 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   shakeButtonDisabled: {
-    backgroundColor: "#ccc", // We keep this for when it's disabled
-    borderRadius: 110,
+    opacity: 0.5,
   },
   logoImage: {
-    // ✅ FULL SIZE: The image fills the entire button area
     width: 220,
     height: 220,
     resizeMode: "contain",
-
-    // ✅ REMOVED: tintColor (So the orange color shows!)
-    // ✅ REMOVED: margins (It is already centered!)
   },
   shakeText: {
     marginBottom: -100,
     marginTop: 20,
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: "600",
     color: "#666",
     textAlign: "center",
   },

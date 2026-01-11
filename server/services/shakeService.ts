@@ -22,15 +22,17 @@ export const shakeService = {
   async getRandomPlace(criteria: ShakeCriteria): Promise<IPlace | null> {
     const matchStage = { $match: buildQuery(criteria) };
 
-    // Use MongoDB aggregation to sample 1 random document
-    const [place] = await Place.aggregate([
+    // 1. Get a random ID
+    const [randomResult] = await Place.aggregate([
       matchStage,
       { $sample: { size: 1 } },
+      { $project: { _id: 1 } }, // Optimization: Only fetch ID
     ]);
 
-    if (!place) return null;
+    if (!randomResult) return null;
 
-    return place as IPlace;
+    // 2. Fetch full document with virtuals populated
+    return await Place.findById(randomResult._id).populate("meals");
   },
 };
 

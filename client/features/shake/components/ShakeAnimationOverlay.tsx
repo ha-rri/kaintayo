@@ -1,22 +1,22 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-  withSequence, 
-  withTiming, 
+import React, { useEffect } from "react";
+import { StyleSheet, Image, Modal } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  withTiming,
   withRepeat,
   withDelay,
-} from 'react-native-reanimated';
-
-const { width, height } = Dimensions.get('window');
+} from "react-native-reanimated";
 
 interface ShakeAnimationOverlayProps {
   visible: boolean;
 }
 
-export default function ShakeAnimationOverlay({ visible }: ShakeAnimationOverlayProps) {
+export default function ShakeAnimationOverlay({
+  visible,
+}: ShakeAnimationOverlayProps) {
   // Animation Values
   const scale = useSharedValue(0);
   const rotate = useSharedValue(0);
@@ -33,10 +33,7 @@ export default function ShakeAnimationOverlay({ visible }: ShakeAnimationOverlay
 
       // 2. Smooth Fade In -> Wait -> Fade Out
       // We wrap the whole lifecycle in one sequence
-      containerOpacity.value = withSequence(
-        withTiming(1, { duration: 400 }), // ✅ Fade In (0.4s)
-        withDelay(4100, withTiming(0, { duration: 500 })) // Wait until 4.5s total, then Fade Out
-      );
+      containerOpacity.value = withTiming(1, { duration: 400 }); // ✅ Fade In Only (Stay Opaque)
 
       // 3. Icon Pop In (Slightly delayed to match fade-in)
       scale.value = withDelay(100, withSpring(1, { damping: 10 }));
@@ -44,7 +41,7 @@ export default function ShakeAnimationOverlay({ visible }: ShakeAnimationOverlay
       // 4. Shake Animation (0.3s -> 3.0s)
       // 10 loops * 300ms = 3000ms (3 seconds)
       rotate.value = withDelay(
-        300, 
+        300,
         withRepeat(
           withSequence(
             withTiming(-15, { duration: 100 }),
@@ -59,7 +56,7 @@ export default function ShakeAnimationOverlay({ visible }: ShakeAnimationOverlay
       // 5. "Kainan Found!" Text Reveal (at 3.0s)
       textOpacity.value = withDelay(3000, withTiming(1, { duration: 500 }));
     }
-  }, [visible]);
+  }, [visible, scale, rotate, textOpacity, containerOpacity]);
 
   const animatedIconStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }, { rotate: `${rotate.value}deg` }],
@@ -77,44 +74,45 @@ export default function ShakeAnimationOverlay({ visible }: ShakeAnimationOverlay
   if (!visible) return null;
 
   return (
-    <Animated.View style={[styles.container, containerStyle]}>
-      <Animated.View style={animatedIconStyle}>
-        <Image 
-            source={require('../../../assets/images/icons/shake-logo.png')} 
+    <Modal
+      visible={visible}
+      transparent={true}
+      statusBarTranslucent
+      animationType="fade"
+    >
+      <Animated.View style={[styles.container, containerStyle]}>
+        <Animated.View style={animatedIconStyle}>
+          <Image
+            source={require("../../../assets/images/icons/shake-logo.png")}
             style={styles.overlayLogo}
-        />
-      </Animated.View>
+          />
+        </Animated.View>
 
-      <Animated.Text style={[styles.loadingText, animatedTextStyle]}>
-        Kainan Found!
-      </Animated.Text>
-    </Animated.View>
+        <Animated.Text style={[styles.loadingText, animatedTextStyle]}>
+          Kainan Found!
+        </Animated.Text>
+      </Animated.View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: width,
-    height: height,
-    backgroundColor: '#FF7428', 
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-    elevation: 10,
+    flex: 1, // Changed from absolute positioning to flex: 1 inside Modal
+    backgroundColor: "#FF7428",
+    justifyContent: "center",
+    alignItems: "center",
   },
   overlayLogo: {
     width: 150,
     height: 150,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   loadingText: {
-    marginTop: -10, 
+    marginTop: -10,
     fontSize: 32,
-    fontWeight: '800',
-    color: 'white',
+    fontWeight: "800",
+    color: "white",
     letterSpacing: 1,
   },
 });

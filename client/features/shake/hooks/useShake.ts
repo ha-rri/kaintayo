@@ -39,10 +39,14 @@ export function useShake(
           amenities,
         });
         setSelectedPlace(place);
+
+        // Wait 500ms before removing overlay to allow Modal to animate in
+        // Fixes the "Flash" where you see the underlying screen
+        setTimeout(() => {
+          setIsShaking(false);
+        }, 500);
       } catch (err) {
         console.error("Shake Failed:", err);
-        // Could show error toast here
-      } finally {
         setIsShaking(false);
       }
     }, 5000);

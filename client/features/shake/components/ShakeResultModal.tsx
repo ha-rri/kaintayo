@@ -8,15 +8,16 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-// Removed Ionicons import
-import { Place } from "@/types/Place"; // ✅ Use Global Type
-import { AppImage } from "@/components/ui/AppImage"; // ✅ Use AppImage
+import { Ionicons } from "@expo/vector-icons";
+import { Place } from "@/types/Place";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface ShakeResultModalProps {
   visible: boolean;
   place: Place | null;
   onClose: () => void;
   onAccept: () => void;
+  onShakeAgain: () => void;
 }
 
 const { width } = Dimensions.get("window");
@@ -26,15 +27,25 @@ export default function ShakeResultModal({
   place,
   onClose,
   onAccept,
+  onShakeAgain,
 }: ShakeResultModalProps) {
   if (!place) return null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={false}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={onClose}
+    >
       <View style={styles.container}>
-        {/* 1. Header Section */}
+        {/* Header Section */}
         <View style={styles.header}>
-          {/* ✅ UPDATED: Using the new image logo */}
+          {/* Close Button (Top Right) */}
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Ionicons name="close" size={24} color="#333" />
+          </TouchableOpacity>
+
           <Image
             source={require("../../../assets/images/icons/shake-logo.png")}
             style={styles.headerLogo}
@@ -42,7 +53,6 @@ export default function ShakeResultModal({
           <Text style={styles.headerTitle}>We Picked...</Text>
         </View>
 
-        {/* ... (rest of the component remains the same) ... */}
         <View style={styles.content}>
           <View style={styles.imageContainer}>
             <AppImage
@@ -70,7 +80,10 @@ export default function ShakeResultModal({
               <Text style={styles.primaryButtonText}>KainTayo!</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={onShakeAgain}
+            >
               <Text style={styles.secondaryButtonText}>Shake Again</Text>
             </TouchableOpacity>
 
@@ -93,8 +106,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: 40,
+    position: "relative", // Needed for absolute children
   },
-  // ✅ ADDED: Style for the logo in the modal header
+  // ✅ Close Button Style
+  closeButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: 20,
+  },
   headerLogo: {
     width: 60,
     height: 60,
@@ -105,8 +128,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "800",
     color: "#333",
+    marginBottom: 16,
   },
-  // ... (rest of the styles remain the same) ...
   content: {
     flex: 1,
     backgroundColor: "#E5E5E5",
