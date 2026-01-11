@@ -32,7 +32,13 @@ export default function ShakeScreen() {
     isShaking,
     handleShake,
     handleReset,
-  } = useShake(budget, selectedZone, categories, amenities, useIsFocused());
+  } = useShake(
+    budget >= 300 ? 100000 : budget, // Treat 300 as No Limit (High Cap)
+    selectedZone,
+    categories,
+    amenities,
+    useIsFocused()
+  );
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setBudget(newFilters.limit);
@@ -49,6 +55,7 @@ export default function ShakeScreen() {
 
   // ✅ Helper for Detail Modal
   const getAffordableMeals = (meals: Meal[]) => {
+    if (budget >= 300) return meals; // No Limit
     return meals.filter((meal) => {
       const price = meal.priceHalf || meal.priceRegular;
       return price <= budget;

@@ -44,7 +44,8 @@ export default function DirectoryScreen() {
   if (amenities.length > 0) filters.amenities = amenities;
   if (debouncedSearch) filters.search = debouncedSearch;
   // Add Max Price Filter (Server-Side)
-  filters.maxPrice = debouncedLimit;
+  // If limit is at max (300), treat as undefined (No Limit)
+  filters.maxPrice = debouncedLimit >= 300 ? undefined : debouncedLimit;
 
   // Use Infinite Query Hook
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -115,6 +116,7 @@ export default function DirectoryScreen() {
   };
 
   const getAffordableMeals = (meals: Meal[]) => {
+    if (limit >= 300) return meals; // No Limit
     return meals.filter((meal) => meal.priceRegular <= limit);
   };
 

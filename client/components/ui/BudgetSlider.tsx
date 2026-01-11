@@ -24,7 +24,9 @@ export const BudgetSlider = ({
       <View style={styles.header}>
         <Text style={styles.label}>My Limit:</Text>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>₱{limit}</Text>
+          <Text style={styles.badgeText}>
+            {limit >= max ? "No Limit" : `₱${limit}`}
+          </Text>
         </View>
       </View>
 

@@ -44,45 +44,62 @@ export const FilterModal = ({
   // Local state for the modal
   const [filters, setFilters] = useState<FilterState>(initialFilters);
 
-  // Animation Value: 0 (Hidden) -> 1 (Visible)
-  const anim = useRef(new Animated.Value(0)).current;
+  // Animation Values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   // Sync state when modal opens
   useEffect(() => {
     if (visible) {
       setFilters(initialFilters);
-      // Animate In
-      Animated.timing(anim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-        easing: Easing.out(Easing.cubic),
-      }).start();
+      // Animate In Parallel
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200, // Faster fade for responsiveness
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.cubic),
+        }),
+      ]).start();
     } else {
-      // Reset anim for next time (though usually unmounted)
-      anim.setValue(0);
+      // Reset anims
+      fadeAnim.setValue(0);
+      slideAnim.setValue(0);
     }
-  }, [visible, initialFilters, anim]);
+  }, [visible, initialFilters, fadeAnim, slideAnim]);
 
   // Handle animate out before close
   const handleClose = () => {
-    Animated.timing(anim, {
-      toValue: 0,
-      duration: 250,
-      useNativeDriver: true,
-      easing: Easing.in(Easing.cubic),
-    }).start(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.cubic),
+      }),
+    ]).start(() => {
       onClose(); // Actual Close Prop
     });
   };
 
   // Interpolations
-  const backdropOpacity = anim.interpolate({
+  // Interpolations
+  const backdropOpacity = fadeAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 1],
   });
 
-  const translateY = anim.interpolate({
+  const translateY = slideAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [height, 0], // Slide from bottom
   });
