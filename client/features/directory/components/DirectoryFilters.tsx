@@ -47,7 +47,6 @@ export const DirectoryFilters = ({
         }
       : {
           paddingTop: 20,
-          // marginTop is handled in StyleSheet via -20, ensuring standard behavior
         };
 
   return (
@@ -55,7 +54,10 @@ export const DirectoryFilters = ({
       {/* Top Section: Limit Slider */}
       <BudgetSlider
         limit={localLimit}
-        setLimit={setLocalLimit}
+        setLimit={(value) => {
+          setLocalLimit(value);
+          setLimit(value); // Live Update
+        }}
         onSlidingComplete={(value) => setLimit(value)}
       />
 
@@ -113,14 +115,12 @@ const styles = StyleSheet.create({
   },
   zoneContainer: {
     flex: 1,
-    // Removed flexDirection: 'row' and gap, allowing SegmentedControl to fill width
   },
-  // zoneTab, zoneTabActive, zoneText, zoneTextActive styles REMOVED as they are replaced by SegmentedControl
 
   filterButton: {
-    backgroundColor: "#FFF0E6", // Light Orange (Shake Style)
+    backgroundColor: "#FFF0E6",
     width: 44,
-    height: 44, // Matched height with SegmentedControl (approx)
+    height: 44,
     borderRadius: theme.radius.sm,
     alignItems: "center",
     justifyContent: "center",
