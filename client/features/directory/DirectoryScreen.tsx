@@ -45,6 +45,21 @@ export default function DirectoryScreen() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfinitePlaces(filters);
 
+  // Buffered Loading (Prevent Skeleton Flash)
+  const [bufferedLoading, setBufferedLoading] = useState(isLoading);
+
+  useEffect(() => {
+    if (isLoading) {
+      setBufferedLoading(true);
+    } else {
+      // If loading finishes, keep showing skeleton for a bit to prevent flash
+      const timer = setTimeout(() => {
+        setBufferedLoading(false);
+      }, 500); // 500ms minimum duration
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
   // Flatten Pages
   const allPlaces = useMemo(() => {
     return data?.pages.flatMap((page) => page.data) || [];
@@ -108,7 +123,7 @@ export default function DirectoryScreen() {
     // Item 1: Filter Header (Static In-List)
     const items: any[] = [{ type: "search-header" }, { type: "filter-header" }];
 
-    if (isLoading) {
+    if (bufferedLoading) {
       // Loading Skeletons
       items.push(
         { type: "skeleton", id: "s1" },
@@ -124,7 +139,7 @@ export default function DirectoryScreen() {
     }
 
     return items;
-  }, [isLoading, filteredPlaces]);
+  }, [bufferedLoading, filteredPlaces]);
 
   // Animated Sticky Header Logic
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -166,7 +181,16 @@ export default function DirectoryScreen() {
                 variant="static" // Standard Curve
               />
               <View style={styles.resultsCount}>
-                {!isLoading && (
+                {bufferedLoading ? (
+                  <View
+                    style={{
+                      height: 14,
+                      width: 100,
+                      backgroundColor: "#E1E9EE",
+                      borderRadius: 4,
+                    }}
+                  />
+                ) : (
                   <Text style={styles.resultsText}>
                     {filteredPlaces.length}{" "}
                     {filteredPlaces.length === 1 ? "place" : "places"} visible
@@ -202,10 +226,10 @@ export default function DirectoryScreen() {
     [
       limit,
       activeCategory,
-      isLoading,
       searchQuery,
       handleSearch,
       filteredPlaces.length,
+      bufferedLoading,
     ]
   );
 
@@ -217,7 +241,7 @@ export default function DirectoryScreen() {
         </View>
       );
     }
-    return <View style={{ height: 20 }} />; // Bottom padding
+    return <View style={{ height: 20 }} />;
   };
 
   return (
@@ -237,8 +261,6 @@ export default function DirectoryScreen() {
           onFilterPress={() => setFilterModalVisible(true)}
           variant="sticky" // Safe Area + Flat Top
         />
-        {/* Do NOT include results count here to keep sticky header clean? 
-            Or generally better to keep it clean. */}
       </Animated.View>
 
       <Animated.FlatList
@@ -248,7 +270,6 @@ export default function DirectoryScreen() {
           item.type === "place" ? item.data._id : item.type + index
         }
         ListFooterComponent={renderFooter}
-        /* No stickyHeaderIndices - Managed by Animated Overlay */
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true }
