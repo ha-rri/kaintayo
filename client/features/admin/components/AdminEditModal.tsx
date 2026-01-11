@@ -1,11 +1,6 @@
 import React from "react";
-import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { Modal, StyleSheet } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Place } from "@/types/Place";
 import { Meal } from "@/types/Meal";
 import { AdminEditPlaceForm } from "./AdminEditPlaceForm";
@@ -35,28 +30,29 @@ export const AdminEditModal = ({
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        extraHeight={100}
+        enableAutomaticScroll={true}
         style={styles.container}
+        contentContainerStyle={styles.scroll}
       >
-        <ScrollView contentContainerStyle={styles.scroll}>
-          {type === "place" && (
-            <AdminEditPlaceForm
-              place={target as Place}
-              onCancel={onClose}
-              onSuccess={onSuccess}
-            />
-          )}
+        {type === "place" && (
+          <AdminEditPlaceForm
+            place={target as Place}
+            onCancel={onClose}
+            onSuccess={onSuccess}
+          />
+        )}
 
-          {type === "meal" && (
-            <AdminEditMealForm
-              meal={target as Meal}
-              onCancel={onClose}
-              onSuccess={onSuccess}
-            />
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {type === "meal" && (
+          <AdminEditMealForm
+            meal={target as Meal}
+            onCancel={onClose}
+            onSuccess={onSuccess}
+          />
+        )}
+      </KeyboardAwareScrollView>
     </Modal>
   );
 };

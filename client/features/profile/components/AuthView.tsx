@@ -1,12 +1,5 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import LoginForm from "@/features/auth/components/LoginForm";
@@ -21,69 +14,67 @@ export default function AuthView({ initialTab, onBack }: AuthViewProps) {
   const [activeTab, setActiveTab] = useState<"login" | "register">(initialTab);
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardAwareScrollView
       style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      contentContainerStyle={{ flexGrow: 1 }}
+      enableOnAndroid={true}
+      extraHeight={100}
+      enableAutomaticScroll={true}
     >
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{ flexGrow: 1 }}
-      >
-        {/* Header */}
-        <View style={styles.authHeader}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#000" />
+      {/* Header */}
+      <View style={styles.authHeader}>
+        <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.authHeaderTitle}>Welcome to Kain Tayo!</Text>
+      </View>
+
+      {/* Content */}
+      <View style={styles.authContent}>
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>🍜</Text>
+          </View>
+        </View>
+
+        <Text style={styles.title}>Find the Best Places!</Text>
+
+        {/* Tab Toggle */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "login" && styles.activeTab]}
+            onPress={() => setActiveTab("login")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "login" && styles.activeTabText,
+              ]}
+            >
+              Login
+            </Text>
           </TouchableOpacity>
-          <Text style={styles.authHeaderTitle}>Welcome to Kain Tayo!</Text>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "register" && styles.activeTab]}
+            onPress={() => setActiveTab("register")}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "register" && styles.activeTabText,
+              ]}
+            >
+              Register
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Content */}
-        <View style={styles.authContent}>
-          {/* Logo */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>🍜</Text>
-            </View>
-          </View>
-
-          <Text style={styles.title}>Find the Best Places!</Text>
-
-          {/* Tab Toggle */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "login" && styles.activeTab]}
-              onPress={() => setActiveTab("login")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "login" && styles.activeTabText,
-                ]}
-              >
-                Login
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tab, activeTab === "register" && styles.activeTab]}
-              onPress={() => setActiveTab("register")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "register" && styles.activeTabText,
-                ]}
-              >
-                Register
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Forms */}
-          {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {/* Forms */}
+        {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
+      </View>
+    </KeyboardAwareScrollView>
   );
 }
 
