@@ -45,7 +45,7 @@ export const StoreSearch = ({
 
   // Hook into the API search
   const {
-    data: searchResults = [],
+    data: response,
     isLoading,
     isFetching,
   } = usePlaces({
@@ -53,6 +53,8 @@ export const StoreSearch = ({
     scope: "my_pending_inclusion",
     keepPreviousData: false, // Prevent flash of stale options
   });
+
+  const searchResults = response?.data || [];
 
   // Combine loading states
   const showLoading = isLoading || isFetching;

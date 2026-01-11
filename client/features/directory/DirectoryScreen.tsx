@@ -1,21 +1,22 @@
 import {
   View,
   Text,
-  ScrollView,
   Keyboard,
   ActivityIndicator,
   StyleSheet,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { theme } from "@/lib/theme";
-import { usePlaces } from "./hooks/usePlaces";
+import { useInfinitePlaces } from "./hooks/useInfinitePlaces";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DirectoryHeader } from "./components/DirectoryHeader";
 import { DirectoryFilters } from "./components/DirectoryFilters";
 import { FilterModal, FilterState } from "@/components/ui/FilterModal";
 import { PlaceCard } from "./components/PlaceCard";
 import { PlaceDetailModal } from "./components/PlaceDetailModal";
+import { PlaceCardSkeleton } from "@/components/ui/skeletons/PlaceCardSkeleton";
 import { Place } from "@/types/Place";
 import { Meal } from "@/types/Meal";
 
@@ -32,42 +33,57 @@ export default function DirectoryScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
 
-  // Server-Side Filtering:
-  // Fetch based on Category (Zone) and Search Query to reduce payload and handle indexing.
+  // Server-Side Filtering
   const filters: any = {};
   if (activeCategory === "Inside Campus") filters.zoneMacro = "inside";
   if (activeCategory === "Outside Campus") filters.zoneMacro = "outside";
   if (categories.length > 0) filters.categories = categories;
   if (amenities.length > 0) filters.amenities = amenities;
   if (debouncedSearch) filters.search = debouncedSearch;
-  // Note: We don't need to pass maxPrice here if we filter client-side,
-  // BUT if we want to support server-side filtering fully later, we can add it.
-  // For now, consistent with original code (client side Price), we don't pass limit to API query unless refactoring completely.
-  // However, based on requirements, I'll stick to the hybrid approach but ensure 'limit' from modal updates our local limit state.
 
-  const { data: places = [], isLoading } = usePlaces(filters);
+  // Use Infinite Query Hook
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfinitePlaces(filters);
 
-  // Sync selectedPlace with fresh data when places update (e.g. after edit)
+  // Buffered Loading (Prevent Skeleton Flash)
+  const [bufferedLoading, setBufferedLoading] = useState(isLoading);
+
+  useEffect(() => {
+    if (isLoading) {
+      setBufferedLoading(true);
+    } else {
+      // If loading finishes, keep showing skeleton for a bit to prevent flash
+      const timer = setTimeout(() => {
+        setBufferedLoading(false);
+      }, 500); // 500ms minimum duration
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  // Flatten Pages
+  const allPlaces = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
+
+  // Sync selectedPlace with fresh data
   useEffect(() => {
     if (selectedPlace) {
-      const freshData = places.find((p) => p._id === selectedPlace._id);
+      const freshData = allPlaces.find((p) => p._id === selectedPlace._id);
       if (freshData) {
         setSelectedPlace(freshData);
       }
     }
-  }, [places, selectedPlace]);
+  }, [allPlaces, selectedPlace]);
 
-  // Client-Side Filtering (Price):
-  // Filter locally to maintain immediate responsiveness for the slider (no network lag).
+  // Client-Side Filtering (Price) - Applied to the flattened list
   const filteredPlaces = useMemo(() => {
-    return places.filter((place) => place.priceRange.min <= limit);
-  }, [places, limit]);
+    return allPlaces.filter((place) => place.priceRange.min <= limit);
+  }, [allPlaces, limit]);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     console.log("Searching for:", searchQuery);
-    // Hook automatically triggers on searchQuery change
     Keyboard.dismiss();
-  };
+  }, [searchQuery]);
 
   const openRestaurantModal = (place: Place) => {
     setSelectedPlace(place);
@@ -81,7 +97,6 @@ export default function DirectoryScreen() {
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setLimit(newFilters.limit);
-    // Map zoneMacro to UI state
     if (newFilters.zoneMacro === "inside") setActiveCategory("Inside Campus");
     else if (newFilters.zoneMacro === "outside")
       setActiveCategory("Outside Campus");
@@ -91,68 +106,181 @@ export default function DirectoryScreen() {
     setAmenities(newFilters.amenities);
   };
 
-  // Filter meals within price limit
   const getAffordableMeals = (meals: Meal[]) => {
     return meals.filter((meal) => meal.priceRegular <= limit);
   };
 
+  const loadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  // Render Functions
+  // Data Construction for Sticky Header
+  const listData = useMemo(() => {
+    // Item 0: Search Header (Scrolls away)
+    // Item 1: Filter Header (Static In-List)
+    const items: any[] = [{ type: "search-header" }, { type: "filter-header" }];
+
+    if (bufferedLoading) {
+      // Loading Skeletons
+      items.push(
+        { type: "skeleton", id: "s1" },
+        { type: "skeleton", id: "s2" },
+        { type: "skeleton", id: "s3" }
+      );
+    } else if (filteredPlaces.length === 0) {
+      // Empty State
+      items.push({ type: "empty" });
+    } else {
+      // Actual Places
+      items.push(...filteredPlaces.map((p) => ({ type: "place", data: p })));
+    }
+
+    return items;
+  }, [bufferedLoading, filteredPlaces]);
+
+  // Animated Sticky Header Logic
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(130); // Default estimate
+
+  // Interpolate translateY to snap the sticky header in/out
+  const stickyHeaderTranslateY = scrollY.interpolate({
+    inputRange: [headerHeight - 21, headerHeight - 20], // Threshold
+    outputRange: [-1000, 0], // Hide off-screen -> Snap to top
+    extrapolate: "clamp",
+  });
+
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => {
+      switch (item.type) {
+        case "search-header":
+          return (
+            <View
+              onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+            >
+              <DirectoryHeader
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                handleSearch={handleSearch}
+              />
+            </View>
+          );
+        case "filter-header":
+          return (
+            <View
+              style={{ backgroundColor: theme.colors.background, zIndex: 1 }}
+            >
+              <DirectoryFilters
+                limit={limit}
+                setLimit={setLimit}
+                activeCategory={activeCategory}
+                setActiveCategory={setActiveCategory}
+                onFilterPress={() => setFilterModalVisible(true)}
+                variant="static" // Standard Curve
+              />
+              <View style={styles.resultsCount}>
+                {bufferedLoading ? (
+                  <View
+                    style={{
+                      height: 14,
+                      width: 100,
+                      backgroundColor: "#E1E9EE",
+                      borderRadius: 4,
+                    }}
+                  />
+                ) : (
+                  <Text style={styles.resultsText}>
+                    {filteredPlaces.length}{" "}
+                    {filteredPlaces.length === 1 ? "place" : "places"} visible
+                  </Text>
+                )}
+              </View>
+            </View>
+          );
+        case "skeleton":
+          return (
+            <View style={{ paddingHorizontal: theme.spacing.md }}>
+              <PlaceCardSkeleton />
+            </View>
+          );
+        case "empty":
+          return (
+            <View style={styles.emptyState}>
+              <Ionicons name="sad-outline" size={64} color="#ccc" />
+              <Text style={styles.emptyTitle}>No places found!</Text>
+              <Text style={styles.emptySubtitle}>
+                {searchQuery
+                  ? `Try searching for something else.`
+                  : `Try adjusting your budget or filters.`}
+              </Text>
+            </View>
+          );
+        case "place":
+          return <PlaceCard place={item.data} onPress={openRestaurantModal} />;
+        default:
+          return null;
+      }
+    },
+    [
+      limit,
+      activeCategory,
+      searchQuery,
+      handleSearch,
+      filteredPlaces.length,
+      bufferedLoading,
+    ]
+  );
+
+  const renderFooter = () => {
+    if (isFetchingNextPage) {
+      return (
+        <View style={styles.footerLoader}>
+          <ActivityIndicator size="small" color={theme.colors.primary} />
+        </View>
+      );
+    }
+    return <View style={{ height: 20 }} />;
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView>
-        {/* Header */}
-        <DirectoryHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          handleSearch={handleSearch}
-        />
-
-        {/* Filters Dashboard */}
+      {/* Animated Sticky Header Overlay */}
+      <Animated.View
+        style={[
+          styles.stickyOverlay,
+          { transform: [{ translateY: stickyHeaderTranslateY }] },
+        ]}
+      >
         <DirectoryFilters
           limit={limit}
           setLimit={setLimit}
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
           onFilterPress={() => setFilterModalVisible(true)}
+          variant="sticky" // Safe Area + Flat Top
         />
+      </Animated.View>
 
-        {/* Results Count */}
-        <View style={styles.resultsCount}>
-          {isLoading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={theme.colors.primary} />
-              <Text style={styles.loaderText}>Finding places...</Text>
-            </View>
-          ) : (
-            <Text style={styles.resultsText}>
-              {filteredPlaces.length}{" "}
-              {filteredPlaces.length === 1 ? "place" : "places"} found
-            </Text>
-          )}
-        </View>
+      <Animated.FlatList
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={(item, index) =>
+          item.type === "place" ? item.data._id : item.type + index
+        }
+        ListFooterComponent={renderFooter}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16} // 60fps
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        contentContainerStyle={styles.listContent}
+        keyboardShouldPersistTaps="handled"
+      />
 
-        {/* Restaurant Cards */}
-        {filteredPlaces.length > 0
-          ? filteredPlaces.map((place) => (
-              <PlaceCard
-                key={place._id}
-                place={place}
-                onPress={openRestaurantModal}
-              />
-            ))
-          : !isLoading && (
-              <View style={styles.emptyState}>
-                <Ionicons name="sad-outline" size={64} color="#ccc" />
-                <Text style={styles.emptyTitle}>No places found!</Text>
-                <Text style={styles.emptySubtitle}>
-                  {searchQuery
-                    ? `Try searching for something else or increase your limit.`
-                    : `Increase your limit to discover more places!`}
-                </Text>
-              </View>
-            )}
-      </ScrollView>
-
-      {/* Restaurant Modal */}
       <PlaceDetailModal
         visible={modalVisible}
         place={selectedPlace}
@@ -161,7 +289,6 @@ export default function DirectoryScreen() {
         getAffordableMeals={getAffordableMeals}
       />
 
-      {/* Filter Modal */}
       <FilterModal
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
@@ -187,6 +314,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  listContent: {
+    paddingBottom: 20,
   },
   resultsCount: {
     paddingHorizontal: theme.spacing.md,
@@ -214,14 +344,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: theme.spacing.sm,
   },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
+  footerLoader: {
+    paddingVertical: 20,
     alignItems: "center",
   },
-  loaderText: {
-    marginTop: theme.spacing.md,
-    color: theme.colors.text.secondary,
-    fontSize: theme.fontSizes.sm,
+  stickyOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100, // Top of everything
+    backgroundColor: theme.colors.surface, // Use Surface (White) to match content
+    // Shadows
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
 });

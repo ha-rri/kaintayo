@@ -1,8 +1,11 @@
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/lib/theme";
 import { BudgetSlider } from "@/components/ui/BudgetSlider";
+
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface DirectoryFiltersProps {
   limit: number;
@@ -10,6 +13,7 @@ interface DirectoryFiltersProps {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
   onFilterPress: () => void;
+  variant?: "static" | "sticky"; // New prop
 }
 
 export const DirectoryFilters = ({
@@ -18,11 +22,44 @@ export const DirectoryFilters = ({
   activeCategory,
   setActiveCategory,
   onFilterPress,
+  variant = "static",
 }: DirectoryFiltersProps) => {
+  const insets = useSafeAreaInsets();
+  // Local state for smooth slider dragging
+  const [localLimit, setLocalLimit] = useState(limit);
+
+  // Sync local limit if prop changes (e.g. from Filter Modal)
+  useEffect(() => {
+    setLocalLimit(limit);
+  }, [limit]);
+
+  // Dynamic Styles
+  const containerStyle =
+    variant === "sticky"
+      ? {
+          paddingTop: Math.max(20, insets.top + 10),
+          marginTop: 0,
+          marginBottom: 0, // Remove bottom margin for sticky
+          borderTopLeftRadius: 0, // Flat top for sticky
+          borderTopRightRadius: 0,
+          borderBottomWidth: 1, // Optional: Separator
+          borderBottomColor: "#eee",
+        }
+      : {
+          paddingTop: 20,
+        };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {/* Top Section: Limit Slider */}
-      <BudgetSlider limit={limit} setLimit={setLimit} />
+      <BudgetSlider
+        limit={localLimit}
+        setLimit={(value) => {
+          setLocalLimit(value);
+          setLimit(value); // Live Update
+        }}
+        onSlidingComplete={(value) => setLimit(value)}
+      />
 
       {/* Bottom Section: Zones + Filter Button */}
       <View style={styles.bottomRow}>
@@ -78,14 +115,12 @@ const styles = StyleSheet.create({
   },
   zoneContainer: {
     flex: 1,
-    // Removed flexDirection: 'row' and gap, allowing SegmentedControl to fill width
   },
-  // zoneTab, zoneTabActive, zoneText, zoneTextActive styles REMOVED as they are replaced by SegmentedControl
 
   filterButton: {
-    backgroundColor: "#FFF0E6", // Light Orange (Shake Style)
+    backgroundColor: "#FFF0E6",
     width: 44,
-    height: 44, // Matched height with SegmentedControl (approx)
+    height: 44,
     borderRadius: theme.radius.sm,
     alignItems: "center",
     justifyContent: "center",

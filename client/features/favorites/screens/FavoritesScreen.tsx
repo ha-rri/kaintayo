@@ -8,6 +8,8 @@ import { Place } from "@/types/Place";
 import { PlaceDetailModal } from "@/features/directory/components/PlaceDetailModal";
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
 import { Meal } from "@/types/Meal";
+import { theme } from "@/lib/theme";
+import { PlaceCardSkeleton } from "@/components/ui/skeletons/PlaceCardSkeleton";
 
 const FavoritesScreen = () => {
   const insets = useSafeAreaInsets();
@@ -25,11 +27,14 @@ const FavoritesScreen = () => {
   return (
     <View style={styles.container}>
       <ScreenHeader title="Favorites" />
-
       {/* List */}
       {isLoading ? (
-        <View style={styles.center}>
-          <Text>Loading favorites...</Text>
+        <View
+          style={[styles.listContent, { paddingHorizontal: theme.spacing.md }]}
+        >
+          <PlaceCardSkeleton />
+          <PlaceCardSkeleton />
+          <PlaceCardSkeleton />
         </View>
       ) : !favorites || favorites.length === 0 ? (
         <View style={styles.emptyState}>
@@ -53,7 +58,6 @@ const FavoritesScreen = () => {
           )}
         />
       )}
-
       {/* Detail Modal */}
       <PlaceDetailModal
         visible={modalVisible}

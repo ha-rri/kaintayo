@@ -22,7 +22,7 @@ const placeService = {
       page?: number;
       limit?: number;
     } = {}
-  ): Promise<Place[]> => {
+  ): Promise<{ data: Place[]; meta: any }> => {
     // 1. Mock Mode
     if (Config.USE_MOCK_DATA) {
       console.log("⚡ [Mock Mode] Fetching places...", filters);
@@ -38,8 +38,6 @@ const placeService = {
         // Use Word Boundary Regex for smarter matching (e.g. "t" matches "Tapa", not "Canteen")
         const q = filters.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // Escape regex chars
         const regex = new RegExp(`\\b${q}`, "i");
-        // Mock Data doesn't have searchable meals, so we search Name Only.
-        // We removed Category search as per requirement (prevent "f" -> "Fast Food").
         data = data.filter((p) => regex.test(p.name));
       }
 
@@ -50,8 +48,16 @@ const placeService = {
       // Mock Pagination
       const page = filters.page || 1;
       const limit = filters.limit || 10;
-      const start = (page - 1) * limit;
-      return data.slice(start, start + limit);
+      // Mock return with meta
+      return {
+        data: data.slice((page - 1) * limit, page * limit),
+        meta: {
+          total: data.length,
+          page,
+          limit,
+          totalPages: Math.ceil(data.length / limit),
+        },
+      };
     }
 
     // 2. Real Mode
@@ -60,8 +66,6 @@ const placeService = {
       params.append("zoneMacro", filters.zoneMacro);
     if (filters.search) params.append("search", filters.search);
     if (filters.scope) params.append("scope", filters.scope);
-    if (filters.minPrice)
-      params.append("minPrice", filters.minPrice.toString());
     if (filters.minPrice)
       params.append("minPrice", filters.minPrice.toString());
     if (filters.maxPrice)
@@ -77,11 +81,11 @@ const placeService = {
     params.append("limit", (filters.limit || 10).toString());
 
     // Response is { success: true, data: Place[], meta: ... }
-    // APIResponse<Place[]> maps 'data' to Place[]
     const { data } = await api.get<APIResponse<Place[]>>(
       `/places?${params.toString()}`
     );
-    return data.data;
+    // Return the whole object (excluding success/message) which contains data and meta
+    return { data: data.data, meta: data.meta };
   },
 
   async getMyPending() {
