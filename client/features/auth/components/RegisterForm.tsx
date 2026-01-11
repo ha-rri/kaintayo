@@ -200,11 +200,6 @@ export default function RegisterForm() {
           <Text style={styles.submitButtonText}>Register</Text>
         )}
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.googleButton}>
-        <Ionicons name="logo-google" size={20} color="#DB4437" />
-        <Text style={styles.googleButtonText}>Join with Google</Text>
-      </TouchableOpacity>
     </View>
   );
 }

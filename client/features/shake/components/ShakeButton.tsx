@@ -88,7 +88,9 @@ export default function ShakeButton({
         </Animated.View>
       </TouchableOpacity>
       <Text style={styles.shakeText}>
-        {disabled ? "No places match your criteria" : "Hold to Shake!"}
+        {disabled
+          ? "No places match your criteria"
+          : "Shake phone or Hold button!"}
       </Text>
     </View>
   );
@@ -122,8 +124,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   shakeText: {
-    marginBottom: -100,
-    marginTop: 20,
+    marginTop: 36,
     fontSize: 16,
     fontWeight: "600",
     color: "#666",

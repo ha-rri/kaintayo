@@ -119,11 +119,6 @@ export default function LoginForm() {
           <Text style={styles.submitButtonText}>Login</Text>
         )}
       </TouchableOpacity>
-
-      <TouchableOpacity style={styles.googleButton}>
-        <Ionicons name="logo-google" size={20} color="#DB4437" />
-        <Text style={styles.googleButtonText}>Login with Google</Text>
-      </TouchableOpacity>
     </View>
   );
 }
