@@ -1,7 +1,14 @@
-import { View, Text, ScrollView, Keyboard } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Keyboard,
+  ActivityIndicator,
+  StyleSheet,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useMemo, useEffect } from "react";
-import { styles } from "./styles/directory.styles";
+import { theme } from "@/lib/theme";
 import { usePlaces } from "./hooks/usePlaces";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DirectoryHeader } from "./components/DirectoryHeader";
@@ -111,7 +118,10 @@ export default function DirectoryScreen() {
         {/* Results Count */}
         <View style={styles.resultsCount}>
           {isLoading ? (
-            <Text style={styles.resultsText}>Loading...</Text>
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+              <Text style={styles.loaderText}>Finding places...</Text>
+            </View>
           ) : (
             <Text style={styles.resultsText}>
               {filteredPlaces.length}{" "}
@@ -172,3 +182,46 @@ export default function DirectoryScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  resultsCount: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  resultsText: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    fontWeight: "600",
+  },
+  emptyState: {
+    padding: theme.spacing.xl,
+    alignItems: "center",
+    marginTop: theme.spacing.xl,
+  },
+  emptyTitle: {
+    fontSize: theme.fontSizes.lg,
+    fontWeight: "600",
+    color: theme.colors.text.primary,
+    marginTop: theme.spacing.md,
+  },
+  emptySubtitle: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.secondary,
+    textAlign: "center",
+    marginTop: theme.spacing.sm,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loaderText: {
+    marginTop: theme.spacing.md,
+    color: theme.colors.text.secondary,
+    fontSize: theme.fontSizes.sm,
+  },
+});

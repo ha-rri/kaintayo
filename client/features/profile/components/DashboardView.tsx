@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DebugOnboardingButton } from "@/features/common/components/DebugOnboardingButton";
+import { theme } from "@/lib/theme";
 
 interface DashboardViewProps {
   user: User | null;
@@ -260,11 +261,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FF5252", // Clear red
+    backgroundColor: theme.colors.status.error,
     paddingVertical: 14,
     borderRadius: 12,
     gap: 8,
-    shadowColor: "#FF5252",
+    shadowColor: theme.colors.status.error,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

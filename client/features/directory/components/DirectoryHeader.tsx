@@ -5,8 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { theme } from "@/lib/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface DirectoryHeaderProps {
   searchQuery: string;
@@ -20,26 +22,31 @@ export const DirectoryHeader = ({
   handleSearch,
 }: DirectoryHeaderProps) => {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
       <View style={styles.headerTop}>
         <View style={styles.locationContainer}>
-          <Ionicons name="location" size={20} color="#fff" />
+          <Ionicons name="location" size={20} color={theme.colors.text.light} />
           <Text style={styles.locationText}>Cavite State University</Text>
         </View>
         <TouchableOpacity onPress={() => router.push("/favorites")}>
-          <Ionicons name="heart-outline" size={28} color="#fff" />
+          <Ionicons
+            name="heart-outline"
+            size={28}
+            color={theme.colors.text.light}
+          />
         </TouchableOpacity>
       </View>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#999" />
+        <Ionicons name="search" size={20} color={theme.colors.text.disabled} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search for cafés, restaurants, and launderettes"
-          placeholderTextColor="#999"
+          placeholderTextColor={theme.colors.text.disabled}
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
@@ -47,7 +54,11 @@ export const DirectoryHeader = ({
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={20} color="#999" />
+            <Ionicons
+              name="close-circle"
+              size={20}
+              color={theme.colors.text.disabled}
+            />
           </TouchableOpacity>
         )}
       </View>
@@ -57,10 +68,9 @@ export const DirectoryHeader = ({
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#FF6B35",
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: 40,
   },
   headerTop: {
     flexDirection: "row",
@@ -74,22 +84,22 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   locationText: {
-    color: "#fff",
-    fontSize: 14,
+    color: theme.colors.text.light,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
     paddingHorizontal: 15,
-    paddingVertical: 12,
+    paddingVertical: 6,
     gap: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: "#333",
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.primary,
   },
 });

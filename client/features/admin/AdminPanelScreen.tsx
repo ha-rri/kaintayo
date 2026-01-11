@@ -8,16 +8,17 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePendingItems } from "./hooks/usePendingItems";
 import { useAdminActions } from "./hooks/useAdminActions";
 import PendingItemCard from "./components/PendingItemCard";
 import AdminReviewModal from "./components/AdminReviewModal";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { theme } from "@/lib/theme"; // Import theme
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export default function AdminPanelScreen() {
-  const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<"pending" | "reported">("pending");
   const [selectedItem, setSelectedItem] = useState<any | null>(null); // State for modal
 
@@ -63,17 +64,7 @@ export default function AdminPanelScreen() {
     );
   };
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#fff" />
-      </TouchableOpacity>
-      <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>Admin Panel</Text>
-        <Text style={styles.headerSubtitle}>Manage community submissions</Text>
-      </View>
-    </View>
-  );
+  // Header replaced by ScreenHeader component
 
   const renderTabs = () => (
     <View style={styles.tabContainer}>
@@ -122,7 +113,7 @@ export default function AdminPanelScreen() {
     if (isLoading) {
       return (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#FF6B35" />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       );
     }
@@ -149,7 +140,10 @@ export default function AdminPanelScreen() {
             onPress={(item) => setSelectedItem(item)}
           />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
         onRefresh={refetch}
         refreshing={isLoading}
       />
@@ -157,8 +151,8 @@ export default function AdminPanelScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {renderHeader()}
+    <View style={styles.container}>
+      <ScreenHeader title="Admin Panel" showBackButton={true} />
       {renderTabs()}
       <View style={styles.content}>{renderContent()}</View>
 
@@ -171,51 +165,24 @@ export default function AdminPanelScreen() {
         onReject={handleReject}
         onUpdate={handleUpdateItem}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: theme.colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    backgroundColor: "#FF6B35",
-    borderBottomWidth: 0,
-    elevation: 4,
-  },
-  backButton: {
-    marginRight: 12,
-    marginTop: 4,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#fff",
-    textAlign: "left",
-    lineHeight: 28,
-  },
-  headerTitleContainer: {
-    alignItems: "flex-start",
-    flex: 1,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: "rgba(255,255,255,0.9)",
-    marginTop: 2,
-  },
+
+  // Header styles removed (now in ScreenHeader)
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.md,
     paddingBottom: 0,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: theme.colors.border,
   },
   tab: {
     paddingVertical: 12,
@@ -224,15 +191,15 @@ const styles = StyleSheet.create({
     borderBottomColor: "transparent",
   },
   activeTab: {
-    borderBottomColor: "#FF6B35",
+    borderBottomColor: theme.colors.primary,
   },
   tabText: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: "#999",
+    color: theme.colors.text.disabled, // #999 -> disabled
   },
   activeTabText: {
-    color: "#FF6B35",
+    color: theme.colors.primary,
   },
   content: {
     flex: 1,
@@ -243,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   listContent: {
-    padding: 16,
+    padding: theme.spacing.md,
   },
   emptyState: {
     flex: 1,
@@ -252,14 +219,14 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "600",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginTop: 16,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: "#999",
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.disabled,
     textAlign: "center",
     marginTop: 8,
   },

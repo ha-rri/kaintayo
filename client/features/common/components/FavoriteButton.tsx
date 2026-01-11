@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { useToggleFavorite } from "@/features/favorites/hooks/useFavorites";
 import { useToast } from "@/features/common/context/ToastContext";
+import { theme } from "@/lib/theme";
 
 interface FavoriteButtonProps {
   placeId: string;
@@ -89,6 +90,10 @@ export const FavoriteButton = ({
 
 const styles = StyleSheet.create({
   button: {
+    width: 40,
+    height: 40,
+    borderRadius: theme.radius.xl, // 20
+    backgroundColor: "rgba(0,0,0,0.5)", // Dark transparent overlay
     justifyContent: "center",
     alignItems: "center",
   },

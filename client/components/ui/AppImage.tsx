@@ -10,6 +10,7 @@ import {
 } from "react-native";
 
 import { getOptimizedImageUrl } from "@/lib/cloudinary";
+import { theme } from "@/lib/theme";
 
 interface AppImageProps {
   uri?: string | null;
@@ -57,7 +58,7 @@ export const AppImage = ({
 
       {shouldShowLoading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#FF6B35" />
+          <ActivityIndicator size="small" color={theme.colors.primary} />
         </View>
       )}
     </View>
@@ -67,13 +68,23 @@ export const AppImage = ({
 const styles = StyleSheet.create({
   container: {
     overflow: "hidden",
-    backgroundColor: "#f5f5f5", // Always have a neutral background
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: theme.colors.background,
+    position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
+  },
+  placeholder: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: theme.colors.border,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    marginTop: 4,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.disabled,
   },
   placeholderImage: {
     opacity: 0.5,
@@ -82,6 +93,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5", // Match container bg
+    backgroundColor: theme.colors.background,
   },
 });
