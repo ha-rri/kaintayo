@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/lib/theme";
 import { BudgetSlider } from "@/components/ui/BudgetSlider";
@@ -18,8 +19,6 @@ export const DirectoryFilters = ({
   setActiveCategory,
   onFilterPress,
 }: DirectoryFiltersProps) => {
-  const zones = ["All", "Inside Campus", "Outside Campus"];
-
   return (
     <View style={styles.container}>
       {/* Top Section: Limit Slider */}
@@ -28,36 +27,27 @@ export const DirectoryFilters = ({
       {/* Bottom Section: Zones + Filter Button */}
       <View style={styles.bottomRow}>
         <View style={styles.zoneContainer}>
-          {zones.map((zone) => (
-            <TouchableOpacity
-              key={zone}
-              style={[
-                styles.zoneTab,
-                activeCategory === zone && styles.zoneTabActive,
-                { flex: zone === "All" ? 0.6 : 1.2 },
-              ]}
-              onPress={() => setActiveCategory(zone)}
-            >
-              <Text
-                style={[
-                  styles.zoneText,
-                  activeCategory === zone && styles.zoneTextActive,
-                ]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {zone}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <SegmentedControl
+            values={["All", "Inside", "Outside"]}
+            selectedIndex={
+              activeCategory === "Inside Campus"
+                ? 1
+                : activeCategory === "Outside Campus"
+                ? 2
+                : 0
+            }
+            onChange={(index) => {
+              const categories = ["All", "Inside Campus", "Outside Campus"];
+              setActiveCategory(categories[index]);
+            }}
+          />
         </View>
 
         <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
           <Ionicons
             name="options-outline"
             size={20}
-            color={theme.colors.text.light}
+            color={theme.colors.primary}
           />
         </TouchableOpacity>
       </View>
@@ -84,39 +74,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginTop: 10, // Add spacing since BudgetSlider is self-contained
+    marginTop: 10,
   },
   zoneContainer: {
     flex: 1,
-    flexDirection: "row",
-    gap: 6,
+    // Removed flexDirection: 'row' and gap, allowing SegmentedControl to fill width
   },
-  zoneTab: {
-    paddingVertical: 10,
-    borderRadius: theme.radius.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    height: 40,
-  },
-  zoneTabActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  zoneText: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.text.secondary,
-    textAlign: "center",
-  },
-  zoneTextActive: {
-    color: theme.colors.text.light,
-  },
+  // zoneTab, zoneTabActive, zoneText, zoneTextActive styles REMOVED as they are replaced by SegmentedControl
+
   filterButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: "#FFF0E6", // Light Orange (Shake Style)
     width: 44,
-    height: 40,
+    height: 44, // Matched height with SegmentedControl (approx)
     borderRadius: theme.radius.sm,
     alignItems: "center",
     justifyContent: "center",

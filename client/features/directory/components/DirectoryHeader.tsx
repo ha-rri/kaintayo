@@ -45,7 +45,7 @@ export const DirectoryHeader = ({
         <Ionicons name="search" size={20} color={theme.colors.text.disabled} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for cafés, restaurants, and launderettes"
+          placeholder="Search for your favorite kaninan!"
           placeholderTextColor={theme.colors.text.disabled}
           value={searchQuery}
           onChangeText={setSearchQuery}
