@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Vibration } from "react-native";
+import { Accelerometer } from "expo-sensors";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { shakeService } from "../services/shakeService";
 import { Place } from "@/types/Place";
@@ -41,7 +42,7 @@ export function useShake(
     placeholderData: keepPreviousData, // V5 Standard
   });
 
-  const handleShake = async () => {
+  const handleShake = useCallback(async () => {
     if (matchedPlacesCount === 0) return;
 
     setIsShaking(true);
@@ -69,7 +70,31 @@ export function useShake(
         setIsShaking(false);
       }
     }, 5000);
-  };
+  }, [matchedPlacesCount, budget, zone, categories, amenities]);
+
+  // 2. Physical Shake Subscription
+  useEffect(() => {
+    // Only listen if we have matches and are NOT currently shaking
+    if (matchedPlacesCount === 0 || isShaking) return;
+
+    // Throttle Update Interval
+    Accelerometer.setUpdateInterval(100);
+
+    const subscription = Accelerometer.addListener((data) => {
+      const { x, y, z } = data;
+      // Calculate Total G-Force
+      const totalForce = Math.sqrt(x * x + y * y + z * z);
+
+      // Threshold: 1.78g (Standard "Shake" force)
+      if (totalForce > 1.78) {
+        handleShake();
+      }
+    });
+
+    return () => {
+      subscription && subscription.remove();
+    };
+  }, [matchedPlacesCount, isShaking, handleShake]);
 
   const handleReset = () => {
     setSelectedPlace(null);
