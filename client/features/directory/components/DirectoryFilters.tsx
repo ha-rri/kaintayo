@@ -5,12 +5,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/lib/theme";
 import { BudgetSlider } from "@/components/ui/BudgetSlider";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 interface DirectoryFiltersProps {
   limit: number;
   setLimit: (value: number) => void;
   activeCategory: string;
   setActiveCategory: (category: string) => void;
   onFilterPress: () => void;
+  variant?: "static" | "sticky"; // New prop
 }
 
 export const DirectoryFilters = ({
@@ -19,7 +22,9 @@ export const DirectoryFilters = ({
   activeCategory,
   setActiveCategory,
   onFilterPress,
+  variant = "static",
 }: DirectoryFiltersProps) => {
+  const insets = useSafeAreaInsets();
   // Local state for smooth slider dragging
   const [localLimit, setLocalLimit] = useState(limit);
 
@@ -28,8 +33,25 @@ export const DirectoryFilters = ({
     setLocalLimit(limit);
   }, [limit]);
 
+  // Dynamic Styles
+  const containerStyle =
+    variant === "sticky"
+      ? {
+          paddingTop: Math.max(20, insets.top + 10),
+          marginTop: 0,
+          marginBottom: 0, // Remove bottom margin for sticky
+          borderTopLeftRadius: 0, // Flat top for sticky
+          borderTopRightRadius: 0,
+          borderBottomWidth: 1, // Optional: Separator
+          borderBottomColor: "#eee",
+        }
+      : {
+          paddingTop: 20,
+          // marginTop is handled in StyleSheet via -20, ensuring standard behavior
+        };
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {/* Top Section: Limit Slider */}
       <BudgetSlider
         limit={localLimit}

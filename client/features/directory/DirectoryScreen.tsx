@@ -1,13 +1,13 @@
 import {
   View,
   Text,
-  FlatList,
   Keyboard,
   ActivityIndicator,
   StyleSheet,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { theme } from "@/lib/theme";
 import { useInfinitePlaces } from "./hooks/useInfinitePlaces";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -102,42 +102,110 @@ export default function DirectoryScreen() {
   };
 
   // Render Functions
-  const headerContent = useMemo(
-    () => (
-      <View>
-        <DirectoryHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          handleSearch={handleSearch}
-        />
-        <DirectoryFilters
-          limit={limit}
-          setLimit={setLimit}
-          activeCategory={activeCategory}
-          setActiveCategory={setActiveCategory}
-          onFilterPress={() => setFilterModalVisible(true)}
-        />
+  // Data Construction for Sticky Header
+  const listData = useMemo(() => {
+    // Item 0: Search Header (Scrolls away)
+    // Item 1: Filter Header (Static In-List)
+    const items: any[] = [{ type: "search-header" }, { type: "filter-header" }];
 
-        {/* Results Count / Status */}
-        <View style={styles.resultsCount}>
-          {!isLoading && (
-            <Text style={styles.resultsText}>
-              {filteredPlaces.length}{" "}
-              {filteredPlaces.length === 1 ? "place" : "places"} visible
-              {/* Note: Total count might be higher due to server pagination, 
-                 but "visible" is accurate for client-side price filter context */}
-            </Text>
-          )}
-        </View>
-      </View>
-    ),
+    if (isLoading) {
+      // Loading Skeletons
+      items.push(
+        { type: "skeleton", id: "s1" },
+        { type: "skeleton", id: "s2" },
+        { type: "skeleton", id: "s3" }
+      );
+    } else if (filteredPlaces.length === 0) {
+      // Empty State
+      items.push({ type: "empty" });
+    } else {
+      // Actual Places
+      items.push(...filteredPlaces.map((p) => ({ type: "place", data: p })));
+    }
+
+    return items;
+  }, [isLoading, filteredPlaces]);
+
+  // Animated Sticky Header Logic
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [headerHeight, setHeaderHeight] = useState(130); // Default estimate
+
+  // Interpolate translateY to snap the sticky header in/out
+  const stickyHeaderTranslateY = scrollY.interpolate({
+    inputRange: [headerHeight - 21, headerHeight - 20], // Threshold
+    outputRange: [-1000, 0], // Hide off-screen -> Snap to top
+    extrapolate: "clamp",
+  });
+
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => {
+      switch (item.type) {
+        case "search-header":
+          return (
+            <View
+              onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+            >
+              <DirectoryHeader
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                handleSearch={handleSearch}
+              />
+            </View>
+          );
+        case "filter-header":
+          return (
+            <View
+              style={{ backgroundColor: theme.colors.background, zIndex: 1 }}
+            >
+              <DirectoryFilters
+                limit={limit}
+                setLimit={setLimit}
+                activeCategory={activeCategory}
+                setActiveCategory={setActiveCategory}
+                onFilterPress={() => setFilterModalVisible(true)}
+                variant="static" // Standard Curve
+              />
+              <View style={styles.resultsCount}>
+                {!isLoading && (
+                  <Text style={styles.resultsText}>
+                    {filteredPlaces.length}{" "}
+                    {filteredPlaces.length === 1 ? "place" : "places"} visible
+                  </Text>
+                )}
+              </View>
+            </View>
+          );
+        case "skeleton":
+          return (
+            <View style={{ paddingHorizontal: theme.spacing.md }}>
+              <PlaceCardSkeleton />
+            </View>
+          );
+        case "empty":
+          return (
+            <View style={styles.emptyState}>
+              <Ionicons name="sad-outline" size={64} color="#ccc" />
+              <Text style={styles.emptyTitle}>No places found!</Text>
+              <Text style={styles.emptySubtitle}>
+                {searchQuery
+                  ? `Try searching for something else.`
+                  : `Try adjusting your budget or filters.`}
+              </Text>
+            </View>
+          );
+        case "place":
+          return <PlaceCard place={item.data} onPress={openRestaurantModal} />;
+        default:
+          return null;
+      }
+    },
     [
-      searchQuery,
       limit,
       activeCategory,
       isLoading,
-      filteredPlaces.length,
+      searchQuery,
       handleSearch,
+      filteredPlaces.length,
     ]
   );
 
@@ -152,48 +220,44 @@ export default function DirectoryScreen() {
     return <View style={{ height: 20 }} />; // Bottom padding
   };
 
-  const renderEmpty = () => {
-    if (isLoading) {
-      // Show Skeletons while initial loading
-      return (
-        <View style={{ paddingHorizontal: theme.spacing.md }}>
-          <PlaceCardSkeleton />
-          <PlaceCardSkeleton />
-          <PlaceCardSkeleton />
-        </View>
-      );
-    }
-
-    // Actual Empty State
-    return (
-      <View style={styles.emptyState}>
-        <Ionicons name="sad-outline" size={64} color="#ccc" />
-        <Text style={styles.emptyTitle}>No places found!</Text>
-        <Text style={styles.emptySubtitle}>
-          {searchQuery
-            ? `Try searching for something else.`
-            : `Try adjusting your budget or filters.`}
-        </Text>
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <FlatList
-        data={isLoading ? [] : filteredPlaces} // Use empty array if loading to trigger EmptyComponent (which has skeletons) OR handle skeletons via loading check
-        // Better: Pass empty data when loading, let ListEmptyComponent handle skeletons
-        renderItem={({ item }) => (
-          <PlaceCard place={item} onPress={openRestaurantModal} />
-        )}
-        keyExtractor={(item) => item._id}
-        ListHeaderComponent={headerContent}
+      {/* Animated Sticky Header Overlay */}
+      <Animated.View
+        style={[
+          styles.stickyOverlay,
+          { transform: [{ translateY: stickyHeaderTranslateY }] },
+        ]}
+      >
+        <DirectoryFilters
+          limit={limit}
+          setLimit={setLimit}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          onFilterPress={() => setFilterModalVisible(true)}
+          variant="sticky" // Safe Area + Flat Top
+        />
+        {/* Do NOT include results count here to keep sticky header clean? 
+            Or generally better to keep it clean. */}
+      </Animated.View>
+
+      <Animated.FlatList
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={(item, index) =>
+          item.type === "place" ? item.data._id : item.type + index
+        }
         ListFooterComponent={renderFooter}
-        ListEmptyComponent={renderEmpty}
+        /* No stickyHeaderIndices - Managed by Animated Overlay */
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16} // 60fps
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
         contentContainerStyle={styles.listContent}
-        keyboardShouldPersistTaps="handled" // Improve search UX
+        keyboardShouldPersistTaps="handled"
       />
 
       <PlaceDetailModal
@@ -262,5 +326,19 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: 20,
     alignItems: "center",
+  },
+  stickyOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100, // Top of everything
+    backgroundColor: theme.colors.surface, // Use Surface (White) to match content
+    // Shadows
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
 });
