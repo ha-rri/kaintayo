@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/features/auth/context/AuthContext";
@@ -45,24 +47,29 @@ export const ContributeScreen = () => {
   // Authenticated View
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
       >
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
-          <Text style={styles.headerTitle}>iShare Mo!</Text>
-          <Text style={styles.headerSubtitle}>
-            Found something new? Share it now!
-          </Text>
-        </View>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+            <Text style={styles.headerTitle}>iShare Mo!</Text>
+            <Text style={styles.headerSubtitle}>
+              Found something new? Share it now!
+            </Text>
+          </View>
 
-        {/* Form Card */}
-        <View style={styles.formCard}>
-          <ContributeForm />
-        </View>
-      </ScrollView>
+          {/* Form Card */}
+          <View style={styles.formCard}>
+            <ContributeForm />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };

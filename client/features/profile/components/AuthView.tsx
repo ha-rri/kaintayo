@@ -4,6 +4,8 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -19,64 +21,69 @@ export default function AuthView({ initialTab, onBack }: AuthViewProps) {
   const [activeTab, setActiveTab] = useState<"login" | "register">(initialTab);
 
   return (
-    <ScrollView
+    <KeyboardAvoidingView
       style={styles.container}
-      contentContainerStyle={{ flexGrow: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* Header */}
-      <View style={styles.authHeader}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.authHeaderTitle}>Welcome to Kain Tayo!</Text>
-      </View>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ flexGrow: 1 }}
+      >
+        {/* Header */}
+        <View style={styles.authHeader}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.authHeaderTitle}>Welcome to Kain Tayo!</Text>
+        </View>
 
-      {/* Content */}
-      <View style={styles.authContent}>
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>🍜</Text>
+        {/* Content */}
+        <View style={styles.authContent}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>🍜</Text>
+            </View>
           </View>
-        </View>
 
-        <Text style={styles.title}>Find the Best Places!</Text>
+          <Text style={styles.title}>Find the Best Places!</Text>
 
-        {/* Tab Toggle */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "login" && styles.activeTab]}
-            onPress={() => setActiveTab("login")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "login" && styles.activeTabText,
-              ]}
+          {/* Tab Toggle */}
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "login" && styles.activeTab]}
+              onPress={() => setActiveTab("login")}
             >
-              Login
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "login" && styles.activeTabText,
+                ]}
+              >
+                Login
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "register" && styles.activeTab]}
-            onPress={() => setActiveTab("register")}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === "register" && styles.activeTabText,
-              ]}
+            <TouchableOpacity
+              style={[styles.tab, activeTab === "register" && styles.activeTab]}
+              onPress={() => setActiveTab("register")}
             >
-              Register
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === "register" && styles.activeTabText,
+                ]}
+              >
+                Register
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Forms */}
-        {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
-      </View>
-    </ScrollView>
+          {/* Forms */}
+          {activeTab === "login" ? <LoginForm /> : <RegisterForm />}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
