@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -7,9 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Animated,
+  Easing,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/lib/theme";
+import React, { useState, useEffect, useRef } from "react";
 import { CATEGORIES, AMENITIES } from "@/constants/taxonomy";
 import { BudgetSlider } from "./BudgetSlider";
 
@@ -42,12 +44,48 @@ export const FilterModal = ({
   // Local state for the modal
   const [filters, setFilters] = useState<FilterState>(initialFilters);
 
+  // Animation Value: 0 (Hidden) -> 1 (Visible)
+  const anim = useRef(new Animated.Value(0)).current;
+
   // Sync state when modal opens
   useEffect(() => {
     if (visible) {
       setFilters(initialFilters);
+      // Animate In
+      Animated.timing(anim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.cubic),
+      }).start();
+    } else {
+      // Reset anim for next time (though usually unmounted)
+      anim.setValue(0);
     }
-  }, [visible, initialFilters]);
+  }, [visible, initialFilters, anim]);
+
+  // Handle animate out before close
+  const handleClose = () => {
+    Animated.timing(anim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+      easing: Easing.in(Easing.cubic),
+    }).start(() => {
+      onClose(); // Actual Close Prop
+    });
+  };
+
+  // Interpolations
+  const backdropOpacity = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  const translateY = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [height, 0], // Slide from bottom
+  });
 
   const toggleCategory = (category: string) => {
     setFilters((prev) => {
@@ -88,21 +126,30 @@ export const FilterModal = ({
 
   const handleApply = () => {
     onApply(filters);
-    onClose();
+    handleClose();
   };
 
   return (
     <Modal
-      animationType="slide"
+      animationType="none" // Custom animation
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+      <Animated.View
+        style={[styles.modalOverlay, { opacity: backdropOpacity }]}
+      >
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={handleClose}
+        />
+        <Animated.View
+          style={[styles.modalContent, { transform: [{ translateY }] }]}
+        >
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleClose}>
               <Ionicons
                 name="close"
                 size={24}
@@ -237,8 +284,8 @@ export const FilterModal = ({
               <Text style={styles.applyButtonText}>Apply Filters</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 };
