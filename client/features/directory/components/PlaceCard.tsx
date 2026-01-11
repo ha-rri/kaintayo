@@ -66,7 +66,7 @@ export const PlaceCard = ({ place, onPress }: PlaceCardProps) => {
 const styles = StyleSheet.create({
   cardContainer: {
     paddingHorizontal: theme.spacing.md,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
   },
   card: {
     backgroundColor: theme.colors.surface,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   cardImage: {
     width: "100%",
     height: 200,
-    backgroundColor: theme.colors.border, // #e0e0e0 -> border
+    backgroundColor: theme.colors.border,
   },
   cardBadge: {
     position: "absolute",

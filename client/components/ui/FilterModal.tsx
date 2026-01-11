@@ -9,8 +9,9 @@ import {
   Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Slider from "@react-native-community/slider";
+import { theme } from "@/lib/theme";
 import { CATEGORIES, AMENITIES } from "@/constants/taxonomy";
+import { BudgetSlider } from "./BudgetSlider";
 
 const { height } = Dimensions.get("window");
 
@@ -102,7 +103,11 @@ export const FilterModal = ({
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons
+                name="close"
+                size={24}
+                color={theme.colors.text.primary}
+              />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Filter</Text>
             <TouchableOpacity onPress={handleReset}>
@@ -113,29 +118,16 @@ export const FilterModal = ({
           <ScrollView
             style={{ flex: 1 }}
             contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
           >
             {/* Price Limit */}
             <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>My Limit:</Text>
-                <View style={styles.limitBadge}>
-                  <Text style={styles.limitText}>₱{filters.limit}</Text>
-                </View>
-              </View>
-              <Slider
-                style={styles.slider}
-                minimumValue={minPrice}
-                maximumValue={maxPrice}
-                step={10}
-                value={filters.limit}
-                onValueChange={setLimit}
-                minimumTrackTintColor="#FF6B35"
-                maximumTrackTintColor="#e0e0e0"
-                thumbTintColor="#FF6B35"
+              <BudgetSlider
+                limit={filters.limit}
+                setLimit={setLimit}
+                min={minPrice}
+                max={maxPrice}
               />
             </View>
-
             {/* Zone Selection */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Location</Text>
@@ -177,7 +169,6 @@ export const FilterModal = ({
                 })}
               </View>
             </View>
-
             {/* Categories */}
             <View style={styles.section}>
               <View>
@@ -208,7 +199,6 @@ export const FilterModal = ({
                 })}
               </View>
             </View>
-
             {/* Amenities */}
             <View style={styles.section}>
               <View>
@@ -260,10 +250,10 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: height * 0.8, // 80% height
+    backgroundColor: theme.colors.surface,
+    borderTopLeftRadius: theme.radius.xl,
+    borderTopRightRadius: theme.radius.xl,
+    height: height * 0.8,
   },
   header: {
     flexDirection: "row",
@@ -271,16 +261,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: theme.colors.border,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "600",
-    color: "#333",
+    color: theme.colors.text.primary,
   },
   resetText: {
-    color: "#FF6B35",
-    fontSize: 14,
+    color: theme.colors.primary,
+    fontSize: theme.fontSizes.sm, // 14
     fontWeight: "500",
   },
   scrollContainer: {
@@ -296,33 +286,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginBottom: 5,
   },
   helperText: {
-    fontSize: 12,
-    color: "#888",
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.disabled,
     marginBottom: 10,
     fontStyle: "italic",
   },
-  limitBadge: {
-    backgroundColor: "#FF6B35",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  limitText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  slider: {
-    width: "100%",
-    height: 40,
-    marginBottom: -15,
-  },
+
   chipContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -331,37 +306,37 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: theme.radius.xl,
     borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
   },
   chipActive: {
-    borderColor: "#FF6B35",
+    borderColor: theme.colors.primary,
     backgroundColor: "#FFF0E6",
   },
   chipText: {
-    color: "#666",
-    fontSize: 14,
+    color: theme.colors.text.secondary,
+    fontSize: theme.fontSizes.sm,
   },
   chipTextActive: {
-    color: "#FF6B35",
+    color: theme.colors.primary,
     fontWeight: "500",
   },
   footer: {
-    padding: 20,
+    padding: theme.spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: theme.colors.border,
   },
   applyButton: {
-    backgroundColor: "#FF6B35",
-    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
     paddingVertical: 15,
     alignItems: "center",
   },
   applyButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: theme.colors.text.light,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
   },
 });

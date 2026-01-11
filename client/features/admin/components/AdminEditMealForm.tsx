@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { mealService } from "@/features/directory/services/mealService";
@@ -58,8 +59,16 @@ export const AdminEditMealForm = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>Edit Meal</Text>
-      <Text style={styles.headerSubtitle}>{meal.title}</Text>
+      <View style={styles.header}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerTitle}>Edit Meal</Text>
+          <Text style={styles.headerSubtitle}>{meal.title}</Text>
+        </View>
+        <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
+          <Ionicons name="close" size={24} color="#666" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.divider} />
 
       {/* Reusing MealForm with casted control to bypass strict ContributeFormData mismatch */}
       <MealForm control={control as any} setValue={setValue} errors={errors} />
@@ -92,18 +101,33 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center",
     marginBottom: 4,
+  },
+  closeButton: {
+    padding: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginBottom: 20,
   },
   headerSubtitle: {
     fontSize: 14,
     color: "#666",
-    textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 4,
   },
   actions: {
     flexDirection: "row",

@@ -17,6 +17,7 @@ import { AppImage } from "@/components/ui/AppImage";
 import { useAuth } from "@/features/auth/context/AuthContext"; // Speculative Fix: It's likely exported from context or a hook in auth feature
 import { useQueryClient } from "@tanstack/react-query";
 import { AdminEditModal } from "@/features/admin/components/AdminEditModal";
+import { theme } from "@/lib/theme"; // Import theme
 
 interface PlaceDetailModalProps {
   visible: boolean;
@@ -71,30 +72,38 @@ export const PlaceDetailModal = ({
 
     // Manual Cache Update for Instant Feedback
     if (updatedData) {
-      queryClient.setQueryData(["places"], (oldPlaces: Place[] | undefined) => {
-        if (!oldPlaces) return [];
+      // FIX: Use setQueriesData with { queryKey: ['places'] } to fuzzy match and update ALL place lists
+      // This ensures both usePlaces({}) and usePlaces({ filter }) caches are updated.
+      queryClient.setQueriesData(
+        { queryKey: ["places"] },
+        (oldPlaces: Place[] | undefined) => {
+          if (!oldPlaces) return [];
 
-        if (editType === "place") {
-          // Update Place: Replace the entire object
-          return oldPlaces.map((p) =>
-            p._id === updatedData._id ? updatedData : p
-          );
-        } else if (editType === "meal" && place) {
-          // Update Meal: Find the place, then update the specific meal in its array
-          return oldPlaces.map((p) => {
-            if (p._id === place._id) {
-              const updatedMeals = (p.meals || []).map((m) =>
-                m._id === updatedData._id ? updatedData : m
-              );
-              return { ...p, meals: updatedMeals };
-            }
-            return p;
-          });
+          if (editType === "place") {
+            // Update Place: Merge updated fields but PRESERVE existing meals
+            // API only returns updated fields, not relations like meals
+            return oldPlaces.map((p) =>
+              p._id === updatedData._id
+                ? { ...p, ...updatedData, meals: p.meals }
+                : p
+            );
+          } else if (editType === "meal" && place) {
+            // Update Meal: Find the place, then update the specific meal in its array
+            return oldPlaces.map((p) => {
+              if (p._id === place._id) {
+                const updatedMeals = (p.meals || []).map((m) =>
+                  m._id === updatedData._id ? updatedData : m
+                );
+                return { ...p, meals: updatedMeals };
+              }
+              return p;
+            });
+          }
+          return oldPlaces;
         }
-        return oldPlaces;
-      });
+      );
     } else {
-      // Fallback if no data returned (shouldn't happen with updated forms)
+      // Fallback
       queryClient.invalidateQueries({ queryKey: ["places"] });
     }
 
@@ -119,35 +128,94 @@ export const PlaceDetailModal = ({
             style={styles.modalImage}
             optimizeWidth={800}
           />
-          <TouchableOpacity style={styles.modalBackButton} onPress={onClose}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.headerActions}>
-            {isAdmin && (
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={handleEditPlace}
-              >
-                <Ionicons name="pencil" size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
-            <FavoriteButton placeId={place._id} size={24} color="#fff" />
+          <View style={styles.headerButtons}>
+            <TouchableOpacity style={styles.iconButton} onPress={onClose}>
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={theme.colors.text.light} // White
+              />
+            </TouchableOpacity>
+            <View style={styles.headerActions}>
+              {isAdmin && (
+                <TouchableOpacity
+                  style={[styles.iconButton]}
+                  onPress={handleEditPlace}
+                >
+                  <Ionicons
+                    name="pencil"
+                    size={20}
+                    color={theme.colors.text.light} // White
+                  />
+                </TouchableOpacity>
+              )}
+              <FavoriteButton
+                placeId={place._id}
+                size={24}
+                color={theme.colors.text.light} // White
+              />
+            </View>
           </View>
         </View>
 
         {/* Restaurant Info */}
         <ScrollView style={styles.modalContent}>
           <View style={styles.modalHeader}>
-            <View>
+            {/* Title & Location (Left) */}
+            <View style={{ flex: 1, marginRight: 16 }}>
               <Text style={styles.modalTitle}>{place.name}</Text>
-              <Text style={styles.modalLocation}>{place.nearestLandmark}</Text>
+              <View style={styles.locationRow}>
+                <Ionicons
+                  name="location-sharp"
+                  size={16}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.modalLocation}>
+                  {place.nearestLandmark}
+                </Text>
+              </View>
             </View>
+
+            {/* Price Badge (Right) */}
             <View style={styles.modalPriceBadge}>
               <Text style={styles.modalPriceText}>
                 ₱{place.priceRange.min} - ₱{place.priceRange.max}
               </Text>
             </View>
           </View>
+
+          {/* Categories & Amenities Section */}
+          <View style={styles.tagsSection}>
+            {/* Categories */}
+            {place.categories && place.categories.length > 0 && (
+              <View style={styles.tagGroup}>
+                <Text style={styles.sectionLabel}>CATEGORIES</Text>
+                <View style={styles.pillsContainer}>
+                  {place.categories.map((cat) => (
+                    <View key={cat} style={styles.pill}>
+                      <Text style={styles.pillText}>{cat}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Amenities */}
+            {place.amenities && place.amenities.length > 0 && (
+              <View style={styles.tagGroup}>
+                <Text style={styles.sectionLabel}>AMENITIES</Text>
+                <View style={styles.pillsContainer}>
+                  {place.amenities.map((amenity) => (
+                    <View key={amenity} style={styles.pill}>
+                      <Text style={styles.pillText}>{amenity}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.divider} />
 
           {/* Student Menu Section */}
           <View style={styles.menuSection}>
@@ -164,6 +232,8 @@ export const PlaceDetailModal = ({
                   <Text style={styles.menuItemName}>{meal.title}</Text>
                   <Text style={styles.menuItemMeta}>
                     Updated {formatRelativeTime(place.updatedAt)}
+                    {place.submittedBy &&
+                      `\nby\u00A0@${place.submittedBy.username}`}
                   </Text>
 
                   {/* New Price Display: Regular First, Half as Badge */}
@@ -228,16 +298,26 @@ export const PlaceDetailModal = ({
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: theme.colors.surface,
+    height: "90%",
+    width: "100%",
+    paddingBottom: 20,
+    overflow: "hidden",
   },
   modalImageContainer: {
     position: "relative",
     height: 250,
+    width: "100%",
   },
   modalImage: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+    backgroundColor: theme.colors.surface,
   },
   modalBackButton: {
     position: "absolute",
@@ -245,98 +325,141 @@ const styles = StyleSheet.create({
     left: 20,
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: theme.radius.xl,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
   },
-  headerActions: {
+  headerButtons: {
     position: "absolute",
     top: 50,
+    left: 20,
     right: 20,
     flexDirection: "row",
-    gap: 10,
+    justifyContent: "space-between",
     zIndex: 10,
   },
-  editButton: {
+  iconButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: theme.radius.xl, // 20
+    backgroundColor: "rgba(0,0,0,0.5)", // Dark transparent overlay
     justifyContent: "center",
     alignItems: "center",
   },
-  // modalHeartButton style is no longer needed as FavoriteButton is now inside headerActions
-  modalContent: {
-    flex: 1,
-    padding: 20, // Added padding as per instruction
+  headerActions: {
+    flexDirection: "row",
+    gap: 12,
   },
   modalHeader: {
-    backgroundColor: "#fff",
-    padding: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg, // 20
+    paddingBottom: 10,
+    flexDirection: "row", // Horizontal layout
+    justifyContent: "space-between", // Spread title and badge
     alignItems: "flex-start",
-    marginHorizontal: -20, // Compensate for modalContent padding
-    marginTop: -20, // Compensate for modalContent padding
-    marginBottom: 10,
   },
   modalTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 4,
+    fontSize: theme.fontSizes.xl,
+    fontWeight: "bold",
+    color: theme.colors.text.primary,
+    marginBottom: 8,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: 16,
   },
   modalLocation: {
-    fontSize: 14,
-    color: "#666",
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.text.secondary,
+  },
+
+  tagsSection: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.md,
+    gap: 20,
+  },
+  tagGroup: {
+    gap: 8,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: theme.colors.text.disabled,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  pillsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  pill: {
+    backgroundColor: theme.colors.background,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: theme.radius.lg,
+  },
+  pillText: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.secondary,
   },
   modalPriceBadge: {
-    backgroundColor: "#FF6B35",
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: theme.radius.md,
+    // alignSelf removed to allow flex positioning in header
+    justifyContent: "center",
   },
   modalPriceText: {
-    color: "#fff",
+    color: theme.colors.text.light,
     fontWeight: "700",
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: theme.colors.border,
+    marginBottom: 10, // Slight space
   },
   menuSection: {
-    backgroundColor: "#fff",
-    padding: 20,
-    marginHorizontal: -20, // Compensate for modalContent padding
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg,
+    paddingTop: 10,
   },
   menuTitle: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "700",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginBottom: 20,
   },
   menuItem: {
     flexDirection: "row",
     marginBottom: 20,
     gap: 15,
-    alignItems: "center", // Align items vertically
+    alignItems: "center",
   },
   menuItemIcon: {
     width: 60,
     height: 60,
-    borderRadius: 8,
+    borderRadius: theme.radius.sm,
+    backgroundColor: theme.colors.background,
   },
   menuItemContent: {
     flex: 1,
   },
   menuItemName: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
-    color: "#333",
+    color: theme.colors.text.primary,
     marginBottom: 4,
   },
   menuItemMeta: {
-    fontSize: 12,
-    color: "#999",
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.text.disabled,
     marginBottom: 8,
   },
   priceContainer: {
@@ -345,24 +468,23 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   regularPrice: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: "#FF6B35",
+    color: theme.colors.primary,
   },
   halfPriceBadge: {
-    backgroundColor: "#FFF0E6", // Light orange background for compatibility with primary color
+    backgroundColor: "#FFF0E6",
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 12,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    borderColor: "#FFDcc2",
+    borderColor: "#FFDCC2",
   },
   halfPriceText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: "#FF6B35",
+    color: theme.colors.primary,
   },
-  // Removed old price styles to keep clean
   mealEditBtn: {
     padding: 8,
   },
@@ -371,17 +493,17 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   noMealsText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
-    color: "#666",
+    color: theme.colors.text.secondary,
     marginBottom: 8,
   },
   noMealsSubtext: {
-    fontSize: 14,
-    color: "#999",
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.text.disabled,
     textAlign: "center",
   },
   localToastPosition: {
-    bottom: 50, // Slightly higher than tab bar
+    bottom: 50,
   },
 });

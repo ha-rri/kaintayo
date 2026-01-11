@@ -10,6 +10,7 @@ import { Control, Controller } from "react-hook-form";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { AppImage } from "@/components/ui/AppImage";
+import { theme } from "@/lib/theme";
 
 interface FormImagePickerProps {
   control: Control<any>;
@@ -47,12 +48,16 @@ export const FormImagePicker = ({
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, value } }) => (
+      render={({ field: { onChange, value }, fieldState: { error } }) => (
         <View style={[styles.container, containerStyle]}>
           {label && <Text style={styles.label}>{label}</Text>}
 
           <TouchableOpacity
-            style={[styles.pickerButton, { height: imageHeight }]}
+            style={[
+              styles.pickerButton,
+              { height: imageHeight },
+              error && styles.errorBorder,
+            ]}
             onPress={() => pickImage(onChange)}
           >
             {value ? (
@@ -63,11 +68,27 @@ export const FormImagePicker = ({
               />
             ) : (
               <View style={styles.placeholder}>
-                <Ionicons name="camera-outline" size={32} color="#999" />
-                <Text style={styles.placeholderText}>{placeholderText}</Text>
+                <Ionicons
+                  name="camera"
+                  size={32}
+                  color={
+                    error
+                      ? theme.colors.status.error
+                      : theme.colors.text.disabled
+                  }
+                />
+                <Text
+                  style={[
+                    styles.text,
+                    error && { color: theme.colors.status.error },
+                  ]}
+                >
+                  {placeholderText}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
+          {error && <Text style={styles.errorText}>{error.message}</Text>}
         </View>
       )}
     />
@@ -85,27 +106,38 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pickerButton: {
-    backgroundColor: "#f5f5f5",
+    width: "100%",
+    height: 200,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.radius.lg,
+    overflow: "hidden",
     borderWidth: 1,
+    borderColor: theme.colors.border,
     borderStyle: "dashed",
-    borderColor: "#ddd",
-    borderRadius: 12,
+  },
+  placeholder: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    overflow: "hidden",
+  },
+  text: {
+    marginTop: 8,
+    color: theme.colors.text.secondary,
+    fontSize: theme.fontSizes.sm,
   },
   image: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-  placeholder: {
-    alignItems: "center",
-    gap: 8,
+  errorBorder: {
+    borderColor: theme.colors.status.error,
+    borderStyle: "solid",
   },
-  placeholderText: {
-    color: "#999",
-    fontWeight: "500",
-    fontSize: 14,
+  errorText: {
+    color: theme.colors.status.error,
+    fontSize: theme.fontSizes.xs,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });

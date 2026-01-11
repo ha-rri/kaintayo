@@ -7,6 +7,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import placeService from "@/features/directory/services/placeService"; // Fixed import
@@ -65,10 +66,16 @@ export const AdminEditPlaceForm = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.headerTitle}>Edit Place</Text>
-      <Text style={styles.headerSubtitle}>{place.name}</Text>
-
-      <Text style={styles.headerSubtitle}>{place.name}</Text>
+      <View style={styles.header}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerTitle}>Edit Place</Text>
+          <Text style={styles.headerSubtitle}>{place.name}</Text>
+        </View>
+        <TouchableOpacity onPress={onCancel} style={styles.closeButton}>
+          <Ionicons name="close" size={24} color="#666" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.divider} />
 
       {/* Place Name Field */}
       <View style={styles.inputContainer}>
@@ -138,18 +145,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center",
     marginBottom: 4,
+  },
+  closeButton: {
+    padding: 4,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginBottom: 20,
   },
   headerSubtitle: {
     fontSize: 14,
     color: "#666",
-    textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 4,
   },
   actions: {
     flexDirection: "row",
