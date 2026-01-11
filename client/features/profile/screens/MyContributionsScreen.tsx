@@ -10,6 +10,7 @@ import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 import { Meal } from "@/types/Meal";
 import { mealService } from "@/features/directory/services/mealService";
+import { ListItemSkeleton } from "@/components/ui/skeletons/ListItemSkeleton";
 
 export default function MyContributionsScreen() {
   const insets = useSafeAreaInsets();
@@ -108,10 +109,19 @@ export default function MyContributionsScreen() {
     </View>
   );
 
+  // ...
+
   const renderEmptyState = () => {
     if (isLoading) {
-      return <Text style={styles.loadingText}>Loading...</Text>;
+      return (
+        <View style={{ marginTop: 16 }}>
+          <ListItemSkeleton />
+          <ListItemSkeleton />
+          <ListItemSkeleton />
+        </View>
+      );
     }
+    // ...
     return (
       <View style={styles.emptyState}>
         <Ionicons name="documents-outline" size={48} color="#ddd" />

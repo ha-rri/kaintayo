@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,6 +15,7 @@ import AdminReviewModal from "./components/AdminReviewModal";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/lib/theme"; // Import theme
 import { ScreenHeader } from "@/components/ui/ScreenHeader";
+import { ListItemSkeleton } from "@/components/ui/skeletons/ListItemSkeleton";
 
 export default function AdminPanelScreen() {
   const insets = useSafeAreaInsets();
@@ -110,10 +110,15 @@ export default function AdminPanelScreen() {
       );
     }
 
+    // ...
+
     if (isLoading) {
       return (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+        <View style={styles.listContent}>
+          <ListItemSkeleton />
+          <ListItemSkeleton />
+          <ListItemSkeleton />
+          <ListItemSkeleton />
         </View>
       );
     }

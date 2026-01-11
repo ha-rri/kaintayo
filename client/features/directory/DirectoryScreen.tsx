@@ -1,21 +1,22 @@
 import {
   View,
   Text,
-  ScrollView,
+  FlatList,
   Keyboard,
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { theme } from "@/lib/theme";
-import { usePlaces } from "./hooks/usePlaces";
+import { useInfinitePlaces } from "./hooks/useInfinitePlaces";
 import { useDebounce } from "@/hooks/useDebounce";
 import { DirectoryHeader } from "./components/DirectoryHeader";
 import { DirectoryFilters } from "./components/DirectoryFilters";
 import { FilterModal, FilterState } from "@/components/ui/FilterModal";
 import { PlaceCard } from "./components/PlaceCard";
 import { PlaceDetailModal } from "./components/PlaceDetailModal";
+import { PlaceCardSkeleton } from "@/components/ui/skeletons/PlaceCardSkeleton";
 import { Place } from "@/types/Place";
 import { Meal } from "@/types/Meal";
 
@@ -32,42 +33,42 @@ export default function DirectoryScreen() {
   const [categories, setCategories] = useState<string[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
 
-  // Server-Side Filtering:
-  // Fetch based on Category (Zone) and Search Query to reduce payload and handle indexing.
+  // Server-Side Filtering
   const filters: any = {};
   if (activeCategory === "Inside Campus") filters.zoneMacro = "inside";
   if (activeCategory === "Outside Campus") filters.zoneMacro = "outside";
   if (categories.length > 0) filters.categories = categories;
   if (amenities.length > 0) filters.amenities = amenities;
   if (debouncedSearch) filters.search = debouncedSearch;
-  // Note: We don't need to pass maxPrice here if we filter client-side,
-  // BUT if we want to support server-side filtering fully later, we can add it.
-  // For now, consistent with original code (client side Price), we don't pass limit to API query unless refactoring completely.
-  // However, based on requirements, I'll stick to the hybrid approach but ensure 'limit' from modal updates our local limit state.
 
-  const { data: places = [], isLoading } = usePlaces(filters);
+  // Use Infinite Query Hook
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfinitePlaces(filters);
 
-  // Sync selectedPlace with fresh data when places update (e.g. after edit)
+  // Flatten Pages
+  const allPlaces = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) || [];
+  }, [data]);
+
+  // Sync selectedPlace with fresh data
   useEffect(() => {
     if (selectedPlace) {
-      const freshData = places.find((p) => p._id === selectedPlace._id);
+      const freshData = allPlaces.find((p) => p._id === selectedPlace._id);
       if (freshData) {
         setSelectedPlace(freshData);
       }
     }
-  }, [places, selectedPlace]);
+  }, [allPlaces, selectedPlace]);
 
-  // Client-Side Filtering (Price):
-  // Filter locally to maintain immediate responsiveness for the slider (no network lag).
+  // Client-Side Filtering (Price) - Applied to the flattened list
   const filteredPlaces = useMemo(() => {
-    return places.filter((place) => place.priceRange.min <= limit);
-  }, [places, limit]);
+    return allPlaces.filter((place) => place.priceRange.min <= limit);
+  }, [allPlaces, limit]);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     console.log("Searching for:", searchQuery);
-    // Hook automatically triggers on searchQuery change
     Keyboard.dismiss();
-  };
+  }, [searchQuery]);
 
   const openRestaurantModal = (place: Place) => {
     setSelectedPlace(place);
@@ -81,7 +82,6 @@ export default function DirectoryScreen() {
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setLimit(newFilters.limit);
-    // Map zoneMacro to UI state
     if (newFilters.zoneMacro === "inside") setActiveCategory("Inside Campus");
     else if (newFilters.zoneMacro === "outside")
       setActiveCategory("Outside Campus");
@@ -91,22 +91,25 @@ export default function DirectoryScreen() {
     setAmenities(newFilters.amenities);
   };
 
-  // Filter meals within price limit
   const getAffordableMeals = (meals: Meal[]) => {
     return meals.filter((meal) => meal.priceRegular <= limit);
   };
 
-  return (
-    <View style={styles.container}>
-      <ScrollView>
-        {/* Header */}
+  const loadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  // Render Functions
+  const headerContent = useMemo(
+    () => (
+      <View>
         <DirectoryHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           handleSearch={handleSearch}
         />
-
-        {/* Filters Dashboard */}
         <DirectoryFilters
           limit={limit}
           setLimit={setLimit}
@@ -115,44 +118,84 @@ export default function DirectoryScreen() {
           onFilterPress={() => setFilterModalVisible(true)}
         />
 
-        {/* Results Count */}
+        {/* Results Count / Status */}
         <View style={styles.resultsCount}>
-          {isLoading ? (
-            <View style={styles.loaderContainer}>
-              <ActivityIndicator size="large" color={theme.colors.primary} />
-              <Text style={styles.loaderText}>Finding places...</Text>
-            </View>
-          ) : (
+          {!isLoading && (
             <Text style={styles.resultsText}>
               {filteredPlaces.length}{" "}
-              {filteredPlaces.length === 1 ? "place" : "places"} found
+              {filteredPlaces.length === 1 ? "place" : "places"} visible
+              {/* Note: Total count might be higher due to server pagination, 
+                 but "visible" is accurate for client-side price filter context */}
             </Text>
           )}
         </View>
+      </View>
+    ),
+    [
+      searchQuery,
+      limit,
+      activeCategory,
+      isLoading,
+      filteredPlaces.length,
+      handleSearch,
+    ]
+  );
 
-        {/* Restaurant Cards */}
-        {filteredPlaces.length > 0
-          ? filteredPlaces.map((place) => (
-              <PlaceCard
-                key={place._id}
-                place={place}
-                onPress={openRestaurantModal}
-              />
-            ))
-          : !isLoading && (
-              <View style={styles.emptyState}>
-                <Ionicons name="sad-outline" size={64} color="#ccc" />
-                <Text style={styles.emptyTitle}>No places found!</Text>
-                <Text style={styles.emptySubtitle}>
-                  {searchQuery
-                    ? `Try searching for something else or increase your limit.`
-                    : `Increase your limit to discover more places!`}
-                </Text>
-              </View>
-            )}
-      </ScrollView>
+  const renderFooter = () => {
+    if (isFetchingNextPage) {
+      return (
+        <View style={styles.footerLoader}>
+          <ActivityIndicator size="small" color={theme.colors.primary} />
+        </View>
+      );
+    }
+    return <View style={{ height: 20 }} />; // Bottom padding
+  };
 
-      {/* Restaurant Modal */}
+  const renderEmpty = () => {
+    if (isLoading) {
+      // Show Skeletons while initial loading
+      return (
+        <View style={{ paddingHorizontal: theme.spacing.md }}>
+          <PlaceCardSkeleton />
+          <PlaceCardSkeleton />
+          <PlaceCardSkeleton />
+        </View>
+      );
+    }
+
+    // Actual Empty State
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name="sad-outline" size={64} color="#ccc" />
+        <Text style={styles.emptyTitle}>No places found!</Text>
+        <Text style={styles.emptySubtitle}>
+          {searchQuery
+            ? `Try searching for something else.`
+            : `Try adjusting your budget or filters.`}
+        </Text>
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={isLoading ? [] : filteredPlaces} // Use empty array if loading to trigger EmptyComponent (which has skeletons) OR handle skeletons via loading check
+        // Better: Pass empty data when loading, let ListEmptyComponent handle skeletons
+        renderItem={({ item }) => (
+          <PlaceCard place={item} onPress={openRestaurantModal} />
+        )}
+        keyExtractor={(item) => item._id}
+        ListHeaderComponent={headerContent}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        contentContainerStyle={styles.listContent}
+        keyboardShouldPersistTaps="handled" // Improve search UX
+      />
+
       <PlaceDetailModal
         visible={modalVisible}
         place={selectedPlace}
@@ -161,7 +204,6 @@ export default function DirectoryScreen() {
         getAffordableMeals={getAffordableMeals}
       />
 
-      {/* Filter Modal */}
       <FilterModal
         visible={filterModalVisible}
         onClose={() => setFilterModalVisible(false)}
@@ -187,6 +229,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  listContent: {
+    paddingBottom: 20,
   },
   resultsCount: {
     paddingHorizontal: theme.spacing.md,
@@ -214,14 +259,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: theme.spacing.sm,
   },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: "center",
+  footerLoader: {
+    paddingVertical: 20,
     alignItems: "center",
-  },
-  loaderText: {
-    marginTop: theme.spacing.md,
-    color: theme.colors.text.secondary,
-    fontSize: theme.fontSizes.sm,
   },
 });

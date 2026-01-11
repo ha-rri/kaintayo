@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,10 +20,22 @@ export const DirectoryFilters = ({
   setActiveCategory,
   onFilterPress,
 }: DirectoryFiltersProps) => {
+  // Local state for smooth slider dragging
+  const [localLimit, setLocalLimit] = useState(limit);
+
+  // Sync local limit if prop changes (e.g. from Filter Modal)
+  useEffect(() => {
+    setLocalLimit(limit);
+  }, [limit]);
+
   return (
     <View style={styles.container}>
       {/* Top Section: Limit Slider */}
-      <BudgetSlider limit={limit} setLimit={setLimit} />
+      <BudgetSlider
+        limit={localLimit}
+        setLimit={setLocalLimit}
+        onSlidingComplete={(value) => setLimit(value)}
+      />
 
       {/* Bottom Section: Zones + Filter Button */}
       <View style={styles.bottomRow}>

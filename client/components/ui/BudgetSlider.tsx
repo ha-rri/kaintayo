@@ -8,6 +8,7 @@ interface BudgetSliderProps {
   min?: number;
   max?: number;
   step?: number;
+  onSlidingComplete?: (value: number) => void;
 }
 
 export const BudgetSlider = ({
@@ -16,6 +17,7 @@ export const BudgetSlider = ({
   min = 0,
   max = 300,
   step = 10,
+  onSlidingComplete,
 }: BudgetSliderProps) => {
   return (
     <View style={styles.container}>
@@ -33,6 +35,7 @@ export const BudgetSlider = ({
         step={step}
         value={limit}
         onValueChange={setLimit}
+        onSlidingComplete={onSlidingComplete}
         minimumTrackTintColor={theme.colors.primary}
         maximumTrackTintColor={theme.colors.border}
         thumbTintColor={theme.colors.primary}
