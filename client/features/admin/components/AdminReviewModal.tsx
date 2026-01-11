@@ -3,7 +3,6 @@ import {
   Modal,
   View,
   Text,
-  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -15,6 +14,7 @@ import { PendingItem } from "../hooks/usePendingItems";
 import { theme } from "@/lib/theme";
 import { AdminEditModal } from "./AdminEditModal";
 import { useToast } from "@/features/common/context/ToastContext";
+import { AppImage } from "@/components/ui/AppImage";
 
 interface AdminReviewModalProps {
   visible: boolean;
@@ -112,11 +112,7 @@ export default function AdminReviewModal({
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Image
-            source={{ uri: imageUrl || "https://via.placeholder.com/300" }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          <AppImage uri={imageUrl} style={styles.image} resizeMode="cover" />
 
           <View style={styles.details}>
             <View style={styles.badgeRow}>
@@ -342,7 +338,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.xs,
   },
   title: {
-    fontSize: theme.fontSizes.header,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
     color: theme.colors.text.primary,
     marginBottom: 4,
@@ -390,7 +386,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   infoText: {
-    fontSize: theme.fontSizes.md,
+    fontSize: theme.fontSizes.sm,
     color: theme.colors.text.primary,
   },
   chipContainer: {

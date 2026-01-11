@@ -14,11 +14,10 @@ import { useAdminActions } from "./hooks/useAdminActions";
 import PendingItemCard from "./components/PendingItemCard";
 import AdminReviewModal from "./components/AdminReviewModal";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { theme } from "@/lib/theme"; // Import theme
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 export default function AdminPanelScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<"pending" | "reported">("pending");
   const [selectedItem, setSelectedItem] = useState<any | null>(null); // State for modal
@@ -65,17 +64,7 @@ export default function AdminPanelScreen() {
     );
   };
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#fff" />
-      </TouchableOpacity>
-      <View style={styles.headerTitleContainer}>
-        <Text style={styles.headerTitle}>Admin Panel</Text>
-        <Text style={styles.headerSubtitle}>Manage community submissions</Text>
-      </View>
-    </View>
-  );
+  // Header replaced by ScreenHeader component
 
   const renderTabs = () => (
     <View style={styles.tabContainer}>
@@ -162,8 +151,8 @@ export default function AdminPanelScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {renderHeader()}
+    <View style={styles.container}>
+      <ScreenHeader title="Admin Panel" showBackButton={true} />
       {renderTabs()}
       <View style={styles.content}>{renderContent()}</View>
 
@@ -185,35 +174,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: 20,
-    backgroundColor: theme.colors.primary,
-    borderBottomWidth: 0,
-    elevation: theme.shadows.md.elevation,
-  },
-  backButton: {
-    marginRight: 12,
-    marginTop: 4,
-  },
-  headerTitle: {
-    fontSize: theme.fontSizes.xl, // 20
-    fontWeight: "700",
-    color: theme.colors.text.light,
-    textAlign: "left",
-    lineHeight: 28,
-  },
-  headerTitleContainer: {
-    alignItems: "flex-start",
-    flex: 1,
-  },
-  headerSubtitle: {
-    fontSize: theme.fontSizes.sm,
-    color: "rgba(255,255,255,0.9)", // Keep simple rgba for white opacity
-    marginTop: 2,
-  },
+
+  // Header styles removed (now in ScreenHeader)
   tabContainer: {
     flexDirection: "row",
     backgroundColor: theme.colors.surface,

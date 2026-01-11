@@ -1,24 +1,17 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import placeService from "@/features/directory/services/placeService";
 import { Place } from "@/types/Place";
+import { ScreenHeader } from "@/components/ui/ScreenHeader";
 
 import { Meal } from "@/types/Meal";
 import { mealService } from "@/features/directory/services/mealService";
 
 export default function MyContributionsScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
 
@@ -106,48 +99,41 @@ export default function MyContributionsScreen() {
     );
   };
 
+  const renderListHeader = () => (
+    <View style={styles.headerContent}>
+      <Text style={styles.sectionTitle}>Pending Listings</Text>
+      <Text style={styles.sectionDesc}>
+        Items you submitted waiting for admin approval.
+      </Text>
+    </View>
+  );
+
+  const renderEmptyState = () => {
+    if (isLoading) {
+      return <Text style={styles.loadingText}>Loading...</Text>;
+    }
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name="documents-outline" size={48} color="#ddd" />
+        <Text style={styles.emptyText}>No pending items found.</Text>
+      </View>
+    );
+  };
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>My Pending Contributions</Text>
-          <Text style={styles.headerSubtitle}>
-            Manage your pending submissions
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.content}>
-        <Text style={styles.sectionTitle}>Pending Listings</Text>
-        <Text style={styles.sectionDesc}>
-          Items you submitted that are waiting for admin approval.
-        </Text>
-
-        {isLoading ? (
-          <Text style={styles.loadingText}>Loading...</Text>
-        ) : combinedItems && combinedItems.length > 0 ? (
-          <FlatList
-            data={combinedItems}
-            renderItem={renderItem as any}
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={[
-              styles.list,
-              { paddingBottom: insets.bottom + 20 },
-            ]}
-          />
-        ) : (
-          <View style={styles.emptyState}>
-            <Ionicons name="documents-outline" size={48} color="#ddd" />
-            <Text style={styles.emptyText}>No pending items found.</Text>
-          </View>
-        )}
-      </View>
+    <View style={styles.container}>
+      <ScreenHeader title="My Pending Contributions" />
+      <FlatList
+        data={combinedItems}
+        renderItem={renderItem as any}
+        keyExtractor={(item) => item._id}
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={renderEmptyState}
+        contentContainerStyle={[
+          styles.listContainer,
+          { paddingBottom: insets.bottom + 20 },
+        ]}
+      />
     </View>
   );
 }
@@ -157,36 +143,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-    backgroundColor: "#FF6B35", // Brand Orange
-    elevation: 4,
-  },
-  backButton: {
-    marginRight: 12,
-    marginTop: 4, // Alleviate alignment with title
-  },
-  headerTitleContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#fff",
-    lineHeight: 28,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.9)",
-    marginTop: 2,
-  },
-  content: {
+
+  // Header styles removed
+  headerContent: {
+    marginBottom: 0,
     padding: 16,
-    flex: 1,
+    paddingBottom: 0,
   },
   sectionTitle: {
     fontSize: 18,
@@ -200,8 +162,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 20,
   },
-  list: {
+  listContainer: {
+    padding: 16,
     paddingBottom: 20,
+    flexGrow: 1, // Ensures Empty State centers properly if needed
   },
   card: {
     backgroundColor: "#fff",
