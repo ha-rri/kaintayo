@@ -71,6 +71,8 @@ export default function DirectoryScreen() {
     return data?.pages.flatMap((page) => page.data) || [];
   }, [data]);
 
+  const totalCount = data?.pages?.[0]?.meta?.total || 0;
+
   // Sync selectedPlace with fresh data
   useEffect(() => {
     if (selectedPlace) {
@@ -198,8 +200,7 @@ export default function DirectoryScreen() {
                   />
                 ) : (
                   <Text style={styles.resultsText}>
-                    {filteredPlaces.length}{" "}
-                    {filteredPlaces.length === 1 ? "place" : "places"} visible
+                    {totalCount} {totalCount === 1 ? "place" : "places"} found
                   </Text>
                 )}
               </View>
@@ -234,8 +235,8 @@ export default function DirectoryScreen() {
       activeCategory,
       searchQuery,
       handleSearch,
-      filteredPlaces.length,
       bufferedLoading,
+      totalCount,
     ]
   );
 

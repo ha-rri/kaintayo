@@ -12,7 +12,8 @@ export function useShake(
   budget: number,
   zone: Zone,
   categories: string[] = [],
-  amenities: string[] = []
+  amenities: string[] = [],
+  enabled: boolean = true
 ) {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isShaking, setIsShaking] = useState(false);
@@ -74,8 +75,8 @@ export function useShake(
 
   // 2. Physical Shake Subscription
   useEffect(() => {
-    // Only listen if we have matches and are NOT currently shaking
-    if (matchedPlacesCount === 0 || isShaking) return;
+    // Only listen if enabled, we have matches and are NOT currently shaking
+    if (!enabled || matchedPlacesCount === 0 || isShaking) return;
 
     // Throttle Update Interval
     Accelerometer.setUpdateInterval(100);
@@ -94,7 +95,7 @@ export function useShake(
     return () => {
       subscription && subscription.remove();
     };
-  }, [matchedPlacesCount, isShaking, handleShake]);
+  }, [matchedPlacesCount, isShaking, handleShake, enabled]);
 
   const handleReset = () => {
     setSelectedPlace(null);

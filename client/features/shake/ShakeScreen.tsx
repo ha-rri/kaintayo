@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { theme } from "@/lib/theme";
+import { useIsFocused } from "@react-navigation/native";
 import { Zone } from "./types";
 import { useShake } from "./hooks/useShake";
 
@@ -31,7 +32,7 @@ export default function ShakeScreen() {
     isShaking,
     handleShake,
     handleReset,
-  } = useShake(budget, selectedZone, categories, amenities);
+  } = useShake(budget, selectedZone, categories, amenities, useIsFocused());
 
   const handleApplyFilters = (newFilters: FilterState) => {
     setBudget(newFilters.limit);
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     paddingBottom: 20,
-    marginTop: 60, // Fixed separation instead of flex-gap
+    marginTop: 30, // Fixed separation instead of flex-gap
   },
   statusPill: {
     backgroundColor: "#FFF0E6", // Light Orange
