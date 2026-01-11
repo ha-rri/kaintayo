@@ -1,36 +1,51 @@
-import { useState, useEffect } from 'react';
-import { Vibration } from 'react-native'; 
-import { getRandomPlace, getMatchedPlacesCount } from '../services/randomPlaceService';
-import { Place, Zone } from '../types';
+import { useState } from "react";
+import { Vibration } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { shakeService } from "../services/shakeService";
+import { Place } from "@/types/Place";
+import { Zone } from "../types";
 
-export function useShake(budget: number, zone: Zone) {
-  const [matchedPlacesCount, setMatchedPlacesCount] = useState(0);
+export function useShake(
+  budget: number,
+  zone: Zone,
+  categories: string[] = [],
+  amenities: string[] = []
+) {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [isShaking, setIsShaking] = useState(false);
 
-  useEffect(() => {
-    updateMatchedCount();
-  }, [budget, zone]);
-
-  const updateMatchedCount = async () => {
-    const count = await getMatchedPlacesCount(budget, zone);
-    setMatchedPlacesCount(count);
-  };
+  // 1. Live Match Count
+  const { data: matchedPlacesCount = 0 } = useQuery({
+    queryKey: ["shake", "count", budget, zone, categories, amenities],
+    queryFn: () =>
+      shakeService.getMatchCount({ budget, zone, categories, amenities }),
+    staleTime: 5000,
+  });
 
   const handleShake = async () => {
     if (matchedPlacesCount === 0) return;
 
     setIsShaking(true);
     setSelectedPlace(null);
-    Vibration.vibrate(100); 
+    Vibration.vibrate(100);
 
-    // ✅ UPDATED: Increased to 5 seconds (5000ms)
-    // This gives the animation plenty of time to show the "Kainan Found" state
+    // Animate for 5s, then reveal result
     setTimeout(async () => {
-      const place = await getRandomPlace(budget, zone);
-      setSelectedPlace(place);
-      setIsShaking(false);
-    }, 5000); 
+      try {
+        const place = await shakeService.getRandomPlace({
+          budget,
+          zone,
+          categories,
+          amenities,
+        });
+        setSelectedPlace(place);
+      } catch (err) {
+        console.error("Shake Failed:", err);
+        // Could show error toast here
+      } finally {
+        setIsShaking(false);
+      }
+    }, 5000);
   };
 
   const handleReset = () => {

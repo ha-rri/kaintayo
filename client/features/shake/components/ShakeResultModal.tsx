@@ -1,7 +1,16 @@
-import React from 'react';
-import { View, Text, Modal, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  Modal,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 // Removed Ionicons import
-import { Place } from '../types';
+import { Place } from "@/types/Place"; // ✅ Use Global Type
+import { AppImage } from "@/components/ui/AppImage"; // ✅ Use AppImage
 
 interface ShakeResultModalProps {
   visible: boolean;
@@ -10,20 +19,24 @@ interface ShakeResultModalProps {
   onAccept: () => void;
 }
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
-export default function ShakeResultModal({ visible, place, onClose, onAccept }: ShakeResultModalProps) {
+export default function ShakeResultModal({
+  visible,
+  place,
+  onClose,
+  onAccept,
+}: ShakeResultModalProps) {
   if (!place) return null;
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false}>
       <View style={styles.container}>
-        
         {/* 1. Header Section */}
         <View style={styles.header}>
           {/* ✅ UPDATED: Using the new image logo */}
-          <Image 
-            source={require('../../../assets/images/icons/shake-logo.png')} 
+          <Image
+            source={require("../../../assets/images/icons/shake-logo.png")}
             style={styles.headerLogo}
           />
           <Text style={styles.headerTitle}>We Picked...</Text>
@@ -32,11 +45,17 @@ export default function ShakeResultModal({ visible, place, onClose, onAccept }: 
         {/* ... (rest of the component remains the same) ... */}
         <View style={styles.content}>
           <View style={styles.imageContainer}>
-            <Image source={{ uri: place.image }} style={styles.image} resizeMode="cover" />
+            <AppImage
+              uri={place.coverImage}
+              style={styles.image}
+              resizeMode="cover"
+            />
             <View style={styles.detailsCard}>
               <View style={styles.textGroup}>
                 <Text style={styles.placeName}>{place.name}</Text>
-                <Text style={styles.placeLandmark}>{place.location.landmark}</Text>
+                <Text style={styles.placeLandmark}>
+                  {place.nearestLandmark || "Unknown Location"}
+                </Text>
               </View>
               <View style={styles.priceBadge}>
                 <Text style={styles.priceText}>
@@ -54,11 +73,10 @@ export default function ShakeResultModal({ visible, place, onClose, onAccept }: 
             <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
               <Text style={styles.secondaryButtonText}>Shake Again</Text>
             </TouchableOpacity>
-            
+
             <Text style={styles.subtext}>Not Satisfied? Shake Again!</Text>
           </View>
         </View>
-
       </View>
     </Modal>
   );
@@ -67,56 +85,56 @@ export default function ShakeResultModal({ visible, place, onClose, onAccept }: 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   header: {
-    backgroundColor: 'white',
-    height: '25%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "white",
+    height: "25%",
+    justifyContent: "center",
+    alignItems: "center",
     paddingTop: 40,
   },
   // ✅ ADDED: Style for the logo in the modal header
   headerLogo: {
     width: 60,
     height: 60,
-    resizeMode: 'contain',
+    resizeMode: "contain",
     marginBottom: 10,
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: '800',
-    color: '#333',
+    fontWeight: "800",
+    color: "#333",
   },
   // ... (rest of the styles remain the same) ...
   content: {
     flex: 1,
-    backgroundColor: '#E5E5E5',
-    alignItems: 'center',
+    backgroundColor: "#E5E5E5",
+    alignItems: "center",
   },
   imageContainer: {
     width: width,
     height: 300,
-    position: 'relative',
+    position: "relative",
     marginTop: -20,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   detailsCard: {
-    position: 'absolute',
+    position: "absolute",
     bottom: -30,
     left: 20,
     right: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 16,
     padding: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -126,60 +144,60 @@ const styles = StyleSheet.create({
   },
   placeName: {
     fontSize: 20,
-    fontWeight: '800',
-    color: '#333',
+    fontWeight: "800",
+    color: "#333",
     marginBottom: 4,
   },
   placeLandmark: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   priceBadge: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
   },
   priceText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 12,
   },
   actions: {
     marginTop: 80,
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 20,
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: "#FF6B35",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 2,
   },
   primaryButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   secondaryButton: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: "#DDD",
   },
   secondaryButtonText: {
-    color: '#333',
+    color: "#333",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   subtext: {
-    textAlign: 'center',
-    color: '#999',
+    textAlign: "center",
+    color: "#999",
     marginTop: 10,
     fontSize: 14,
   },

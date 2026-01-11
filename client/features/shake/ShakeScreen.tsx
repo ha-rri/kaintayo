@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from "./styles/shake.styles";
 import { Zone } from "./types";
 import { useShake } from "./hooks/useShake";
@@ -10,11 +10,15 @@ import ZoneSelector from "./components/ZoneSelector";
 import MatchCounter from "./components/MatchCounter";
 import ShakeButton from "./components/ShakeButton";
 import ShakeResultModal from "./components/ShakeResultModal";
-import ShakeAnimationOverlay from "./components/ShakeAnimationOverlay"; // ✅ Imported
+import ShakeAnimationOverlay from "./components/ShakeAnimationOverlay";
+import { FilterModal, FilterState } from "@/components/ui/FilterModal";
 
 export default function ShakeScreen() {
   const [budget, setBudget] = useState(150);
   const [selectedZone, setSelectedZone] = useState<Zone>("All");
+  const [categories, setCategories] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
 
   const {
     matchedPlacesCount,
@@ -22,7 +26,20 @@ export default function ShakeScreen() {
     isShaking,
     handleShake,
     handleReset,
-  } = useShake(budget, selectedZone);
+  } = useShake(budget, selectedZone, categories, amenities);
+
+  const handleApplyFilters = (newFilters: FilterState) => {
+    setBudget(newFilters.limit);
+
+    // Map backend 'zoneMacro' back to frontend 'Zone'
+    if (newFilters.zoneMacro === "inside") setSelectedZone("Inside Campus");
+    else if (newFilters.zoneMacro === "outside")
+      setSelectedZone("Outside Campus");
+    else setSelectedZone("All");
+
+    setCategories(newFilters.categories);
+    setAmenities(newFilters.amenities);
+  };
 
   return (
     <View style={styles.container}>
@@ -34,7 +51,6 @@ export default function ShakeScreen() {
             Can&apos;t decide? Let us shake it for you
           </Text>
         </View>
-        {/* We hide the text reset button here because the Modal handles it now */}
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -46,6 +62,7 @@ export default function ShakeScreen() {
           <ZoneSelector
             selectedZone={selectedZone}
             onZoneChange={setSelectedZone}
+            onFilterPress={() => setFilterModalVisible(true)}
           />
           <MatchCounter count={matchedPlacesCount} />
         </View>
@@ -59,18 +76,37 @@ export default function ShakeScreen() {
       </ScrollView>
 
       {/* Result Modal (Shows AFTER animation finishes) */}
-      <ShakeResultModal 
+      <ShakeResultModal
         visible={selectedPlace !== null}
         place={selectedPlace}
-        onClose={handleReset} 
+        onClose={handleReset}
         onAccept={() => {
-            Alert.alert("Enjoy!", `Navigating to ${selectedPlace?.name}...`);
-            handleReset();
+          Alert.alert("Enjoy!", `Navigating to ${selectedPlace?.name}...`);
+          handleReset();
         }}
       />
 
-      {/* ✅ Animation Overlay (Shows DURING shaking) */}
+      {/* Animation Overlay (Shows DURING shaking) */}
       <ShakeAnimationOverlay visible={isShaking} />
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={handleApplyFilters}
+        initialFilters={{
+          limit: budget,
+          zoneMacro:
+            selectedZone === "Inside Campus"
+              ? "inside"
+              : selectedZone === "Outside Campus"
+              ? "outside"
+              : "all",
+          categories,
+          amenities,
+        }}
+        maxPrice={300}
+      />
     </View>
   );
 }
