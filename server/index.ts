@@ -15,6 +15,7 @@ import placeRoutes from "./routes/placeRoutes.js";
 import mealRoutes from "./routes/mealRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import shakeRoutes from "./routes/shakeRoutes.js";
 
 // Load env vars
 dotenv.config();
@@ -55,6 +56,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/places", placeRoutes);
 app.use("/api/v1/meals", mealRoutes);
 app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/shake", shakeRoutes);
 
 // Error Handler
 app.use(errorHandler);
